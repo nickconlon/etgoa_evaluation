@@ -4,6 +4,8 @@ import numpy as np
 
 def make_plots(save_path=None):
     """
+    Note this is just generating fake data to get the plots right
+
     Usability:
         H1.1 -> C2/C3 > C1
         H1.2 -> C3 > C2
@@ -15,6 +17,7 @@ def make_plots(save_path=None):
         H3.1 -> C2/C3 > C1 after planning
         H3.2 -> C2/C3 > C1 after execution
     """
+
     usability = [np.random.normal(loc=25, scale=10, size=10),
                  np.random.normal(loc=50, scale=10, size=10),
                  np.random.normal(loc=75, scale=10, size=10)]
