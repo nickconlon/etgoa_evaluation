@@ -10,15 +10,32 @@ from .test_ui import Ui_MainWindow
 
 
 class MissionControl:
+    OKAY = 'okay'
+    GPS = 'gps'
+    BATTERY = 'battery'
+    OBSTACLE = 'obstacle'
+    EVERYTHING = 'everything'
+
     def __init__(self):
-        self.questions = ['What is the weather like today at the survey site?',
-                          'What POI is the robot currently surveying?',
-                          'Do you have a visual on the robot?']
+        self.help_requests = {"": None,
+                              "I need help diagnosing everything": self.EVERYTHING,
+                              "I need help diagnosing robot position issues": self.GPS,
+                              "I need help diagnosing robot battery issues": self.BATTERY,
+                              "I need help with an obstacle blocking the robot": self.OBSTACLE}
 
         self.help_responses = {
-            'GPS': 'Please have the robot to stop. Then set the GPS to frequency 45,98. Then have the robot continue.',
-            'Battery': 'Please have the robot to stop. Then tell the robot to use backup battery 3. Then have the robot continue.',
-            'Obstacle': 'Please switch to manual control and drive the robot around the obstacle and to the next waypoint. Then return control to the robot'}
+            self.OKAY: '{} looks fine to us',
+            self.GPS: 'Please follow this procedure:\n\nInstruct the robot to stop. Next, set the GPS to frequency 34. Then instruct the robot continue.',
+            self.BATTERY: 'Please follow this procedure:\n\nInstruct the robot to stop. Next, switch to backup battery 3. Then set power to 75. Then instruct the robot continue.',
+            self.OBSTACLE: 'Please follow this procedure:\n\nInstruct the robot to stop. Next, switch to manual control and drive the robot around the obstacle and to the next waypoint. Then return control to the robot'}
+
+        self.current_issue = self.BATTERY
+
+    def get_response(self, issue):
+        if self.current_issue == issue:
+            return self.help_responses[issue]
+        else:
+            return self.help_responses[self.OKAY].format(issue)
 
 
 class ControlModeState:
@@ -138,8 +155,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.mode_text.setText(text)
 
     def update_position_text(self):
-        text = '{:.2f} Lat | {:.2f} Lon | {:.2f} Alt'.format(*self.position)
-        self.position_text.setText(text)
+        self.latitude_label.setText('Lat: {:.10f}'.format(self.position[0]))
+        self.longitude_label.setText('Lon: {:.10f}'.format(self.position[1]))
+        self.altitude_label.setText('Alt:  {:.10f}'.format(self.position[2]))
 
     def update_heading_text(self):
         heading = self.heading
@@ -159,7 +177,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             desc = 'West'
         elif 292.5 <= heading < 337.5:
             desc = 'North West'
-        elif 337.5 <= heading < 0:
+        elif 337.5 <= heading < 360:
             desc = 'North'
         else:
             desc = 'Error'
@@ -171,8 +189,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.velocity_text.setText(text)
 
     def update_battery_text(self):
-        battery_time = self.battery_remaining * (1 / 2)  # TODO
-        text = '{:03.0f}% | {:.2f} remaining'.format(self.battery_remaining, battery_time)
+        text = '{}%'.format(self.battery_remaining)
         self.battery_text.setText(text)
 
     def update_time_text(self):
@@ -182,7 +199,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         secs = mission_time.total_seconds()
         textm = "{}".format(str(int(mins)).rjust(2, "0"))
         texts = "{}".format(str(int(secs)).rjust(2, "0"))
-        text = '{}:{} into {} | {}'.format(textm, texts, self.mission_mode, now.strftime("%H:%M:%S"))
+        text = '{}:{} into {} | {} MT'.format(textm, texts, self.mission_mode, now.strftime("%H:%M:%S"))
         self.time_text.setText(text)
 
     def update_robot_power_callback(self):
