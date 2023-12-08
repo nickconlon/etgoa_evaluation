@@ -24,6 +24,7 @@ class InterfaceImpl(BaseInterface):
         self.ui_connected_indicator.setStyleSheet('background-color: green')
         self.request_mission_control_help_button.clicked.connect(self.test_mission_control_questions)
         self.test_position_update()
+        self.select_poi_order_button.clicked.connect(self.test_competency_assessment)
 
     def test_mission_control_questions(self):
         help_with = self.mission_control_help_selector.currentText()
@@ -36,6 +37,11 @@ class InterfaceImpl(BaseInterface):
         self.heading = 337
         self.velocity = 0.5
         self.battery_remaining = 90
+
+    def test_competency_assessment(self):
+        # TODO ET-GOA: "because <unexpected state>"
+        if self.poi_selection.currentText() != "":
+            self.update_competency_assessment()
 
 
 if __name__ == '__main__':

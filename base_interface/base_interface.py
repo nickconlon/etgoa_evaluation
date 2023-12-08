@@ -277,6 +277,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
     def run_competency_assessment(self):
         print('running competency assessment')
 
+    def update_competency_assessment(self):
+        self.splash_of_color(self.competency_assessment_frame)
+
     def splash_of_color(self, obj, color='green', timeout=500):
         style_sheet = obj.styleSheet()
         obj.setStyleSheet('background-color: {}'.format(color))

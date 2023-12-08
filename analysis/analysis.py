@@ -1,8 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 
-def make_plots(save_path=None):
+def make_plots(df, save_path=None):
     """
     Note this is just generating fake data to get the plots right
 
@@ -17,65 +18,33 @@ def make_plots(save_path=None):
         H3.1 -> C2/C3 > C1 after planning
         H3.2 -> C2/C3 > C1 after execution
     """
-
-    usability = [np.random.normal(loc=25, scale=10, size=10),
-                 np.random.normal(loc=50, scale=10, size=10),
-                 np.random.normal(loc=75, scale=10, size=10)]
-
-    perf_response_time = [np.random.normal(loc=25, scale=5, size=10),
-                          np.random.normal(loc=25, scale=5, size=10),
-                          np.random.normal(loc=5, scale=5, size=10)]
-    perf_response_accuracy = [np.random.normal(loc=25, scale=10, size=10),
-                              np.random.normal(loc=25, scale=10, size=10),
-                              np.random.normal(loc=75, scale=10, size=10)]
-    perf_task_accuracy = [np.random.normal(loc=25, scale=10, size=10),
-                          np.random.normal(loc=25, scale=10, size=10),
-                          np.random.normal(loc=75, scale=10, size=10)]
-
-    trust_baseline = [np.random.normal(loc=0.2, scale=0.1, size=10),
-                      np.random.normal(loc=0.2, scale=0.1, size=10),
-                      np.random.normal(loc=0.2, scale=0.1, size=10)]
-
-    trust_planning = [np.random.normal(loc=0.2, scale=0.1, size=10),
-                      np.random.normal(loc=0.5, scale=0.1, size=10),
-                      np.random.normal(loc=0.5, scale=0.1, size=10)]
-
-    trust_execution = [np.random.normal(loc=0.2, scale=0.1, size=10),
-                       np.random.normal(loc=0.3, scale=0.1, size=10),
-                       np.random.normal(loc=0.8, scale=0.1, size=10)]
+    trust_baseline = [df.loc[df['condition'] == c]['baseline trust'].tolist() for c in [0, 1, 2]]
+    trust_planning = [df.loc[df['condition'] == c]['post planning trust'].tolist() for c in [0, 1, 2]]
+    trust_execution = [df.loc[df['condition'] == c]['post execution trust'].tolist() for c in [0, 1, 2]]
     plot_trust(trust_baseline, trust_planning, trust_execution, save_path)
+
+    usability = [df.loc[df['condition'] == c]['usability'].tolist() for c in [0, 1, 2]]
     plot_usability(usability, save_path)
-    plot_performance(perf_response_time, perf_response_accuracy, perf_task_accuracy, save_path)
+
+    anomaly_resp_time = [df.loc[df['condition'] == c]['anomaly resp'].tolist() for c in [0, 1, 2]]
+    anomaly_resp_acc = [df.loc[df['condition'] == c]['anomaly accuracy'].tolist() for c in [0, 1, 2]]
+    task_score = [df.loc[df['condition'] == c]['task score'].tolist() for c in [0, 1, 2]]
+    plot_performance(anomaly_resp_time, anomaly_resp_acc, task_score, save_path)
 
 
 def define_box_properties(plot_name, color_code, label):
-    # each plot returns a dictionary, use plt.setp()
-    # function to assign the color code
-    # for all properties of the box plot of particular group
-    # use the below function to set color for particular group,
-    # by iterating over all properties of the box plot
     for k, v in plot_name.items():
         plt.setp(plot_name.get(k), color='black')
     for patch in plot_name['boxes']:
         patch.set_facecolor(color_code)
-    # use plot function to draw a small line to name the legend.
     plt.plot([], c=color_code, label=label)
 
 
 def plot_performance(perf_response_time, perf_response_accuracy, perf_task_score, save_path):
     fig = plt.Figure(figsize=(8, 5))
-    # create 2 - sample a 3-Dim array, that measures
-    # the summer and winter rain fall amount
-    # the list named ticks, summarizes or groups
-    # the summer and winter rainfall as low, mid
-    # and high
     ticks = ['C1', 'C2', 'C3']
     colors = ['red', 'orange', 'blue']
-    # create a boxplot for two arrays separately,
-    # the position specifies the location of the
-    # particular box in the graph,
-    # this can be changed as per your wish. Use width
-    # to specify the width of the plot
+
     response_time = plt.boxplot(perf_response_time,
                                 positions=np.array(np.arange(len(perf_response_time))) * 3.0 - 2 * 0.3,
                                 widths=0.5,
@@ -143,7 +112,7 @@ def plot_usability(usability, save_path):
     plt.xlim(0, 4)
     plt.axhline(y=68, linestyle='--', color='black')
     plt.text(x=0.1, y=69, s='Highly usable')
-    #plt.legend()
+    # plt.legend()
     plt.title('Subjective Usability')
     if save_path is not None:
         plt.savefig(save_path)
@@ -152,18 +121,10 @@ def plot_usability(usability, save_path):
 
 def plot_trust(trust_baseline, trust_planning, trust_execution, save_path):
     fig = plt.Figure(figsize=(8, 5))
-    # create 2 - sample a 3-Dim array, that measures
-    # the summer and winter rain fall amount
-    # the list named ticks, summarizes or groups
-    # the summer and winter rainfall as low, mid
-    # and high
+
     ticks = ['C1', 'C2', 'C3']
     colors = ['red', 'orange', 'blue']
-    # create a boxplot for two arrays separately,
-    # the position specifies the location of the
-    # particular box in the graph,
-    # this can be changed as per your wish. Use width
-    # to specify the width of the plot
+
     trust_baseline_plot = plt.boxplot(trust_baseline,
                                       positions=np.array(np.arange(len(trust_baseline))) * 3.0 - 2 * 0.3,
                                       widths=0.5,
@@ -202,5 +163,5 @@ def plot_trust(trust_baseline, trust_planning, trust_execution, save_path):
 
 
 if __name__ == '__main__':
-    path = ""
-    make_plots()
+    data = pd.read_csv('../data/test_data.csv')
+    make_plots(data)
