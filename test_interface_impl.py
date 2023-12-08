@@ -13,18 +13,14 @@ class InterfaceImpl(BaseInterface):
         BaseInterface.__init__(self)
         self.img_path = 'base_interface/mission_area.png'
         self.label_21.setPixmap(QtGui.QPixmap(self.img_path))
-        self.poi_selection.addItems(["",
-                                     "A->B->C->D",
-                                     "A->B->C",
-                                     "A->B->D",
-                                     "A->C->D"])
+        self.poi_selection.addItems(["", "A", "B", "C", "D"])
         self.mission_control_help_selector.addItems(self.mission_control.help_requests.keys())
         self.num_backup_batteries = 5
         self.robot_battery_slider.setMaximum(self.num_backup_batteries)
-        self.ui_connected_indicator.setStyleSheet('background-color: green')
         self.request_mission_control_help_button.clicked.connect(self.test_mission_control_questions)
         self.test_position_update()
         self.select_poi_order_button.clicked.connect(self.test_competency_assessment)
+        self.ui_connected = True
 
     def test_mission_control_questions(self):
         help_with = self.mission_control_help_selector.currentText()
