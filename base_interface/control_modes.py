@@ -7,8 +7,7 @@ class ControlModeState:
     automatic = 5
     manual = 6
 
-    descriptions = ['Driving', 'Stopped', 'Planning', 'Execution', 'Assessing', 'Automatic',
-                    'Manual']
+    descriptions = ['Driving', 'Stopped', 'Planning', 'Execution', 'Assessing', 'Automatic', 'Manual']
 
     def __init__(self, mode):
         self.state = mode

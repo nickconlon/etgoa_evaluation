@@ -3,7 +3,7 @@ import PyQt5.QtCore as QtCore
 import sys
 from datetime import datetime
 
-from mission_management import MissionManager
+from base_interface.mission_management import MissionManager
 from base_interface.control_modes import ControlModeState
 from mission_control.mission_control import MissionControl
 from base_interface.ui import Ui_MainWindow
@@ -44,8 +44,10 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
         #################
         # Setup the Mission Planning Panel
-        self.POI_selected = None
+        self.poi_selected = None
         self.accept_poi_order_button.clicked.connect(lambda: self.splash_of_color(self.accept_poi_order_button))
+        self.accept_poi_order_button.clicked.connect(self.accept_poi_callback)
+        self.poi_selection.currentTextChanged.connect(self.select_poi_callback)
 
         #################
         # Setup the Robot Control panel
@@ -182,12 +184,19 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.mission_mode.state = new_state
         self.update_mission_mode_text()
 
-    def poi_select_callback(self):
-        self.POI_selected = self.poi_selection.currentText() 
-        print(self.POI_selected)
-        self.run_competency_assessment()
+    def select_poi_callback(self):
+        self.poi_selected = self.poi_selection.currentText()
+        print(self.poi_selected)
+        # get POI position
+        # get robot position
+        # start splash of POI box
+        # thread -> self.run_competency_assessment()
+        # end splash of POI box
+        # start splash of competency box
+        # thread -> self.run_competency_assessment()
+        # end splash of competency box
 
-    def proceed_to_execution_callback(self):
+    def accept_poi_callback(self):
         self.mission_mode.state = ControlModeState.execution
 
     def update_mission_control_text(self, text):
@@ -201,18 +210,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
     def request_mission_control_help_callback(self):
         print('asking for some help.')
-
-    def teleop_forward_callback(self):
-        print('teleoperation forward')
-
-    def teleop_back_callback(self):
-        print('teleoperation backward')
-
-    def teleop_left_callback(self):
-        print('teleoperation left')
-
-    def teleop_right_callback(self):
-        print('teleoperation right')
 
     def run_competency_assessment(self):
         print('running competency assessment')
