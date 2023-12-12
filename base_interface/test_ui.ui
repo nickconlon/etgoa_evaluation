@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1330</width>
-    <height>695</height>
+    <height>594</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -214,7 +214,7 @@
       <rect>
        <x>0</x>
        <y>0</y>
-       <width>381</width>
+       <width>351</width>
        <height>31</height>
       </rect>
      </property>
@@ -226,7 +226,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Telemetry</string>
+      <string>Robot Telemetry</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -264,6 +264,7 @@
      </property>
      <property name="font">
       <font>
+       <family>MS Shell Dlg 2</family>
        <pointsize>10</pointsize>
       </font>
      </property>
@@ -313,9 +314,9 @@
     <widget class="QWidget" name="verticalLayoutWidget">
      <property name="geometry">
       <rect>
-       <x>90</x>
+       <x>104</x>
        <y>35</y>
-       <width>241</width>
+       <width>231</width>
        <height>71</height>
       </rect>
      </property>
@@ -407,7 +408,7 @@
     <property name="geometry">
      <rect>
       <x>930</x>
-      <y>390</y>
+      <y>20</y>
       <width>381</width>
       <height>251</height>
      </rect>
@@ -418,30 +419,6 @@
     <property name="frameShadow">
      <enum>QFrame::Plain</enum>
     </property>
-    <widget class="QLabel" name="famsec_confidence_text">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>40</y>
-       <width>371</width>
-       <height>211</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-      </font>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
-     <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;Survey site arrival:&lt;/span&gt; Highly Likely&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;Battery level &amp;gt; 50%:&lt;/span&gt; Highly Likely&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;All obstacles avoided:&lt;/span&gt; Likely&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;Survey complete &amp;lt; 10mins:&lt;/span&gt; Highly Likely&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;Survey quality &amp;gt; 90%:&lt;/span&gt; Even Chance&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
     <widget class="QLabel" name="label_2">
      <property name="geometry">
       <rect>
@@ -468,6 +445,242 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
+    <widget class="QLabel" name="label_6">
+     <property name="geometry">
+      <rect>
+       <x>250</x>
+       <y>40</y>
+       <width>121</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_7">
+     <property name="geometry">
+      <rect>
+       <x>250</x>
+       <y>80</y>
+       <width>121</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_8">
+     <property name="geometry">
+      <rect>
+       <x>250</x>
+       <y>120</y>
+       <width>121</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_15">
+     <property name="geometry">
+      <rect>
+       <x>250</x>
+       <y>160</y>
+       <width>121</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_16">
+     <property name="geometry">
+      <rect>
+       <x>250</x>
+       <y>200</y>
+       <width>121</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_17">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>160</y>
+       <width>361</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+      </font>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="text">
+      <string>Survey complete &lt; 10mins:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_23">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>80</y>
+       <width>361</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+      </font>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="text">
+      <string>Battery level &gt; 50%:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_24">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>120</y>
+       <width>361</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+      </font>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="text">
+      <string>All obstacles avoided:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_25">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>361</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+      </font>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="text">
+      <string>Survey site arrival:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_26">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>200</y>
+       <width>361</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+      </font>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="text">
+      <string>Survey quality &gt; 90%</string>
+     </property>
+    </widget>
+    <zorder>label_2</zorder>
+    <zorder>label_17</zorder>
+    <zorder>label_23</zorder>
+    <zorder>label_24</zorder>
+    <zorder>label_25</zorder>
+    <zorder>label_26</zorder>
+    <zorder>label_15</zorder>
+    <zorder>label_6</zorder>
+    <zorder>label_16</zorder>
+    <zorder>label_7</zorder>
+    <zorder>label_8</zorder>
    </widget>
    <widget class="QFrame" name="frame_5">
     <property name="geometry">
@@ -556,7 +769,7 @@
       <rect>
        <x>40</x>
        <y>80</y>
-       <width>51</width>
+       <width>91</width>
        <height>21</height>
       </rect>
      </property>
@@ -569,7 +782,7 @@
       <rect>
        <x>40</x>
        <y>120</y>
-       <width>51</width>
+       <width>91</width>
        <height>21</height>
       </rect>
      </property>
@@ -582,7 +795,7 @@
       <rect>
        <x>40</x>
        <y>160</y>
-       <width>51</width>
+       <width>91</width>
        <height>21</height>
       </rect>
      </property>
@@ -618,7 +831,7 @@
       <rect>
        <x>40</x>
        <y>200</y>
-       <width>51</width>
+       <width>91</width>
        <height>21</height>
       </rect>
      </property>
@@ -647,7 +860,7 @@
       <rect>
        <x>40</x>
        <y>40</y>
-       <width>51</width>
+       <width>91</width>
        <height>21</height>
       </rect>
      </property>
@@ -660,9 +873,9 @@
     <property name="geometry">
      <rect>
       <x>930</x>
-      <y>20</y>
+      <y>280</y>
       <width>381</width>
-      <height>361</height>
+      <height>211</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -698,7 +911,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>80</y>
+       <y>30</y>
        <width>361</width>
        <height>31</height>
       </rect>
@@ -716,8 +929,8 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>320</y>
-       <width>361</width>
+       <y>170</y>
+       <width>181</width>
        <height>31</height>
       </rect>
      </property>
@@ -730,37 +943,13 @@
       <string>Send Message</string>
      </property>
     </widget>
-    <widget class="QLabel" name="mission_control_update_prompt">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>120</y>
-       <width>361</width>
-       <height>81</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-      </font>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::Box</enum>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
     <widget class="QPlainTextEdit" name="mission_control_update_text">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>210</y>
+       <y>70</y>
        <width>361</width>
-       <height>101</height>
+       <height>91</height>
       </rect>
      </property>
      <property name="font">
@@ -769,14 +958,22 @@
       </font>
      </property>
     </widget>
-    <widget class="QComboBox" name="mission_control_help_selector">
+    <widget class="QPushButton" name="clera_mission_control_text_button">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>40</y>
-       <width>361</width>
+       <x>200</x>
+       <y>170</y>
+       <width>171</width>
        <height>31</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Clear text</string>
      </property>
     </widget>
    </widget>
@@ -786,7 +983,7 @@
       <x>530</x>
       <y>350</y>
       <width>391</width>
-      <height>291</height>
+      <height>191</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -799,7 +996,7 @@
      <property name="geometry">
       <rect>
        <x>270</x>
-       <y>220</y>
+       <y>100</y>
        <width>111</width>
        <height>61</height>
       </rect>
@@ -812,7 +1009,7 @@
      <property name="geometry">
       <rect>
        <x>270</x>
-       <y>182</y>
+       <y>62</y>
        <width>111</width>
        <height>31</height>
       </rect>
@@ -822,7 +1019,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>182</y>
+       <y>62</y>
        <width>111</width>
        <height>31</height>
       </rect>
@@ -832,7 +1029,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>230</y>
+       <y>110</y>
        <width>111</width>
        <height>41</height>
       </rect>
@@ -848,7 +1045,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>120</y>
+       <y>0</y>
        <width>111</width>
        <height>51</height>
       </rect>
@@ -872,7 +1069,7 @@
      <property name="geometry">
       <rect>
        <x>180</x>
-       <y>220</y>
+       <y>100</y>
        <width>41</width>
        <height>61</height>
       </rect>
@@ -888,7 +1085,7 @@
      <property name="geometry">
       <rect>
        <x>140</x>
-       <y>182</y>
+       <y>62</y>
        <width>111</width>
        <height>31</height>
       </rect>
@@ -898,7 +1095,7 @@
      <property name="geometry">
       <rect>
        <x>150</x>
-       <y>120</y>
+       <y>0</y>
        <width>101</width>
        <height>51</height>
       </rect>
@@ -922,7 +1119,7 @@
      <property name="geometry">
       <rect>
        <x>270</x>
-       <y>120</y>
+       <y>0</y>
        <width>111</width>
        <height>51</height>
       </rect>
@@ -942,94 +1139,6 @@
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="QPushButton" name="teleop_left_button">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>40</y>
-       <width>111</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Left</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="teleop_back_button">
-     <property name="geometry">
-      <rect>
-       <x>140</x>
-       <y>70</y>
-       <width>111</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Backward</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="teleop_forward_button">
-     <property name="geometry">
-      <rect>
-       <x>140</x>
-       <y>10</y>
-       <width>111</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Forward</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="teleop_right_button">
-     <property name="geometry">
-      <rect>
-       <x>260</x>
-       <y>40</y>
-       <width>111</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Right</string>
-     </property>
-    </widget>
-    <widget class="Line" name="line_3">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>110</y>
-       <width>391</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Plain</enum>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
    </widget>
    <widget class="QTabWidget" name="mission_mode_tabs">
     <property name="geometry">
@@ -1037,7 +1146,7 @@
       <x>170</x>
       <y>390</y>
       <width>351</width>
-      <height>251</height>
+      <height>101</height>
      </rect>
     </property>
     <property name="font">
@@ -1067,15 +1176,15 @@
     </property>
     <widget class="QWidget" name="mission_planning_tab">
      <attribute name="title">
-      <string>Mission Planning</string>
+      <string>Planning</string>
      </attribute>
      <widget class="QFrame" name="frame_8">
       <property name="geometry">
        <rect>
-        <x>3</x>
+        <x>10</x>
         <y>10</y>
-        <width>341</width>
-        <height>201</height>
+        <width>331</width>
+        <height>51</height>
        </rect>
       </property>
       <property name="frameShape">
@@ -1084,30 +1193,10 @@
       <property name="frameShadow">
        <enum>QFrame::Plain</enum>
       </property>
-      <widget class="QPushButton" name="select_poi_order_button">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>10</y>
-         <width>161</width>
-         <height>31</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>14</pointsize>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Select POI Order</string>
-       </property>
-      </widget>
       <widget class="QComboBox" name="poi_selection">
        <property name="geometry">
         <rect>
-         <x>180</x>
+         <x>10</x>
          <y>10</y>
          <width>151</width>
          <height>31</height>
@@ -1117,9 +1206,9 @@
       <widget class="QPushButton" name="accept_poi_order_button">
        <property name="geometry">
         <rect>
-         <x>10</x>
-         <y>50</y>
-         <width>321</width>
+         <x>170</x>
+         <y>10</y>
+         <width>151</width>
          <height>31</height>
         </rect>
        </property>
@@ -1131,53 +1220,14 @@
         </font>
        </property>
        <property name="text">
-        <string>Accept POI Order</string>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="proceed_to_execution_button">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>140</y>
-         <width>321</width>
-         <height>51</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>14</pointsize>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Proceed to Execution Phase</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="accept_poi_order_text">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>90</y>
-         <width>321</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::Box</enum>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="wordWrap">
-        <bool>true</bool>
+        <string>Accept POI</string>
        </property>
       </widget>
      </widget>
     </widget>
     <widget class="QWidget" name="mission_execution_tab">
      <attribute name="title">
-      <string>Mission Execution</string>
+      <string>Execution</string>
      </attribute>
      <widget class="QFrame" name="frame_9">
       <property name="geometry">
@@ -1185,7 +1235,7 @@
         <x>10</x>
         <y>10</y>
         <width>331</width>
-        <height>161</height>
+        <height>51</height>
        </rect>
       </property>
       <property name="frameShape">
@@ -1194,74 +1244,11 @@
       <property name="frameShadow">
        <enum>QFrame::Plain</enum>
       </property>
-      <widget class="QPushButton" name="manual_mode_button">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>40</y>
-         <width>151</width>
-         <height>31</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>14</pointsize>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Manual Mode</string>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="automatic_mode_button">
-       <property name="geometry">
-        <rect>
-         <x>170</x>
-         <y>40</y>
-         <width>151</width>
-         <height>31</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>14</pointsize>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Automatic Mode</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_38">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>351</width>
-         <height>31</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>14</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Mission Execution</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
       <widget class="QPushButton" name="drive_mode_button">
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>90</y>
+         <y>10</y>
          <width>151</width>
          <height>31</height>
         </rect>
@@ -1281,7 +1268,7 @@
        <property name="geometry">
         <rect>
          <x>170</x>
-         <y>90</y>
+         <y>10</y>
          <width>151</width>
          <height>31</height>
         </rect>

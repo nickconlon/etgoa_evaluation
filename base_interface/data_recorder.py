@@ -1,4 +1,5 @@
 import traceback
+import pandas as pd
 
 
 class DataRecorder:
@@ -16,29 +17,33 @@ class DataRecorder:
         """
         self.header = ['latitude', 'longitude', 'altitude', 'heading', 'velocity',
                        'battery number', 'battery remaining', 'power value', 'gps frequency',
-                       'control mode', 'mission mode', 'loa',
+                       'control mode', 'mission mode',
                        'help request', 'help response', 'timestamp']
-        with open('test.csv', 'w') as f:
-            f.write(','.join(self.header) + '\n')
+        pd.DataFrame(columns=self.header).to_csv('test_recorder.csv', index=False)
 
         self.data = []
 
     def add_row(self, latitude, longitude, altitude,
                 heading, velocity,
-                control_mode, mission_mode, loa,
+                control_mode, mission_mode,
                 battery_number, battery_remaining,
                 power_value, gps_value,
                 participant_help_request,
                 mission_control_response, mission_time):
         try:
-            row = (latitude, longitude, altitude, heading, velocity,
-                   control_mode, mission_mode, loa,
+            row = [latitude, longitude, altitude, heading, velocity,
+                   control_mode, mission_mode,
                    battery_number, battery_remaining, power_value, gps_value,
                    participant_help_request,
                    mission_control_response,
-                   mission_time)
+                   mission_time]
             self.data.append(row)
-            with open('test.csv', 'a') as f:
-                f.write(','.join([str(r) for r in row]) + '\n')
+            d = {c: [d] for c, d in zip(self.header, row)}
+            pd.DataFrame(d).to_csv('test_recorder.csv', mode='a', index=False, header=False)
         except Exception as e:
             traceback.print_exc()
+
+
+rec = DataRecorder()
+rec.add_row(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, )
+rec.add_row(0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 0, )

@@ -1,11 +1,11 @@
 import sys
 from PyQt5.QtWidgets import QApplication
-import PyQt5.QtCore as QtCore
 import PyQt5.QtGui as QtGui
 import numpy as np
 import qdarktheme
 
 from base_interface.base_interface import BaseInterface
+from famsec import goa
 
 
 class InterfaceImpl(BaseInterface):
@@ -13,20 +13,12 @@ class InterfaceImpl(BaseInterface):
         BaseInterface.__init__(self)
         self.img_path = 'base_interface/mission_area.png'
         self.label_21.setPixmap(QtGui.QPixmap(self.img_path))
-        self.poi_selection.addItems(["", "A", "B", "C", "D"])
-        self.mission_control_help_selector.addItems(self.mission_control.help_requests.keys())
+        self.poi_selection.addItems(["Select POI", "POI A", "POI B", "POI C", "POI D"])
         self.num_backup_batteries = 5
         self.robot_battery_slider.setMaximum(self.num_backup_batteries)
-        self.request_mission_control_help_button.clicked.connect(self.test_mission_control_questions)
         self.test_position_update()
-        self.select_poi_order_button.clicked.connect(self.test_competency_assessment)
+        self.poi_selection.currentTextChanged.connect(self.test_competency_assessment)
         self.ui_connected = True
-
-    def test_mission_control_questions(self):
-        help_with = self.mission_control_help_selector.currentText()
-        item = self.mission_control.help_requests[help_with]
-        txt = self.mission_control.get_response(item)
-        self.update_mission_control_text(txt)
 
     def test_position_update(self):
         self.position = [40.010385, -105.244390, 0.0001]
@@ -35,9 +27,14 @@ class InterfaceImpl(BaseInterface):
         self.battery_remaining = 90
 
     def test_competency_assessment(self):
-        # TODO ET-GOA: "because <unexpected state>"
-        if self.poi_selection.currentText() != "":
-            self.update_competency_assessment()
+        outcomes = np.random.random(size=5)
+        labels = [self.label_6, self.label_7, self.label_8, self.label_15, self.label_16]
+        colors = ['red', 'yellow', 'green']
+        for outcome, label in zip(outcomes, labels):
+            c = np.random.choice(colors)
+            label.setStyleSheet('background-color: {}; color: black'.format(goa.semantic_label_color(outcome)))
+            label.setText("{}".format(goa.semantic_label_text(outcome)))
+        self.splash_of_color(self.competency_assessment_frame)
 
 
 if __name__ == '__main__':

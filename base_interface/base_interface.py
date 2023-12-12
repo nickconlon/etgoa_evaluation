@@ -30,7 +30,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         # Setup the robot state
         self.mission_mode = ControlModeState(ControlModeState.planning)  # planning or executing
         self.control_mode = ControlModeState(ControlModeState.stopped)  # stopped or driving
-        self.loa_mode = ControlModeState(ControlModeState.manual)  # manual or autonomy
 
         #################
         # Setup the Mission Control Communications panel
@@ -44,27 +43,12 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         #################
         # Setup the Mission Planning Panel
         self.POIs_selected = None
-        self.select_poi_order_button.clicked.connect(self.poi_select_callback)
-        self.select_poi_order_button.clicked.connect(lambda: self.splash_of_color(self.select_poi_order_button))
-        self.accept_poi_order_button.clicked.connect(self.accept_poi_callback)
         self.accept_poi_order_button.clicked.connect(lambda: self.splash_of_color(self.accept_poi_order_button))
-        self.proceed_to_execution_button.clicked.connect(self.proceed_to_execution_callback)
-        self.proceed_to_execution_button.clicked.connect(lambda: self.splash_of_color(self.proceed_to_execution_button))
 
         #################
         # Setup the Robot Control panel
-        self.teleop_forward_button.clicked.connect(self.teleop_forward_callback)
-        self.teleop_forward_button.clicked.connect(lambda: self.splash_of_color(self.teleop_forward_button))
-        self.teleop_back_button.clicked.connect(self.teleop_back_callback)
-        self.teleop_back_button.clicked.connect(lambda: self.splash_of_color(self.teleop_back_button))
-        self.teleop_left_button.clicked.connect(self.teleop_left_callback)
-        self.teleop_left_button.clicked.connect(lambda: self.splash_of_color(self.teleop_left_button))
-        self.teleop_right_button.clicked.connect(self.teleop_right_callback)
-        self.teleop_right_button.clicked.connect(lambda: self.splash_of_color(self.teleop_right_button))
         self.drive_mode_button.clicked.connect(lambda: self.update_control_mode_state(ControlModeState.drive))
         self.stop_mode_button.clicked.connect(lambda: self.update_control_mode_state(ControlModeState.stopped))
-        self.manual_mode_button.clicked.connect(lambda: self.update_loa_mode_state(ControlModeState.manual))
-        self.automatic_mode_button.clicked.connect(lambda: self.update_loa_mode_state(ControlModeState.automatic))
 
         self.robot_power_slider.valueChanged.connect(self.update_robot_power_callback)
         self.robot_battery_slider.valueChanged.connect(self.update_robot_battery_callback)
@@ -74,8 +58,10 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         # Setup the Telemetry Panel
         self.update_control_mode_state(self.control_mode.state)
         self.update_mission_mode_state(self.mission_mode.state)
-        self.update_loa_mode_state(self.loa_mode.state)
         self.battery_remaining = 100
+        self.battery_number = 0
+        self.power_number = 0
+        self.gps_freqency = 0
         self.velocity = 0.0
         self.heading = 0.0
         self.position = [0.0, 0.0, 0.0]
@@ -95,6 +81,11 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.update_heading_text()
         self.update_position_text()
         self.update_connections()
+        self.data_recorder.add_row(*self.position, self.heading, self.velocity,
+                                   self.control_mode, self.mission_mode,
+                                   self.battery_number, self.battery_remaining,
+                                   self.power_number, self.gps_freqency, -1, -1,
+                                   datetime.now() - self.time_start)
 
     def update_connections(self):
         self.robot_connected_indicator.setStyleSheet('background-color: {}'.format('green' if self.robot_connected else 'red'))
@@ -104,10 +95,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.ui_connected_indicator.setStyleSheet('background-color: {}'.format('green' if self.ui_connected else 'red'))
 
     def update_control_loa_mode_text(self):
-        loa_mode = ''
-        if self.control_mode.state != ControlModeState.stopped:
-            loa_mode = self.loa_mode
-        text = '{} {}'.format(self.control_mode, loa_mode)
+        text = '{}'.format(self.control_mode)
         self.state_text.setText(text)
 
     def update_mission_mode_text(self):
@@ -188,15 +176,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.drive_mode_button.setStyleSheet('background-color: green')
         self.update_control_loa_mode_text()
 
-    def update_loa_mode_state(self, new_state):
-        self.loa_mode.state = new_state
-        if self.loa_mode.state == ControlModeState.manual:
-            self.manual_mode_button.setStyleSheet('background-color: green')
-            self.automatic_mode_button.setStyleSheet('background-color: light gray')
-        elif self.loa_mode.state == ControlModeState.automatic:
-            self.manual_mode_button.setStyleSheet('background-color: light gray')
-            self.automatic_mode_button.setStyleSheet('background-color: green')
-
     def update_mission_mode_state(self, new_state):
         self.mission_mode.state = new_state
         self.update_mission_mode_text()
@@ -206,17 +185,12 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         print(self.POIs_selected)
         self.run_competency_assessment()
 
-    def accept_poi_callback(self):
-        text = 'POIs selected:\n    {}'.format(self.POIs_selected)
-        self.accept_poi_order_text.setText(text)
-        print(text)
-
     def proceed_to_execution_callback(self):
         self.mission_mode.state = ControlModeState.execution
 
     def update_mission_control_text(self, text):
-        self.splash_of_color(self.mission_control_update_prompt, color='red', timeout=1000)
-        self.mission_control_update_prompt.setText(text)
+        self.splash_of_color(self.mission_control_update_text, color='red', timeout=1000)
+        self.mission_control_update_text.setPlainText(text)
 
     def send_mission_control_update_callback(self):
         text = self.mission_control_update_text.toPlainText()
