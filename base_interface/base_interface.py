@@ -3,10 +3,11 @@ import PyQt5.QtCore as QtCore
 import sys
 from datetime import datetime
 
+from mission_management import MissionManager
 from base_interface.control_modes import ControlModeState
-from base_interface.mission_control import MissionControl
+from mission_control.mission_control import MissionControl
 from base_interface.ui import Ui_MainWindow
-from base_interface.data_recorder import DataRecorder
+from analysis.data_recorder import DataRecorder
 from base_interface.battery_model import Battery
 
 
@@ -17,6 +18,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.mission_control = MissionControl()
         self.data_recorder = DataRecorder()
         self.battery_model = Battery()
+        self.mission_manager = MissionManager()
 
         #################
         # Setup the System Connections
@@ -42,7 +44,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
         #################
         # Setup the Mission Planning Panel
-        self.POIs_selected = None
+        self.POI_selected = None
         self.accept_poi_order_button.clicked.connect(lambda: self.splash_of_color(self.accept_poi_order_button))
 
         #################
@@ -181,8 +183,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.update_mission_mode_text()
 
     def poi_select_callback(self):
-        self.POIs_selected = self.poi_selection.currentText()
-        print(self.POIs_selected)
+        self.POI_selected = self.poi_selection.currentText() 
+        print(self.POI_selected)
         self.run_competency_assessment()
 
     def proceed_to_execution_callback(self):

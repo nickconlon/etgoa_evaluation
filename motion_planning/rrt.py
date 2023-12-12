@@ -111,7 +111,7 @@ class RRT:
 
     def _get_non_holonomic_actions(self):
         """
-        Returns a valis list of actions for the non-holonomic model.
+        Returns a valid list of actions for the non-holonomic model.
         """
         actions = np.array([[-1., -1.], [1., 1.], [-1., 1.], [1., -1.]])
         action_list = list(actions)

@@ -9,17 +9,17 @@ class DataRecorder:
         heading (degrees from N)
         velocity (m/s)
         control mode (driving | stopped)
-        level of autonomy (manual | automatic)
         mission mode (planning | execution)
         participant help request (text | 0)
         mission control response (text | 0)
         time
         """
+        self.fname = './data/test_recorder.csv'
         self.header = ['latitude', 'longitude', 'altitude', 'heading', 'velocity',
                        'battery number', 'battery remaining', 'power value', 'gps frequency',
                        'control mode', 'mission mode',
                        'help request', 'help response', 'timestamp']
-        pd.DataFrame(columns=self.header).to_csv('test_recorder.csv', index=False)
+        pd.DataFrame(columns=self.header).to_csv(self.fname, index=False)
 
         self.data = []
 
@@ -39,7 +39,7 @@ class DataRecorder:
                    mission_time]
             self.data.append(row)
             d = {c: [d] for c, d in zip(self.header, row)}
-            pd.DataFrame(d).to_csv('test_recorder.csv', mode='a', index=False, header=False)
+            pd.DataFrame(d).to_csv(self.fname, mode='a', index=False, header=False)
         except Exception as e:
             traceback.print_exc()
 
