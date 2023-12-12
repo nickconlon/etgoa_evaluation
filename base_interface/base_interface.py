@@ -5,7 +5,7 @@ from datetime import datetime
 
 from base_interface.control_modes import ControlModeState
 from base_interface.mission_control import MissionControl
-from base_interface.test_ui import Ui_MainWindow
+from base_interface.ui import Ui_MainWindow
 from base_interface.data_recorder import DataRecorder
 from base_interface.battery_model import Battery
 
