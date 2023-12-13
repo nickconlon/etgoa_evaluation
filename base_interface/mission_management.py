@@ -8,7 +8,7 @@ from motion_planning import rrt
 class MissionManager:
     def __init__(self, mission_area_image_path):
         self.current_plan = None
-        self.visualize = True
+        self.visualize = False
         self.mission_area_image = np.asarray(Image.open(mission_area_image_path))
         self.mission_area_bounds = np.array([[0, 800], [0, 800]])
 
