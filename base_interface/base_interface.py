@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QMainWindow, QApplication
 import PyQt5.QtCore as QtCore
+import PyQt5.QtGui as QtGui
 import sys
 from datetime import datetime
 
@@ -15,10 +16,11 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
         self.setupUi(self)
+        self.img_path = 'base_interface/mission_area.png'
         self.mission_control = MissionControl()
         self.data_recorder = DataRecorder()
         self.battery_model = Battery()
-        self.mission_manager = MissionManager()
+        self.mission_manager = MissionManager(self.img_path)
 
         #################
         # Setup the System Connections
@@ -152,7 +154,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         mission_time = datetime.now() - self.time_start
         now = datetime.now()
         mins = mission_time.total_seconds() // 60
-        secs = mission_time.total_seconds()
+        secs = mission_time.total_seconds() % 60
         textm = "{}".format(str(int(mins)).rjust(2, "0"))
         texts = "{}".format(str(int(secs)).rjust(2, "0"))
         text = '{}:{} into {} | {} MT'.format(textm, texts, self.mission_mode, now.strftime("%H:%M:%S"))
@@ -187,6 +189,27 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
     def select_poi_callback(self):
         self.poi_selected = self.poi_selection.currentText()
         print(self.poi_selected)
+        home = (501, 717)
+        poi_b = (523, 151)
+        poi_a = (402, 515)
+        poi_c = (594, 360)
+        poi_d = (685, 676)
+        poi = None
+        if self.poi_selected == 'POI A':
+            poi = poi_a
+        elif self.poi_selected == 'POI B':
+            poi = poi_b
+        elif self.poi_selected == 'POI C':
+            poi = poi_c
+        elif self.poi_selected == 'POI D':
+            poi = poi_d
+        else:
+            self.mission_manager.delete_plan()
+
+        if poi:
+            self.mission_manager.plan_waypoints(*home, *poi)
+        img = self.mission_manager.get_overlay_image()
+        self.update_map(img)
         # get POI position
         # get robot position
         # start splash of POI box
@@ -198,6 +221,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
     def accept_poi_callback(self):
         self.mission_mode.state = ControlModeState.execution
+        #img = self.mission_manager.get_overlay_image(path_color='red')
+        #self.update_map(img)
 
     def update_mission_control_text(self, text):
         self.splash_of_color(self.mission_control_update_text, color='red', timeout=1000)
@@ -216,6 +241,12 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
     def update_competency_assessment(self):
         self.splash_of_color(self.competency_assessment_frame)
+
+    def update_map(self, img):
+        height, width, channel = img.shape
+        bytesPerLine = 3 * width
+        qImg = QtGui.QImage(img, width, height, bytesPerLine, QtGui.QImage.Format_RGB888)
+        self.label_21.setPixmap(QtGui.QPixmap(qImg))
 
     def splash_of_color(self, obj, color='green', timeout=500):
         style_sheet = obj.styleSheet()

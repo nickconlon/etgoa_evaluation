@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QApplication
 import PyQt5.QtGui as QtGui
 import numpy as np
 import qdarktheme
+from PIL import Image
 
 from base_interface.base_interface import BaseInterface
 from famsec import goa
@@ -11,8 +12,8 @@ from famsec import goa
 class InterfaceImpl(BaseInterface):
     def __init__(self):
         BaseInterface.__init__(self)
-        self.img_path = 'base_interface/mission_area.png'
-        self.label_21.setPixmap(QtGui.QPixmap(self.img_path))
+
+        self.update_map(np.asarray(Image.open(self.img_path)))
         self.poi_selection.addItems(["Select POI", "POI A", "POI B", "POI C", "POI D"])
         self.num_backup_batteries = 5
         self.robot_battery_slider.setMaximum(self.num_backup_batteries)

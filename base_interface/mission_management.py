@@ -6,9 +6,11 @@ from motion_planning import rrt
 
 
 class MissionManager:
-    def __init__(self):
+    def __init__(self, mission_area_image_path):
         self.current_plan = None
         self.visualize = True
+        self.mission_area_image = np.asarray(Image.open(mission_area_image_path))
+        self.mission_area_bounds = np.array([[0, 800], [0, 800]])
 
     def update_plan(self, new_plan):
         self.current_plan = new_plan
@@ -20,9 +22,9 @@ class MissionManager:
         return self.current_plan
 
     def has_plan(self):
-        return len(self.current_plan) > 0 or self.current_plan is None
+        return self.current_plan is not None
 
-    def plan(self, robot_x, robot_y, goal_x, goal_y):
+    def plan_waypoints(self, robot_x, robot_y, goal_x, goal_y):
         # RRT goal = [y, x]
         goal = np.array([goal_y, goal_x])
         # RRT point [y, x]
@@ -30,15 +32,17 @@ class MissionManager:
         # RRT Obstacle
         obstacles = []
         # [ymin ymax], [xmin, xmax]
-        bounds = np.array([[0, 800], [0, 800]])
-        visualize = True
-        plot_fname = '../data/route.png'
+        bounds = self.mission_area_bounds
         plan = rrt.plan_rrt_webots(start, goal, obstacles, bounds,
                                    visualize_route=self.visualize,
-                                   filename=plot_fname)
+                                   filename='')
+        # Add back on the current position
+        plan = np.vstack((np.array([robot_x, robot_y]), plan))
         self.update_plan(plan)
 
-    def overlay_image(self, img):
+    def t_overlay_image(self):
+        img = self.mission_area_image.copy()
+        fig, ax = plt.subplots(frameon=False)
         self.visualize = False
         home = (501, 717)
         poi_b = (523, 151)
@@ -48,7 +52,7 @@ class MissionManager:
         test_g = poi_c
         for s, g, color in zip([home, test_g], [test_g, home], ['black', 'red']):
             self.delete_plan()
-            m.plan(*s, *g)
+            self.plan_waypoints(*s, *g)
             y, x, _ = img.shape
             plt.imshow(img)
             plt.xlim([0, x])
@@ -57,9 +61,39 @@ class MissionManager:
             p = np.vstack((s, p))
             plt.plot(p[:, 0], p[:, 1], '--', c=color, markersize=10)
             plt.scatter(p[:, 0], p[:, 1], c=color, s=10)
-        plt.show()
+        plt.axis('off')
+        plt.tight_layout()
+        canvas = plt.gca().figure.canvas
+        canvas.draw()
+        data = np.frombuffer(canvas.tostring_rgb(), dtype='uint8')
+        img = data.reshape(canvas.get_width_height()[::-1] + (3,))
+        plt.close(fig)
+        return img
+
+    def get_overlay_image(self, path_color='black'):
+        img = self.mission_area_image.copy()
+        fig, ax = plt.subplots(frameon=False)
+        y, x, _ = img.shape
+        plt.imshow(img)
+        plt.xlim([0, x])
+        plt.ylim([y, 0])
+        if self.has_plan():
+            p = self.current_plan
+            plt.plot(p[:, 0], p[:, 1], '--', c=path_color, markersize=10)
+            plt.scatter(p[:, 0], p[:, 1], c=path_color, s=10)
+        plt.axis('off')
+        plt.tight_layout()
+        canvas = plt.gca().figure.canvas
+        canvas.draw()
+        data = np.frombuffer(canvas.tostring_rgb(), dtype='uint8')
+        img = data.reshape(canvas.get_width_height()[::-1] + (3,))
+        plt.close(fig)
+        return img
 
 
 if __name__ == '__main__':
-    m = MissionManager()
-    m.overlay_image(np.array(Image.open('../base_interface/mission_area.png')))
+    m = MissionManager('../base_interface/mission_area.png')
+    img = m.get_overlay_image()
+    plt.imshow(img)
+    plt.axis('off')
+    plt.show()
