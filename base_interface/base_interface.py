@@ -67,7 +67,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.battery_remaining = 100
         self.battery_number = 0
         self.power_number = 0
-        self.gps_freqency = 0
+        self.gps_frequency = 0
         self.velocity = 0.0
         self.heading = 0.0
         self.position = [0.0, 0.0, 0.0]
@@ -90,7 +90,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.data_recorder.add_row(*self.position, self.heading, self.velocity,
                                    self.control_mode, self.mission_mode,
                                    self.battery_number, self.battery_remaining,
-                                   self.power_number, self.gps_freqency, -1, -1,
+                                   self.power_number, self.gps_frequency, -1, -1,
                                    datetime.now() - self.time_start)
 
     def update_connections(self):
@@ -189,25 +189,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
     def select_poi_callback(self):
         self.poi_selected = self.poi_selection.currentText()
         print(self.poi_selected)
-        home = (501, 717)
-        poi_b = (523, 151)
-        poi_a = (402, 515)
-        poi_c = (594, 360)
-        poi_d = (685, 676)
-        poi = None
-        if self.poi_selected == 'POI A':
-            poi = poi_a
-        elif self.poi_selected == 'POI B':
-            poi = poi_b
-        elif self.poi_selected == 'POI C':
-            poi = poi_c
-        elif self.poi_selected == 'POI D':
-            poi = poi_d
-        else:
-            self.mission_manager.delete_plan()
-
-        if poi:
-            self.mission_manager.plan_waypoints(*home, *poi)
+        self.mission_manager.plan_known_poi(self.poi_selected)
         img = self.mission_manager.get_overlay_image()
         self.update_map(img)
         # get POI position

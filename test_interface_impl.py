@@ -19,6 +19,10 @@ class InterfaceImpl(BaseInterface):
         self.test_position_update()
         self.poi_selection.currentTextChanged.connect(self.test_competency_assessment)
         self.ui_connected = True
+        self.robot_connected = True
+        self.gps_connected = True
+        self.sensor1_connected = True
+        self.sensor2_connected = True
 
     def test_position_update(self):
         self.position = [40.010385, -105.244390, 0.0001]

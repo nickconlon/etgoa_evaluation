@@ -4,9 +4,31 @@ from PIL import Image
 
 from motion_planning import rrt
 
+"""
+self.home = (501, 717)
+self.poi_b = (523, 151)
+self.poi_a = (402, 515)
+self.poi_c = (594, 360)
+self.poi_d = (685, 676)
+"""
+
+
+class PointOfInterest:
+    def __init__(self):
+        self.x = 0
+        self.y = 0
+        self.latitude = 0
+        self.longitude = 0
+
 
 class MissionManager:
     def __init__(self, mission_area_image_path):
+        self.home = (501, 717)
+        self.poi_b = (523, 151)
+        self.poi_a = (402, 515)
+        self.poi_c = (594, 360)
+        self.poi_d = (685, 676)
+
         self.current_plan = None
         self.visualize = False
         self.mission_area_image = np.asarray(Image.open(mission_area_image_path))
@@ -23,6 +45,21 @@ class MissionManager:
 
     def has_plan(self):
         return self.current_plan is not None
+
+    def plan_known_poi(self, poi_string):
+        poi = None
+        if poi_string == 'POI A':
+            poi = self.poi_a
+        elif poi_string == 'POI B':
+            poi = self.poi_b
+        elif poi_string == 'POI C':
+            poi = self.poi_c
+        elif poi_string == 'POI D':
+            poi = self.poi_d
+        else:
+            self.delete_plan()
+        if poi:
+            self.plan_waypoints(*self.home, *poi)
 
     def plan_waypoints(self, robot_x, robot_y, goal_x, goal_y):
         # RRT goal = [y, x]
@@ -44,13 +81,9 @@ class MissionManager:
         img = self.mission_area_image.copy()
         fig, ax = plt.subplots(frameon=False)
         self.visualize = False
-        home = (501, 717)
-        poi_b = (523, 151)
-        poi_a = (402, 515)
-        poi_c = (594, 360)
-        poi_d = (685, 676)
-        test_g = poi_c
-        for s, g, color in zip([home, test_g], [test_g, home], ['black', 'red']):
+
+        test_g = self.poi_c
+        for s, g, color in zip([self.home, test_g], [test_g, self.home], ['black', 'red']):
             self.delete_plan()
             self.plan_waypoints(*s, *g)
             y, x, _ = img.shape
