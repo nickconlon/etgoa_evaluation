@@ -3,22 +3,7 @@ import matplotlib.pyplot as plt
 from PIL import Image
 
 from motion_planning import rrt
-
-"""
-self.home = (501, 717)
-self.poi_b = (523, 151)
-self.poi_a = (402, 515)
-self.poi_c = (594, 360)
-self.poi_d = (685, 676)
-"""
-
-
-class PointOfInterest:
-    def __init__(self):
-        self.x = 0
-        self.y = 0
-        self.latitude = 0
-        self.longitude = 0
+from motion_planning import projections
 
 
 class MissionManager:
@@ -32,7 +17,7 @@ class MissionManager:
         self.current_plan = None
         self.visualize = False
         self.mission_area_image = np.asarray(Image.open(mission_area_image_path))
-        self.mission_area_bounds = np.array([[0, 800], [0, 800]])
+        self.mission_area_bounds = np.array([[-50, 50], [-50, 50]])
 
     def update_plan(self, new_plan):
         self.current_plan = new_plan
@@ -125,7 +110,23 @@ class MissionManager:
 
 
 if __name__ == '__main__':
+    lat_center = 40.01045433
+    lon_center = 105.24432153
+
+    pp = projections.Projector(lat_center, lon_center)
+    pp.setup()
+    pois = pp.get_pois()
+    home = pois[-1]
+    tgt = pois[1]
+
     m = MissionManager('../base_interface/mission_area.png')
+    m.plan_waypoints(home.x, home.y, tgt.x, tgt.y)
+    c = m.current_plan
+    cc = []
+    for p in c:
+        px, py = pp.cartesian_to_pixel(p[0], p[1])
+        cc.append(np.array([px, py]))
+    m.current_plan = np.array(cc)
     img = m.get_overlay_image()
     plt.imshow(img)
     plt.axis('off')
