@@ -92,13 +92,24 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                                    self.battery_number, self.battery_remaining,
                                    self.power_number, self.gps_frequency, -1, -1,
                                    datetime.now() - self.time_start)
+        self.update_map()
+
+    def update_map(self):
+        img = self.mission_manager.get_overlay_image(
+            *self.mission_manager.projector.equirectangular_projection(self.position[0], self.position[1]))
+        self.update_map_display(img)
 
     def update_connections(self):
-        self.robot_connected_indicator.setStyleSheet('background-color: {}'.format('green' if self.robot_connected else 'red'))
-        self.gps_connected_indicator.setStyleSheet('background-color: {}'.format('green' if self.gps_connected else 'red'))
-        self.sensor1_connected_indicator.setStyleSheet('background-color: {}'.format('green' if self.sensor1_connected else 'red'))
-        self.sensor2_connected_indicator.setStyleSheet('background-color: {}'.format('green' if self.sensor2_connected else 'red'))
-        self.ui_connected_indicator.setStyleSheet('background-color: {}'.format('green' if self.ui_connected else 'red'))
+        self.robot_connected_indicator.setStyleSheet(
+            'background-color: {}'.format('green' if self.robot_connected else 'red'))
+        self.gps_connected_indicator.setStyleSheet(
+            'background-color: {}'.format('green' if self.gps_connected else 'red'))
+        self.sensor1_connected_indicator.setStyleSheet(
+            'background-color: {}'.format('green' if self.sensor1_connected else 'red'))
+        self.sensor2_connected_indicator.setStyleSheet(
+            'background-color: {}'.format('green' if self.sensor2_connected else 'red'))
+        self.ui_connected_indicator.setStyleSheet(
+            'background-color: {}'.format('green' if self.ui_connected else 'red'))
 
     def update_control_loa_mode_text(self):
         text = '{}'.format(self.control_mode)
@@ -188,10 +199,10 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
     def select_poi_callback(self):
         self.poi_selected = self.poi_selection.currentText()
-        print(self.poi_selected)
-        self.mission_manager.plan_known_poi(self.poi_selected)
-        img = self.mission_manager.get_overlay_image()
-        self.update_map(img)
+        self.mission_manager.plan_known_poi(
+            *self.mission_manager.projector.equirectangular_projection(
+                self.position[0], self.position[1]),
+            self.poi_selected)
         # get POI position
         # get robot position
         # start splash of POI box
@@ -203,8 +214,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
     def accept_poi_callback(self):
         self.mission_mode.state = ControlModeState.execution
-        #img = self.mission_manager.get_overlay_image(path_color='red')
-        #self.update_map(img)
 
     def update_mission_control_text(self, text):
         self.splash_of_color(self.mission_control_update_text, color='red', timeout=1000)
@@ -224,7 +233,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
     def update_competency_assessment(self):
         self.splash_of_color(self.competency_assessment_frame)
 
-    def update_map(self, img):
+    def update_map_display(self, img):
         height, width, channel = img.shape
         bytesPerLine = 3 * width
         qImg = QtGui.QImage(img, width, height, bytesPerLine, QtGui.QImage.Format_RGB888)

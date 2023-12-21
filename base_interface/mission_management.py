@@ -36,7 +36,7 @@ class MissionManager:
     def has_plan(self):
         return self.current_plan is not None
 
-    def plan_known_poi(self, poi_string):
+    def plan_known_poi(self, robot_x, robot_y, poi_string):
         poi = None
         if poi_string == 'POI A':
             poi = self.poi_a
@@ -46,10 +46,12 @@ class MissionManager:
             poi = self.poi_c
         elif poi_string == 'POI D':
             poi = self.poi_d
+        elif poi_string == 'HOME':
+            poi = self.home
         else:
             self.delete_plan()
         if poi:
-            self.plan_waypoints(self.home.x, self.home.y, poi.x, poi.y)
+            self.plan_waypoints(robot_x, robot_y, poi.x, poi.y)
 
     def plan_waypoints(self, robot_x, robot_y, goal_x, goal_y):
         # RRT goal = [y, x]
@@ -67,7 +69,7 @@ class MissionManager:
         plan = np.vstack((np.array([robot_x, robot_y]), plan))
         self.update_plan(plan)
 
-    def get_overlay_image(self, path_color='black'):
+    def get_overlay_image(self, robot_x, robot_y, path_color='black', ):
         img = self.mission_area_image.copy()
         fig, ax = plt.subplots(frameon=False)
         y, x, _ = img.shape
@@ -82,6 +84,9 @@ class MissionManager:
             pixel_plan = np.array(pixel_plan)
             plt.plot(pixel_plan[:, 0], pixel_plan[:, 1], '--', c=path_color, markersize=10)
             plt.scatter(pixel_plan[:, 0], pixel_plan[:, 1], c=path_color, s=10)
+
+        rx, ry = self.projector.cartesian_to_pixel(robot_x, robot_y)
+        plt.scatter([rx], [ry], c='blue', s=100)
         plt.axis('off')
         plt.tight_layout()
         canvas = plt.gca().figure.canvas
@@ -95,7 +100,7 @@ class MissionManager:
 if __name__ == '__main__':
     m = MissionManager('../base_interface/mission_area.png')
     m.plan_waypoints(m.home.x, m.home.y, m.poi_c.x, m.poi_c.y)
-    img = m.get_overlay_image()
+    img = m.get_overlay_image(m.home.x+1, m.home.y+3)
     plt.imshow(img)
     plt.axis('off')
     plt.show()

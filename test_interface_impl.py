@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication
-import PyQt5.QtGui as QtGui
+import PyQt5.QtCore as QtCore
 import numpy as np
 import qdarktheme
 from PIL import Image
@@ -12,7 +12,7 @@ from famsec import goa
 class InterfaceImpl(BaseInterface):
     def __init__(self):
         BaseInterface.__init__(self)
-        self.update_map(np.asarray(Image.open(self.img_path)))
+        self.update_map_display(np.asarray(Image.open(self.img_path)))
         self.poi_selection.addItems(["Select POI", "POI A", "POI B", "POI C", "POI D"])
         self.num_backup_batteries = 5
         self.robot_battery_slider.setMaximum(self.num_backup_batteries)
@@ -24,8 +24,13 @@ class InterfaceImpl(BaseInterface):
         self.sensor1_connected = True
         self.sensor2_connected = True
 
+        self.pupdated = QtCore.QTimer()
+        self.pupdated.timeout.connect(self.test_position_change)
+        self.pupdated.setInterval(500)
+        self.pupdated.start()
+
     def test_position_update(self):
-        self.position = [40.010385, -105.244390, 0.0001]
+        self.position = [40.010385, 105.244390, 0.0001]
         self.heading = 337
         self.velocity = 0.5
         self.battery_remaining = 90
@@ -39,6 +44,9 @@ class InterfaceImpl(BaseInterface):
             label.setStyleSheet('background-color: {}; color: black'.format(goa.semantic_label_color(outcome)))
             label.setText("{}".format(goa.semantic_label_text(outcome)))
         self.splash_of_color(self.competency_assessment_frame)
+
+    def test_position_change(self):
+        self.position[0] = self.position[0]+0.00001
 
 
 if __name__ == '__main__':
