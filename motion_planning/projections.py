@@ -122,12 +122,14 @@ print(x, y)
 '''
 
 
+
 class PointOfInterest:
-    def __init__(self):
-        self.x = 0
-        self.y = 0
-        self.latitude = 0
-        self.longitude = 0
+    def __init__(self, x=0, y=0, lat=0, lon=0, alt=0):
+        self.x = x
+        self.y = y
+        self.z = alt
+        self.latitude = lat
+        self.longitude = lon
         self.px_x = 0
         self.px_y = 0
 

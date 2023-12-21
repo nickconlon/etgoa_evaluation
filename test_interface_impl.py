@@ -30,7 +30,7 @@ class InterfaceImpl(BaseInterface):
         self.pupdated.start()
 
     def test_position_update(self):
-        self.position = [40.010385, 105.244390, 0.0001]
+        self.position.x = 1
         self.heading = 337
         self.velocity = 0.5
         self.battery_remaining = 90
@@ -46,7 +46,8 @@ class InterfaceImpl(BaseInterface):
         self.splash_of_color(self.competency_assessment_frame)
 
     def test_position_change(self):
-        self.position[0] = self.position[0]+0.00001
+        self.position.x += 0.1
+        self.position.y += 0.1
 
 
 if __name__ == '__main__':

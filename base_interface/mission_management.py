@@ -7,11 +7,10 @@ from motion_planning import projections
 
 
 class MissionManager:
-    def __init__(self, mission_area_image_path):
-        lat_center, lon_center = 40.01045433, 105.24432153
+    def __init__(self, mission_area_image_path, projector):
         area_miny, area_maxy, area_minx, area_maxx = -50, 50, -50, 50
-        self.projector = projections.Projector(lat_center, lon_center)
-        self.projector.setup()
+        self.projector = projector
+
         pois = self.projector.get_pois()
         self.poi_a = pois[0]
         self.poi_b = pois[1]
@@ -86,8 +85,11 @@ class MissionManager:
             plt.scatter(pixel_plan[:, 0], pixel_plan[:, 1], c=path_color, s=10)
 
         rx, ry = self.projector.cartesian_to_pixel(robot_x, robot_y)
+        #heading = np.deg2rad(360-45)
+        #plt.annotate("", xy=(rx, ry), xytext=(rx+5*np.sin(heading), ry+5*np.cos(heading)), arrowprops=dict(headwidth=10, headlength=10, width=0.1))
         plt.scatter([rx], [ry], c='blue', s=100)
         plt.axis('off')
+        plt.axis('equal')
         plt.tight_layout()
         canvas = plt.gca().figure.canvas
         canvas.draw()
