@@ -106,6 +106,11 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
     def update_map(self):
         try:
+            complete = self.mission_manager.update_progress(self.position.x, self.position.y)
+            if complete:
+                self.update_control_mode_state(ControlModeState.stopped)
+                self.update_mission_mode_state(ControlModeState.planning)
+
             img = self.mission_manager.get_overlay_image(self.position.x, self.position.y)
             self.update_map_display(img)
         except Exception as e:

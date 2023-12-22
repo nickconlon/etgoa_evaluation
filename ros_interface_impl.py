@@ -14,10 +14,11 @@ from geometry_msgs.msg import PoseStamped, Vector3Stamped
 from nav_msgs.msg import Odometry  # oOdometry messages
 from tf.transformations import euler_from_quaternion  # Quaternion conversions
 from gazebo_msgs.msg import ModelStates
-from std_msgs.msg import String
+from std_msgs.msg import String, Float32, Float32MultiArray
 from sensor_msgs.msg import NavSatFix
 
 from base_interface.base_interface import BaseInterface
+from motion_planning.waypoint_follower import extract_msg
 from famsec import goa
 
 
@@ -31,14 +32,21 @@ class InterfaceImpl(BaseInterface):
         self.robot_battery_slider.setMaximum(self.num_backup_batteries)
         self.robot_battery_slider.setMaximum(self.num_backup_batteries)
         self.poi_selection.currentTextChanged.connect(self.test_competency_assessment)
+        self.accept_poi_order_button.clicked.connect(self.ros_send_waypoint_plan)
+        self.stop_mode_button.clicked.connect(lambda: self.ros_control_waypoint_follower(0.0))
+        self.drive_mode_button.clicked.connect(lambda: self.ros_control_waypoint_follower(0.25))
 
-        self.position_sub = rospy.Subscriber('/navsat/fix', NavSatFix, self.ros_position_callback)
+        self.position_sub = rospy.Subscriber('/gazebo/model_states', ModelStates, self.ros_position_callback)
         self.velocity_sub = rospy.Subscriber('/navsat/vel', Vector3Stamped,
                                              self.ros_velocity_callback)
         self.heading_sub = rospy.Subscriber('/gazebo/model_states', ModelStates,
                                             self.ros_heading_callback)
         self.velocity_pub = rospy.Publisher('/jackal_velocity_controller/cmd_vel', Twist,
                                             queue_size=10)
+        self.waypoint_speed_pub = rospy.Publisher('/{}/control'.format('tars'), Float32,
+                                                  queue_size=10)
+        self.waypoint_plan_pub = rospy.Publisher('/{}/waypoints'.format('tars'), Float32MultiArray,
+                                                  queue_size=10)
 
         self.ui_connected = True
 
@@ -53,6 +61,31 @@ class InterfaceImpl(BaseInterface):
             label.setText("{}".format(goa.semantic_label_text(outcome)))
         self.splash_of_color(self.competency_assessment_frame)
 
+    def ros_control_waypoint_follower(self, speed):
+        try:
+            print('setting speed to ', speed)
+            msg = Float32()
+            msg.data = speed
+            self.waypoint_speed_pub.publish(msg)
+        except Exception as e:
+            traceback.print_exc()
+
+    def ros_send_waypoint_plan(self):
+        try:
+            if self.mission_manager.has_plan():
+                plan = self.mission_manager.current_plan
+                px = plan[:,0]
+                py = plan[:,1]
+                flat_plan = list(px)+list(py)
+                print('setting plan to', flat_plan)
+                msg = Float32MultiArray()
+                msg.data = flat_plan
+                self.waypoint_plan_pub.publish(msg)
+                # publish Float32MutliArray message to load the waypoint follower
+            pass
+        except Exception as e:
+            traceback.print_exc()
+
     def ros_position_callback(self, msg):
         """
         Receive position data from the robot
@@ -60,7 +93,10 @@ class InterfaceImpl(BaseInterface):
         :return:
         """
         try:
-            self.position = [msg.latitude, msg.longitude, msg.altitude]
+            pose, angle = extract_msg(msg)
+            self.position.x = pose[0]
+            self.position.y = pose[1]
+            self.position.z = pose[2]
         except Exception as e:
             traceback.print_exc()
 

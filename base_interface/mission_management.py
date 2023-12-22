@@ -77,7 +77,7 @@ class MissionManager:
         plt.ylim([y, 0])
         if self.has_plan():
             plan = self.current_plan
-            pixel_plan = []
+            pixel_plan = [self.projector.cartesian_to_pixel(robot_x, robot_y)]
             for point in plan:
                 pixel_plan.append(self.projector.cartesian_to_pixel(point[0], point[1]))
             pixel_plan = np.array(pixel_plan)
@@ -85,8 +85,8 @@ class MissionManager:
             plt.scatter(pixel_plan[:, 0], pixel_plan[:, 1], c=path_color, s=10)
 
         rx, ry = self.projector.cartesian_to_pixel(robot_x, robot_y)
-        #heading = np.deg2rad(360-45)
-        #plt.annotate("", xy=(rx, ry), xytext=(rx+5*np.sin(heading), ry+5*np.cos(heading)), arrowprops=dict(headwidth=10, headlength=10, width=0.1))
+        # heading = np.deg2rad(360-45)
+        # plt.annotate("", xy=(rx, ry), xytext=(rx+5*np.sin(heading), ry+5*np.cos(heading)), arrowprops=dict(headwidth=10, headlength=10, width=0.1))
         plt.scatter([rx], [ry], c='blue', s=100)
         plt.axis('off')
         plt.axis('equal')
@@ -98,11 +98,27 @@ class MissionManager:
         plt.close(fig)
         return img
 
+    def update_progress(self, robot_x, robot_y):
+        # if [rx, ry]-[px, py] < d -> remove [px, py] from plan
+        # if plan empty -> delete plan
+        if self.has_plan():
+            d = np.linalg.norm(np.array([robot_x, robot_y]) - self.current_plan[0])
+            if d <= 0.1:
+                self.current_plan = np.delete(self.current_plan, [0], axis=0)
+                print('removing waypoint complete')
+                if len(self.current_plan) == 0:
+                    self.delete_plan()
+        if self.has_plan():
+            complete = False
+        else:
+            complete = True
+        return complete
+
 
 if __name__ == '__main__':
     m = MissionManager('../base_interface/mission_area.png')
     m.plan_waypoints(m.home.x, m.home.y, m.poi_c.x, m.poi_c.y)
-    img = m.get_overlay_image(m.home.x+1, m.home.y+3)
+    img = m.get_overlay_image(m.home.x + 1, m.home.y + 3)
     plt.imshow(img)
     plt.axis('off')
     plt.show()

@@ -75,7 +75,6 @@ class Projector:
 
         for p in [poi_a, poi_b, poi_c, poi_d, poi_home]:
             p.x, p.y = self.equirectangular_projection(p.latitude, p.longitude)
-
         return poi_a, poi_b, poi_c, poi_d, poi_home
 
 
