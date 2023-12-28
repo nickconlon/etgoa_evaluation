@@ -3,7 +3,7 @@ import pandas as pd
 
 
 class DataRecorder:
-    def __init__(self):
+    def __init__(self, condition):
         """
         position (latitude, longitude, altitude)
         heading (degrees from N)
@@ -18,9 +18,9 @@ class DataRecorder:
         self.header = ['latitude', 'longitude', 'altitude', 'heading', 'velocity',
                        'battery number', 'battery remaining', 'power value', 'gps frequency',
                        'control mode', 'mission mode',
-                       'help request', 'help response', 'timestamp']
+                       'help request', 'help response', 'timestamp', 'condition']
         pd.DataFrame(columns=self.header).to_csv(self.fname, index=False)
-
+        self.condition = condition
         self.data = []
 
     def add_row(self, latitude, longitude, altitude,
@@ -36,14 +36,9 @@ class DataRecorder:
                    battery_number, battery_remaining, power_value, gps_value,
                    participant_help_request,
                    mission_control_response,
-                   mission_time]
+                   mission_time, self.condition]
             self.data.append(row)
             d = {c: [d] for c, d in zip(self.header, row)}
             pd.DataFrame(d).to_csv(self.fname, mode='a', index=False, header=False)
         except Exception as e:
             traceback.print_exc()
-
-
-rec = DataRecorder()
-rec.add_row(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, )
-rec.add_row(0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 0, )

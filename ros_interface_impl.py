@@ -1,4 +1,5 @@
 import sys
+import time
 import traceback
 from PyQt5.Qt import Qt
 from PyQt5.QtWidgets import QApplication
@@ -19,7 +20,7 @@ from sensor_msgs.msg import NavSatFix
 
 from base_interface.base_interface import BaseInterface
 from motion_planning.waypoint_follower import extract_msg
-from famsec import goa
+from famsec import goa, rollout
 
 
 class InterfaceImpl(BaseInterface):
@@ -31,12 +32,13 @@ class InterfaceImpl(BaseInterface):
         self.num_backup_batteries = 5
         self.robot_battery_slider.setMaximum(self.num_backup_batteries)
         self.robot_battery_slider.setMaximum(self.num_backup_batteries)
-        self.poi_selection.currentTextChanged.connect(self.test_competency_assessment)
+        self.poi_selection.currentTextChanged.connect(self.start_competency_assessment)
         self.accept_poi_order_button.clicked.connect(self.ros_send_waypoint_plan)
         self.stop_mode_button.clicked.connect(lambda: self.ros_control_waypoint_follower(0.0))
         self.drive_mode_button.clicked.connect(lambda: self.ros_control_waypoint_follower(0.25))
 
-        self.position_sub = rospy.Subscriber('/gazebo/model_states', ModelStates, self.ros_position_callback)
+        self.position_sub = rospy.Subscriber('/gazebo/model_states', ModelStates,
+                                             self.ros_position_callback)
         self.velocity_sub = rospy.Subscriber('/navsat/vel', Vector3Stamped,
                                              self.ros_velocity_callback)
         self.heading_sub = rospy.Subscriber('/gazebo/model_states', ModelStates,
@@ -48,18 +50,36 @@ class InterfaceImpl(BaseInterface):
         self.waypoint_plan_pub = rospy.Publisher('/{}/waypoints'.format('tars'), Float32MultiArray,
                                                   queue_size=10)
 
+        self.rollout_thread = None
         self.ui_connected = True
 
-    def test_competency_assessment(self):
-        outcomes = np.random.random(size=5)
-        labels = [self.label_6, self.label_7, self.label_8, self.label_15, self.label_16]
-        colors = ['red', 'yellow', 'green']
-        for outcome, label in zip(outcomes, labels):
-            c = np.random.choice(colors)
-            label.setStyleSheet(
-                'background-color: {}; color: black'.format(goa.semantic_label_color(outcome)))
-            label.setText("{}".format(goa.semantic_label_text(outcome)))
-        self.splash_of_color(self.competency_assessment_frame)
+    def start_competency_assessment(self):
+        try:
+            plan = self.mission_manager.current_plan
+            self.splash_of_color(self.competency_assessment_frame, timeout=0)
+            self.rollout_thread = rollout.RolloutThread()
+            self.rollout_thread.pose = [self.position.x, self.position.y, self.position.z]
+            self.rollout_thread.orientation = [0, 0, np.deg2rad(self.heading), 0]
+            self.rollout_thread.waypoints = plan
+            self.rollout_thread.known_obstacles = {}
+            self.rollout_thread.goal = plan[-1]
+            print('driving to', plan[-1])
+            self.rollout_thread.finished.connect(self.finish_competency_assessment)
+            self.rollout_thread.start()
+        except Exception as e:
+            traceback.print_exc()
+
+    def finish_competency_assessment(self):
+        try:
+            outcomes = np.random.random(size=5)
+            labels = [self.label_6, self.label_7, self.label_8, self.label_15, self.label_16]
+            for outcome, label in zip(outcomes, labels):
+                label.setStyleSheet(
+                    'background-color: {}; color: black'.format(goa.semantic_label_color(outcome)))
+                label.setText("{}".format(goa.semantic_label_text(outcome)))
+            self.splash_of_color(self.competency_assessment_frame, color='light grey', timeout=0)
+        except Exception as e:
+            traceback.print_exc()
 
     def ros_control_waypoint_follower(self, speed):
         try:
@@ -97,6 +117,7 @@ class InterfaceImpl(BaseInterface):
             self.position.x = pose[0]
             self.position.y = pose[1]
             self.position.z = pose[2]
+            self.heading = np.rad2deg(angle[-1] + 180) % 360
         except Exception as e:
             traceback.print_exc()
 
@@ -119,19 +140,24 @@ class InterfaceImpl(BaseInterface):
         :param msg:
         :return:
         """
-        self.position = np.array([1, 2, 3])
-        self.velocity = 0.5
-        self.heading = 0
         pass
 
     def ros_heading_callback(self, msg):
-        model_idx = msg.name.index('jackal')
-        lin = msg.pose[model_idx].position
-        ang = msg.pose[model_idx].orientation
-        pose = (lin.x, lin.y, lin.z)
-        angle = euler_from_quaternion([ang.x, ang.y, ang.z, ang.w])
-        self.heading = (np.rad2deg(angle[2]) + 360) % 360
+        try:
+            model_idx = msg.name.index('jackal')
+            lin = msg.pose[model_idx].position
+            ang = msg.pose[model_idx].orientation
+            pose = (lin.x, lin.y, lin.z)
+            angle = euler_from_quaternion([ang.x, ang.y, ang.z, ang.w])
+            #self.heading = (np.rad2deg(angle[2]) + 360) % 360
+        except Exception as e:
+            traceback.print_exc()
 
+    def ros_battery_callback(self, msg):
+        try:
+            self.battery_remaining = msg.data
+        except Exception as e:
+            traceback.print_exc()
 
 if __name__ == '__main__':
     qdarktheme.enable_hi_dpi()

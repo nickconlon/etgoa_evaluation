@@ -38,9 +38,7 @@ class InterfaceImpl(BaseInterface):
     def test_competency_assessment(self):
         outcomes = np.random.random(size=5)
         labels = [self.label_6, self.label_7, self.label_8, self.label_15, self.label_16]
-        colors = ['red', 'yellow', 'green']
         for outcome, label in zip(outcomes, labels):
-            c = np.random.choice(colors)
             label.setStyleSheet('background-color: {}; color: black'.format(goa.semantic_label_color(outcome)))
             label.setText("{}".format(goa.semantic_label_text(outcome)))
         self.splash_of_color(self.competency_assessment_frame)

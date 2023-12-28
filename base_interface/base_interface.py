@@ -20,8 +20,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         QMainWindow.__init__(self)
         self.setupUi(self)
         self.img_path = 'base_interface/mission_area.png'
+        self.condition = 'telemetry only' # 'pre-mission assmt' 'in-situ assmt'
         self.mission_control = MissionControl()
-        self.data_recorder = DataRecorder()
+        self.data_recorder = DataRecorder(self.condition)
         self.battery_model = Battery()
         lat_center, lon_center = 40.01045433, 105.24432153
         self.projector = Projector(lat_center, lon_center)
@@ -70,8 +71,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         # Setup the Telemetry Panel
         self.update_control_mode_state(self.control_mode.state)
         self.update_mission_mode_state(self.mission_mode.state)
-        self.battery_remaining = 100
-        self.battery_number = 0
         self.power_number = 0
         self.gps_frequency = 0
         self.velocity = 0.0
@@ -83,6 +82,11 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.telemetry_updater.timeout.connect(self.periodic_update)
         self.telemetry_updater.setInterval(500)
         self.telemetry_updater.start()
+
+        self.battery_updater = QtCore.QTimer()
+        self.battery_updater.timeout.connect(lambda: self.battery_model.decrement(self.velocity))
+        self.battery_updater.setInterval(1000)
+        self.battery_updater.start()
 
     def periodic_update(self):
         try:
@@ -97,7 +101,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.data_recorder.add_row(self.position.x, self.position.y, self.position.z,
                                        self.heading, self.velocity,
                                        self.control_mode, self.mission_mode,
-                                       self.battery_number, self.battery_remaining,
+                                       self.battery_model.get_number(), self.battery_model.get_level(),
                                        self.power_number, self.gps_frequency, -1, -1,
                                        datetime.now() - self.time_start)
             self.update_map()
@@ -110,7 +114,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             if complete:
                 self.update_control_mode_state(ControlModeState.stopped)
                 self.update_mission_mode_state(ControlModeState.planning)
-
             img = self.mission_manager.get_overlay_image(self.position.x, self.position.y)
             self.update_map_display(img)
         except Exception as e:
@@ -197,7 +200,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
     def update_battery_text(self):
         try:
-            text = '{}%'.format(self.battery_remaining)
+            text = '{:.2f}%'.format(self.battery_model.get_level())
             self.battery_text.setText(text)
         except Exception as e:
             traceback.print_exc()
@@ -226,6 +229,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         try:
             val = self.robot_battery_slider.value()
             self.robot_battery_lcd.display(val)
+            self.battery_model.swap_battery(val)
         except Exception as e:
             traceback.print_exc()
 
@@ -258,16 +262,16 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
     def select_poi_callback(self):
         try:
+            if self.poi_selection.currentText() == "Select POI":
+                return 0
+            self.splash_of_color(self.frame_2)
             self.poi_selected = self.poi_selection.currentText()
             self.mission_manager.plan_known_poi(self.position.x, self.position.y, self.poi_selected)
-            # get POI position
-            # get robot position
-            # start splash of POI box
-            # thread -> self.run_competency_assessment()
-            # end splash of POI box
+
             # start splash of competency box
-            # thread -> self.run_competency_assessment()
+            # self.run_competency_assessment(self.mission_manager.get_plan())
             # end splash of competency box
+
         except Exception as e:
             traceback.print_exc()
 
@@ -321,6 +325,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 QtCore.QTimer.singleShot(timeout, lambda: obj.setStyleSheet(style_sheet))
         except Exception as e:
             traceback.print_exc()
+
 
 
 if __name__ == '__main__':

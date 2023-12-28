@@ -163,5 +163,5 @@ def plot_trust(trust_baseline, trust_planning, trust_execution, save_path):
 
 
 if __name__ == '__main__':
-    data = pd.read_csv('../data/test_data.csv')
+    data = pd.read_csv('../data/test_recorder.csv')
     make_plots(data)
