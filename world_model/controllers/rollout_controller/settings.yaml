@@ -1,0 +1,10 @@
+start_position: [0.0, 0.0, 0.0]
+start_orientation: [0.0, 0.0, 0.0, 0.0]
+goal_position: [-16.424231599799654, -15.889843999964624]
+waypoint_index: 0
+num_iterations: 10
+publish: false
+prefix: rollout
+known_obs: {}
+wp_x: [0.0, -3.0609308741254377, -11.919787874742237, -16.424231599799654]
+wp_y: [0.0, -9.520015870986018, -14.159051615903568, -15.889843999964624]

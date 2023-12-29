@@ -1,0 +1,24 @@
+#start_position: [-6.0, 0.0, -0.00238888]
+#start_orientation: [0.0009870304561892418, -0.054071898837796145, 0.9985365569306683, 0.14233890597304208]
+#goal_position: [6.5, 0.0]
+#waypoint_index: 0
+#num_iterations: 1
+#publish: True
+#prefix: real
+
+#start_position: [-6.0, 0.0, -0.00238888]
+#start_orientation: [0.0003632805245335128, -0.002121024076898414, 0.9999976846393824, 0.10977543118157464]
+#goal_position: [6.5, 0.0]
+#waypoint_index: 0
+#num_iterations: 1
+#publish: True
+#prefix: real
+
+
+start_position: [1.8291998228036348, -0.5864563748650392, -0.0023845107855239023]
+start_orientation: [0.0003632805245335128, -0.002121024076898414, 0.9999976846393824, 0.10977543118157464]
+goal_position: [6.5, 0.0]
+waypoint_index: 8
+num_iterations: 10
+publish: False
+prefix: rollout

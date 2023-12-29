@@ -1,0 +1,104 @@
+#VRML_SIM R2023a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/objects/factory/containers/protos/WoodenBox.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/robots/adept/pioneer3/protos/Pioneer3at.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/appearances/protos/Parquetry.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/appearances/protos/Sand.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/objects/apartment_structure/protos/Wall.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023a/projects/appearances/protos/ThreadMetalPlate.proto"
+
+WorldInfo {
+}
+Viewpoint {
+  orientation -0.3958780595051119 0.42357043332696626 0.8147813510468151 1.6453414612365087
+  position -10.073058812152714 -42.534872513543455 48.94949834197725
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 100 100
+  floorAppearance Parquetry {
+  }
+}
+DEF WALL Wall {
+  translation 45.4576 -45.0835 1
+  size 0.2 5 1
+}
+DEF ROBOT Pioneer3at {
+  hidden position_0_0 1192.4865162455394
+  hidden position_0_1 1187.6864245461752
+  hidden position_0_2 1192.4865400139533
+  hidden position_0_3 1187.6861112117072
+  hidden rotation_4 0.7042883707324258 -0.7042813971140799 -0.08925023546246147 2.96357047313338
+  hidden rotation_5 -0.5430161507347213 0.5430127206291098 0.6405237273327341 4.280949937076269
+  hidden rotation_6 0.7042878361286213 -0.7042808625445259 -0.08925867204256864 2.9635537334879563
+  hidden rotation_7 -0.5430869003252756 0.543083469080084 0.6404037510094905 4.280779781389796
+  translation -0.00197977690977679 -0.00838910231978781 -0.002400488021902736
+  rotation 7.061254138474082e-06 3.133676082927426e-05 -0.9999999994840733 1.455215722607992
+  controller "rollout_controller"
+  supervisor TRUE
+  extensionSlot [
+    Camera {
+      width 256
+      height 256
+    }
+    Compass {
+    }
+    GPS {
+    }
+  ]
+}
+DEF BOX1 WoodenBox {
+  translation 43.8321 -46.3664 1
+  size 0.5 0.5 0.5
+}
+DEF BOX2 WoodenBox {
+  translation 43.1288 -49.0706 1
+  name "wooden box(1)"
+  size 0.5 0.5 0.5
+}
+DEF BOX3 WoodenBox {
+  translation 43.3186 -48.1722 1
+  name "wooden box(3)"
+  size 0.5 0.5 0.5
+}
+DEF BOX4 WoodenBox {
+  translation 44.3858 -47.4101 1
+  name "wooden box(4)"
+  size 0.5 0.5 0.5
+}
+DEF SAND Solid {
+  translation 43.6618 -44.7514 1
+  rotation 0 0 1 -1.5707953071795862
+  scale 0.24 0.24 0.24
+  children [
+    Shape {
+      appearance Sand {
+      }
+      geometry Box {
+        size 3 4 0.01
+      }
+    }
+  ]
+  boundingObject Box {
+    size 3 4 0.01
+  }
+}
+DEF GOAL Solid {
+  translation 41.0955 -48.5117 -7.10543e-15
+  children [
+    Shape {
+      appearance ThreadMetalPlate {
+      }
+      geometry Cylinder {
+        height 0.01
+      }
+    }
+  ]
+  name "goal"
+}

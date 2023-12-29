@@ -24,7 +24,7 @@ def do_rollout(position, orientation, goal, waypoint_counter, known_obstacles, w
         'start_orientation': [float(x) for x in orientation],
         'goal_position': [float(x) for x in goal],
         'waypoint_index': waypoint_counter,
-        'num_iterations': 5,
+        'num_iterations': 10,
         'publish': False,
         'prefix': 'rollout',
         'known_obs': known_obstacles,
@@ -33,12 +33,14 @@ def do_rollout(position, orientation, goal, waypoint_counter, known_obstacles, w
         d['wp_x'] = [float(x) for x in waypoints[:, 0]]
         d['wp_y'] = [float(x) for x in waypoints[:, 1]]
 
+    # TODO fix mess of hard coded paths
+    base = '/home/cohrint-skynet/Code/etgoa_evaluation/world_model/'
     print(yaml.dump(d))
-    fname = '/home/cohrint-skynet/Documents/etgoa_eval/controllers/rollout_controller/'
+    fname = base + 'controllers/rollout_controller/'
     with open(fname + 'settings.yaml', 'w') as f:
         yaml.dump(d, f, default_flow_style=None, sort_keys=False)
 
-    p = Popen('/home/cohrint-skynet/Documents/etgoa_eval/controllers/do_rollouts.sh')
+    p = Popen(base + 'do_rollouts.sh')
     stdout, stderr = p.communicate()
     print('TODO read in monte carlo data')
 
@@ -66,9 +68,9 @@ class RolloutThread(QtCore.QThread):
 def example_rollout():
     pos = [0, 0, 0]
     orientation = [0, 0, 1, 0]
-    goal = [3, 3]
+    goal = [13, 13]
     known_obs = {}
-    waypoints = np.array([[0, 0], [3, 3]])
+    waypoints = np.array([[0, 0], [10, -10], goal])
     do_rollout(pos, orientation, goal, 0, known_obs, waypoints)
 
 
