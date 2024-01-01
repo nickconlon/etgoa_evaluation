@@ -5,16 +5,18 @@ import yaml
 from subprocess import Popen
 import PyQt5.QtCore as QtCore
 import traceback
+from famsec.outcomes import compute_outcomes
 
 
-def do_rollout(position, orientation, goal, waypoint_counter, known_obstacles, waypoints=None):
+def do_rollout(position, orientation, goal, known_obstacles, waypoints, max_time, num_iterations):
     """
     TODO obstacle location + radius + perturbation model (or type)
 
+    :param num_iterations:
+    :param max_time:
     :param position:            array [x, y]
     :param orientation:         array [x, y, z, w]
     :param goal:                array [x, y]
-    :param waypoint_counter:    0
     :param known_obstacles:     {}
     :param waypoints:           array [[x0, y0],...[xn, yn]]
     :return:
@@ -23,11 +25,12 @@ def do_rollout(position, orientation, goal, waypoint_counter, known_obstacles, w
         'start_position': [float(x) for x in position],
         'start_orientation': [float(x) for x in orientation],
         'goal_position': [float(x) for x in goal],
-        'waypoint_index': waypoint_counter,
-        'num_iterations': 10,
+        'waypoint_index': 0,
+        'num_iterations': num_iterations,
         'publish': False,
         'prefix': 'rollout',
         'known_obs': known_obstacles,
+        'max_time': max_time
     }
     if waypoints is not None:
         d['wp_x'] = [float(x) for x in waypoints[:, 0]]
@@ -42,23 +45,27 @@ def do_rollout(position, orientation, goal, waypoint_counter, known_obstacles, w
 
     p = Popen(base + 'do_rollouts.sh')
     stdout, stderr = p.communicate()
-    print('TODO read in monte carlo data')
+    goas = compute_outcomes()
+    return goas
 
 
 class RolloutThread(QtCore.QThread):
-    finished = QtCore.pyqtSignal()
+    finished = QtCore.pyqtSignal(object)
     pose = None
     orientation = None
     goal = None
-    known_obstacles = None
+    known_obstacles = {}
     waypoints = []
+    num_iterations = 10
+    max_time = 200  # seconds
 
     def run(self):
         print('starting rollout thread')
         t1 = time.time()
         try:
-            do_rollout(self.pose, self.orientation, self.goal, 0, {}, self.waypoints)
-            self.finished.emit()
+            goas = do_rollout(self.pose, self.orientation, self.goal, self.known_obstacles,
+                              self.waypoints, self.max_time, self.num_iterations)
+            self.finished.emit(goas)
         except Exception as e:
             traceback.print_exc()
         t2 = time.time()
@@ -68,10 +75,10 @@ class RolloutThread(QtCore.QThread):
 def example_rollout():
     pos = [0, 0, 0]
     orientation = [0, 0, 1, 0]
-    goal = [13, 13]
+    goal = [10, 10]
     known_obs = {}
-    waypoints = np.array([[0, 0], [10, -10], goal])
-    do_rollout(pos, orientation, goal, 0, known_obs, waypoints)
+    waypoints = np.array([[0, 0], goal])
+    do_rollout(pos, orientation, goal, known_obs, waypoints, 200, 20)
 
 
 if __name__ == '__main__':

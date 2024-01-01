@@ -48,13 +48,20 @@ class InterfaceImpl(BaseInterface):
         self.waypoint_speed_pub = rospy.Publisher('/{}/control'.format('tars'), Float32,
                                                   queue_size=10)
         self.waypoint_plan_pub = rospy.Publisher('/{}/waypoints'.format('tars'), Float32MultiArray,
-                                                  queue_size=10)
+                                                 queue_size=10)
 
         self.rollout_thread = None
         self.ui_connected = True
 
     def start_competency_assessment(self):
         try:
+            labels = [self.label_6, self.label_7, self.label_8, self.label_15, self.label_16]
+            for label in labels:
+                label.setStyleSheet(
+                    'background-color: {}; color: black'.format('green'))
+                label.setText("{}".format('Computing...'))
+            self.splash_of_color(self.competency_assessment_frame, color='light grey', timeout=0)
+
             plan = self.mission_manager.current_plan
             self.splash_of_color(self.competency_assessment_frame, timeout=0)
             self.rollout_thread = rollout.RolloutThread()
@@ -69,11 +76,11 @@ class InterfaceImpl(BaseInterface):
         except Exception as e:
             traceback.print_exc()
 
-    def finish_competency_assessment(self):
+    def finish_competency_assessment(self, goa_ret):
         try:
-            outcomes = np.random.random(size=5)
             labels = [self.label_6, self.label_7, self.label_8, self.label_15, self.label_16]
-            for outcome, label in zip(outcomes, labels):
+            for gg, label in zip(goa_ret.items(), labels):
+                outcome = gg[1]
                 label.setStyleSheet(
                     'background-color: {}; color: black'.format(goa.semantic_label_color(outcome)))
                 label.setText("{}".format(goa.semantic_label_text(outcome)))
@@ -94,9 +101,9 @@ class InterfaceImpl(BaseInterface):
         try:
             if self.mission_manager.has_plan():
                 plan = self.mission_manager.current_plan
-                px = plan[:,0]
-                py = plan[:,1]
-                flat_plan = list(px)+list(py)
+                px = plan[:, 0]
+                py = plan[:, 1]
+                flat_plan = list(px) + list(py)
                 print('setting plan to', flat_plan)
                 msg = Float32MultiArray()
                 msg.data = flat_plan
@@ -149,7 +156,7 @@ class InterfaceImpl(BaseInterface):
             ang = msg.pose[model_idx].orientation
             pose = (lin.x, lin.y, lin.z)
             angle = euler_from_quaternion([ang.x, ang.y, ang.z, ang.w])
-            #self.heading = (np.rad2deg(angle[2]) + 360) % 360
+            # self.heading = (np.rad2deg(angle[2]) + 360) % 360
         except Exception as e:
             traceback.print_exc()
 
@@ -158,6 +165,7 @@ class InterfaceImpl(BaseInterface):
             self.battery_remaining = msg.data
         except Exception as e:
             traceback.print_exc()
+
 
 if __name__ == '__main__':
     qdarktheme.enable_hi_dpi()

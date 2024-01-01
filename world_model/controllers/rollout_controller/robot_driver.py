@@ -9,7 +9,7 @@ import sys
 import time
 import pioneer_controller as pioneer
 import matplotlib.pyplot as plt
-from comms import ZmqPublisher, ZmqSubscriber, NOBLOCK, settings_reader, StateObject
+from comms import settings_reader, StateObject
 import json
 
 TIME_STEP = 64
@@ -153,26 +153,22 @@ def get_obstacles(_robot, _obstacle_names, _fov=None):
     return obstacles
 
 
-def update_machine(_current_state_machine, _current_state, _current_time, _goal, _next_waypoint, _max_time):
+def update_machine(_current_state_machine, _current_state, _goal, _next_waypoint, _max_time):
     _state_machine = StateMachine.driving
     if _current_state_machine == StateMachine.stopped:
         _state_machine = StateMachine.stopped
     elif len(_next_waypoint) == 0:  # Planning failed
         _state_machine = StateMachine.done
-    #elif np.linalg.norm(_current_state[0:2] - _goal) < 0.1:  # Reached the goal
-    #    _state_machine = StateMachine.done
-    elif _current_time > _max_time:  # Ran out of time
+    elif _current_state.robot_time > _max_time:  # Ran out of time
         _state_machine = StateMachine.done
-    elif np.linalg.norm(_current_state[0:2] - _next_waypoint) < 0.1:  # The robot should replan
+    elif np.linalg.norm(np.array([_current_state.pos[0], _current_state.pos[1]]) - _next_waypoint) < 0.1:  # The robot should replan
         _state_machine = StateMachine.replan
     return _state_machine
 
 
-def run(goal, robot, wheels, gps, compass, known_obstacles, waypoints, waypoint_index, run_number, should_pub, run_prefix, max_time):
-    if should_pub:
-        pub = ZmqPublisher("*", "5558")
-        stop_sub = ZmqSubscriber("localhost", "5559")
-    fov = 2
+def run(goal, robot, wheels, gps, compass, known_obstacles, waypoints, waypoint_index, run_number, run_prefix, max_time):
+    noise = np.random.normal(loc=0.0, scale=0.05)
+    print('velocity noise', noise)
     state_path = '/data/webots/{}{}_state.npy'.format(run_prefix, run_number)
 
     waypoint_counter = waypoint_index
@@ -181,37 +177,19 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, waypoints, waypoint_
 
     state = []
     t0 = robot.getTime()
+
     # main loop
     state_machine = StateMachine.driving
     while robot.step(TIME_STEP) != -1:
-        obs_pos = get_obstacles(robot, known_obstacles, _fov=fov)
-
         pose = robot.getSelf().getField('translation').getSFVec3f()
         orient = robot.getSelf().getField('rotation').getSFRotation()
-        obs_names = [o.id for o in obs_pos]
-        if 'SAND' in obs_names:
-            obs_names.remove('SAND')
+        vel = robot.getSelf().getVelocity()
         sample_time = robot.getTime() - t0
         state_object = StateObject()
-        state_object.set_state(pose, orient, obs_names, sample_time, time.time(), goal, waypoint_counter)
-        if should_pub:
-            pub.publish(json.dumps(state_object.get_state_dict()))
+        state_object.set_state(pose, orient, vel, sample_time, time.time(), goal, waypoint_counter)
         state.append(np.array(state_object.get_state_array(), dtype=object))
 
-        state_machine = update_machine(state_machine, state[-1], sample_time, goal, next_waypoint, max_time)
-
-        if should_pub:
-            try:
-                stat = stop_sub.receive(flags=NOBLOCK)
-                print('received', stat)
-                if stat == 'stop':
-                    state_machine = StateMachine.stopped
-                    for i, wheel in enumerate(wheels):
-                        wheel.setVelocity(0)
-                if stat == 'start':
-                    state_machine = StateMachine.driving
-            except:
-                pass
+        state_machine = update_machine(state_machine, state_object, goal, next_waypoint, max_time)
 
         # Robot should plan
         if state_machine == StateMachine.replan:
@@ -224,7 +202,7 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, waypoints, waypoint_
 
         # Robot has more driving to do
         elif state_machine == StateMachine.driving:
-            speed, arrived = goto(next_waypoint, gps, compass)
+            speed, arrived = goto(next_waypoint, gps, compass, noise)
 
             # Sand trap functionality
             sand_pos = get_obstacles(robot, ['SAND'])
@@ -247,8 +225,6 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, waypoints, waypoint_
             print('Pose ', robot.getSelf().getField('translation').getSFVec3f())
             print('Rot', robot.getSelf().getField('rotation').getSFRotation())
             print('Time', robot.getTime() - t0)
-            print('Waypoint ', next_waypoint)
-            print('Waypoint idx ', waypoint_counter)
             np.save(state_path, state)
             d = {
                 'start_position': [float(x) for x in pose],
@@ -262,9 +238,6 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, waypoints, waypoint_
             with open('/data/webots/rollout_state.yaml', 'w') as f:
                 yaml.dump(d, f, default_flow_style=None, sort_keys=False)
             break
-    if should_pub:
-        pub.socket.close()
-        pub.context.term()
 
 
 def reset_robot(_robot, loc, rot):
