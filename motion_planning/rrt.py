@@ -32,6 +32,8 @@ class Obstacle:
         self.angle = obs_angle
         self.buffer = buffer
 
+    def __str__(self):
+        return 'Obstacle ID: {}\nCenter: ({},{})\nAxis: {}\n'.format(self.id, *self.center, self.axis)
 
 class RRT:
     """
@@ -410,7 +412,7 @@ def plan_rrt_webots(start, goal, obstacles, bounds, visualize_route=False, filen
     for ob in obstacles:
         planner.add_obstacle(ob)
 
-    nodes = planner.rrt_star(start, goal, iterations, np.linalg.norm(bounds / 10.))
+    nodes = planner.rrt_star(start, goal, iterations,  2)  # np.linalg.norm(bounds / 10.))
     waypoints = planner.get_path(nodes, goal)
     waypoints = np.flip(waypoints)
     if visualize_route:

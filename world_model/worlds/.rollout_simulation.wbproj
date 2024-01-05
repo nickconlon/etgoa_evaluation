@@ -5,6 +5,6 @@ sceneTreePerspectives: 000000ff00000001000000030000001c000002b0000000fa010000000
 maximizedDockId: -1
 centralWidgetVisible: 1
 orthographicViewHeight: 1
-textFiles: 0 "controllers/rollout_controller/rollout_controller.py" "controllers/rollout_controller/robot_driver.py"
+textFiles: 1 "controllers/rollout_controller/rollout_controller.py" "controllers/rollout_controller/robot_driver.py"
 consoles: Console:All:All
 renderingDevicePerspectives: Pioneer 3-AT:camera;1;0.703125;0;0

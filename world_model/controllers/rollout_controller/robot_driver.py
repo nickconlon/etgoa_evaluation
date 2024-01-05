@@ -167,7 +167,7 @@ def update_machine(_current_state_machine, _current_state, _goal, _next_waypoint
 
 
 def run(goal, robot, wheels, gps, compass, known_obstacles, waypoints, waypoint_index, run_number, run_prefix, max_time):
-    noise = np.random.normal(loc=0.0, scale=0.05)
+    noise = 0 #np.random.normal(loc=0.0, scale=0.05)
     print('velocity noise', noise)
     state_path = '/data/webots/{}{}_state.npy'.format(run_prefix, run_number)
 
@@ -184,9 +184,10 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, waypoints, waypoint_
         pose = robot.getSelf().getField('translation').getSFVec3f()
         orient = robot.getSelf().getField('rotation').getSFRotation()
         vel = robot.getSelf().getVelocity()
+                
         sample_time = robot.getTime() - t0
         state_object = StateObject()
-        state_object.set_state(pose, orient, vel, sample_time, time.time(), goal, waypoint_counter)
+        state_object.set_state(pose, orient, vel[:2], sample_time, time.time(), goal, waypoint_counter)
         state.append(np.array(state_object.get_state_array(), dtype=object))
 
         state_machine = update_machine(state_machine, state_object, goal, next_waypoint, max_time)

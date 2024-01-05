@@ -3,10 +3,13 @@ import matplotlib.pyplot as plt
 from PIL import Image
 
 from motion_planning import rrt
-from motion_planning import projections
+from base_interface.yaml_writer import read_obstacles
 
 
 class MissionManager:
+    ASPEN = 'aspen'
+    OUTDOOR = 'outdoor'
+
     def __init__(self, mission_area_image_path, projector):
         area_miny, area_maxy, area_minx, area_maxx = -50, 50, -50, 50
         self.projector = projector
@@ -17,11 +20,13 @@ class MissionManager:
         self.poi_c = pois[2]
         self.poi_d = pois[3]
         self.home = pois[4]
-
+        self.zero = pois[5]
+        self.location = self.ASPEN
         self.current_plan = None
         self.visualize = False
         self.mission_area_image = np.asarray(Image.open(mission_area_image_path))
         self.mission_area_bounds = np.array([[area_miny, area_maxy], [area_minx, area_maxx]])
+        self.obstacles = read_obstacles('./base_interface/obstacles.yaml')
 
     def update_plan(self, new_plan):
         self.current_plan = new_plan
@@ -58,7 +63,7 @@ class MissionManager:
         # RRT point [y, x]
         start = np.array([robot_y, robot_x])
         # RRT Obstacle
-        obstacles = []
+        obstacles = self.obstacles
         # [ymin ymax], [xmin, xmax]
         bounds = self.mission_area_bounds
         plan = rrt.plan_rrt_webots(start, goal, obstacles, bounds,
@@ -68,7 +73,46 @@ class MissionManager:
         plan = np.vstack((np.array([robot_x, robot_y]), plan))
         self.update_plan(plan)
 
-    def get_overlay_image(self, robot_x, robot_y, path_color='black', ):
+    def get_overlay_image_aspen(self, robot_x, robot_y, path_color='black'):
+        fig, ax = plt.subplots(frameon=False)
+        ax.set_xlim([-50, 50])
+        ax.set_ylim([-50, 50])
+
+        # plot the POIs
+        for poi in [self.poi_a, self.poi_b, self.poi_c, self.poi_d]:
+            ax.scatter([poi.x], [poi.y], c='green', s=200)
+            ax.text(poi.x+2, poi.y-1, poi.name, size='large')
+
+        # plot the obstacles
+        for o in self.obstacles:
+            rx, ry = o.center
+            c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='red', facecolor='red', alpha=0.5)
+            ax.add_patch(c)
+
+        # plot the plan
+        if self.has_plan():
+            plan = self.current_plan
+            pixel_plan = [[robot_x, robot_y]]
+            for point in plan:
+                pixel_plan.append([point[0], point[1]])
+            pixel_plan = np.array(pixel_plan)
+            ax.plot(pixel_plan[:, 0], pixel_plan[:, 1], '--', c=path_color, markersize=10)
+            ax.scatter(pixel_plan[:, 0], pixel_plan[:, 1], c=path_color, s=10)
+
+        # plot the robot
+        ax.scatter([robot_x], [robot_y], c='blue', s=100)
+
+        plt.axis('equal')
+        plt.grid()
+        plt.tight_layout()
+        canvas = plt.gca().figure.canvas
+        canvas.draw()
+        data = np.frombuffer(canvas.tostring_rgb(), dtype='uint8')
+        img = data.reshape(canvas.get_width_height()[::-1] + (3,))
+        plt.close(fig)
+        return img
+
+    def get_overlay_image_outdoor(self, robot_x, robot_y, path_color='black', ):
         img = self.mission_area_image.copy()
         fig, ax = plt.subplots(frameon=False)
         y, x, _ = img.shape
@@ -85,8 +129,6 @@ class MissionManager:
             plt.scatter(pixel_plan[:, 0], pixel_plan[:, 1], c=path_color, s=10)
 
         rx, ry = self.projector.cartesian_to_pixel(robot_x, robot_y)
-        # heading = np.deg2rad(360-45)
-        # plt.annotate("", xy=(rx, ry), xytext=(rx+5*np.sin(heading), ry+5*np.cos(heading)), arrowprops=dict(headwidth=10, headlength=10, width=0.1))
         plt.scatter([rx], [ry], c='blue', s=100)
         plt.axis('off')
         plt.axis('equal')
@@ -97,6 +139,12 @@ class MissionManager:
         img = data.reshape(canvas.get_width_height()[::-1] + (3,))
         plt.close(fig)
         return img
+
+    def get_overlay_image(self, robot_x, robot_y, path_color='black'):
+        if self.location == self.ASPEN:
+            return self.get_overlay_image_aspen(robot_x, robot_y, path_color)
+        elif self.location == self.OUTDOOR:
+            return self.get_overlay_image_outdoor(robot_x, robot_y, path_color)
 
     def update_progress(self, robot_x, robot_y):
         # if [rx, ry]-[px, py] < d -> remove [px, py] from plan

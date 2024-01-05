@@ -56,26 +56,35 @@ class Projector:
         poi_a = PointOfInterest()
         poi_a.latitude = 40.01044911
         poi_a.longitude = 105.24441295
+        poi_a.name = 'A'
 
         poi_b = PointOfInterest()
         poi_b.latitude = 40.01075063
         poi_b.longitude = 105.24428344
+        poi_b.name = 'B'
 
         poi_c = PointOfInterest()
         poi_c.latitude = 40.01057135
         poi_c.longitude = 105.24421890
+        poi_c.name = 'C'
 
         poi_d = PointOfInterest()
         poi_d.latitude = 40.01031135
         poi_d.longitude = 105.24412890
+        poi_d.name = 'D'
 
         poi_home = PointOfInterest()
         poi_home.latitude = 40.01029409
         poi_home.longitude = 105.24434835
+        poi_home.name = 'H'
 
-        for p in [poi_a, poi_b, poi_c, poi_d, poi_home]:
+        poi_zero = PointOfInterest()
+        poi_zero.latitude, poi_zero.longitude = 40.01045433, 105.24432153
+        poi_zero.name = 'Z'
+
+        for p in [poi_a, poi_b, poi_c, poi_d, poi_home, poi_zero]:
             p.x, p.y = self.equirectangular_projection(p.latitude, p.longitude)
-        return poi_a, poi_b, poi_c, poi_d, poi_home
+        return poi_a, poi_b, poi_c, poi_d, poi_home, poi_zero
 
 
 def equirectangular_projection(latitude, longitude, lat_center, lon_center):
@@ -123,7 +132,7 @@ print(x, y)
 
 
 class PointOfInterest:
-    def __init__(self, x=0, y=0, lat=0, lon=0, alt=0):
+    def __init__(self, x=0, y=0, lat=0, lon=0, alt=0, name=''):
         self.x = x
         self.y = y
         self.z = alt
@@ -131,6 +140,7 @@ class PointOfInterest:
         self.longitude = lon
         self.px_x = 0
         self.px_y = 0
+        self.name = name
 
 
 def convert_poi(lat, lon):

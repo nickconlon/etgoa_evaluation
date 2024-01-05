@@ -15,10 +15,14 @@ class DataRecorder:
         time
         """
         self.fname = './data/test_recorder.csv'
-        self.header = ['latitude', 'longitude', 'altitude', 'heading', 'velocity',
-                       'battery number', 'battery remaining', 'power value', 'gps frequency',
+        self.header = ['latitude', 'longitude', 'altitude',
+                       'heading', 'velocity',
                        'control mode', 'mission mode',
-                       'help request', 'help response', 'timestamp', 'condition']
+                       'battery number', 'battery remaining',
+                       'power value', 'gps frequency',
+                       'help request', 'help response',
+                       'timestamp',
+                       'condition']
         pd.DataFrame(columns=self.header).to_csv(self.fname, index=False)
         self.condition = condition
         self.data = []
@@ -31,9 +35,11 @@ class DataRecorder:
                 participant_help_request,
                 mission_control_response, mission_time):
         try:
-            row = [latitude, longitude, altitude, heading, velocity,
+            row = [latitude, longitude, altitude,
+                   heading, velocity,
                    control_mode, mission_mode,
-                   battery_number, battery_remaining, power_value, gps_value,
+                   battery_number, battery_remaining,
+                   power_value, gps_value,
                    participant_help_request,
                    mission_control_response,
                    mission_time, self.condition]

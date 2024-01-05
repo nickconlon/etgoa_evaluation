@@ -200,6 +200,7 @@ class WaypointFollower:
                 self.ys.remove(_y)
         print("Waypoints complete")
         self.max_speed = 0.0
+        print('waiting for plan')
 
 
 if __name__ == '__main__':

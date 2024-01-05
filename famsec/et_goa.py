@@ -19,11 +19,11 @@ def preprocess_predicted(predicted_paths):
     predicted_states = [np.load(d, allow_pickle=True) for d in predicted_paths]
     for idx, x in enumerate(predicted_states):
         for iidx, y in enumerate(x):
-            predicted_states[idx][iidx, 7] = len(y[7])
+            predicted_states[idx][iidx, 8] = len(y[8])
         predicted_states[idx] = predicted_states[idx].astype('float64')
     max_len = np.max([len(x) for x in predicted_states])
     preprocessed = np.zeros((max_len, 8)) * np.nan
-    indexes = [8, 0, 1, 7]  #
+    indexes = [11, 0, 1, 7]  # mission time, px, py, speed
     for t in range(max_len):
         data = []
         for i in indexes:
@@ -34,7 +34,7 @@ def preprocess_predicted(predicted_paths):
                 d1.append(pred[t, i])
             data.append([np.mean(d1), np.std(d1)])
         preprocessed[t] = np.array(data).flatten()
-    #  [t, t_mu, x_mu, x_std, y_mu, y_std, obs_mu, obs_std]
+    #  [t_mu, t_std, x_mu, x_std, y_mu, y_std, speed_mu, speed_std]
     return preprocessed
 
 

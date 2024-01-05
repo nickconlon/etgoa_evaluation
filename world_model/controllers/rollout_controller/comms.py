@@ -48,11 +48,11 @@ class StateObject:
 
     def get_state_array(self):
         return [
-            *self.pos,
-            *self.ori,
-            self.speed,
+            *self.pos, # 3
+            *self.ori, # 4
+            self.speed, # 1
             self.obs,
-            *self.goal,
+            *self.goal, # 3
             self.robot_time,
             self.wall_time
         ]
