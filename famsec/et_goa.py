@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
-import famsec as famsec
+import famsec.factorized_machine_self_confidence as famsec
 
 
 def find_nearest(array, value):
@@ -52,7 +52,8 @@ def gaussian_si_1d(pred_mu, pred_std, actual, min_std=1.0, plot=False):
         y = _model.pdf(_x)
         plt.plot(_x, y, color='black')
         plt.plot([min(_x), max(_x)], [0, 0], color='black')
-        plt.scatter([_loc - _dist, _loc + _dist], [_model.pdf(_loc - _dist), _model.pdf(_loc + _dist)], c='red')
+        plt.scatter([_loc - _dist, _loc + _dist],
+                    [_model.pdf(_loc - _dist), _model.pdf(_loc + _dist)], c='red')
         plt.plot([_loc + _dist, _loc + _dist], [0, _model.pdf(_loc + _dist)], c='red')
         plt.plot([_loc - _dist, _loc - _dist], [0, _model.pdf(_loc - _dist)], c='red')
         plt.title("full:{:.2f}, SI:{:.2f}, std:{:.2f}".format(_model.cdf(_myclip_b), _si, _scale))
@@ -89,23 +90,29 @@ def kde_assessment(actual, predicted, ax=None):
 
 class et_goa:
     def __init__(self):
-        self.pred_paths = []
-        self.data = []
+        self.pred_paths = None
+        self.data = None
         self.counter = 0
-        self.sample_rate = 10
+        self.t_start = None
+        self.min_stds = [5, 5, 0.5]
+        self.texts = ['t', 'x', 'y', 'v']
+
+    def has_data(self):
+        return self.data is not None
 
     def set_pred_paths(self, paths):
         self.pred_paths = paths
 
     def preprocess(self):
+        print('processing rollouts')
         predicted_states = [np.load(d, allow_pickle=True) for d in self.pred_paths]
         for idx, x in enumerate(predicted_states):
             for iidx, y in enumerate(x):
-                predicted_states[idx][iidx, 7] = len(y[7])
+                predicted_states[idx][iidx, 8] = len(y[8])
             predicted_states[idx] = predicted_states[idx].astype('float64')
         max_len = np.max([len(x) for x in predicted_states])
         preprocessed = np.zeros((max_len, 8)) * np.nan
-        indexes = [8, 0, 1, 7]  #
+        indexes = [11, 0, 1, 7]  # mission time, px, py, speed
         for t in range(max_len):
             data = []
             for i in indexes:
@@ -116,44 +123,36 @@ class et_goa:
                     d1.append(pred[t, i])
                 data.append([np.mean(d1), np.std(d1)])
             preprocessed[t] = np.array(data).flatten()
-        #  [t, x_mu, x_std, y_mu, y_std, obs_mu, obs_std]
+        #  [t_mu, t_std, x_mu, x_std, y_mu, y_std, speed_mu, speed_std]
         self.counter = 0
         self.data = preprocessed
 
-    def get_si(self, actual_x, actual_y, actual_obs, t=0.0, min_std=1.5):
-        if self.counter >= len(self.data):
-            return 0.0, None, None
-        d_idx = min_diff_pos_sorted(self.data[:, 0], t)
-        # print("NEW: ({:.2f}, {:.2f})".format(self.data[d_idx][2], self.data[d_idx][4]))
+    def set_start_time(self, t_start):
+        if self.t_start is None:
+            self.t_start = t_start
+            self.data[:, 0] += t_start
 
-        d = self.data[self.counter]
-        # print("OLD:({:.2f}, {:.2f})".format(d[2], d[4]))
-        print("mu(x,y, obs): ({:.2f}, {:.2f}, {:.2f}) || act({:.2f}, {:.2f}, {:.2f})"
-              .format(d[2], d[4], d[6], actual_x, actual_y, actual_obs))
-        print("")
-        # x position
-        mux = d[2]
-        stdx = d[3]
-        si_x = gaussian_si_1d(pred_mu=mux, pred_std=stdx, actual=actual_x, plot=False, min_std=min_std)
+    def forget_start_time(self):
+        self.t_start = None
 
-        # y position
-        muy = d[4]
-        stdy = d[5]
-        si_y = gaussian_si_1d(pred_mu=muy, pred_std=stdy, actual=actual_y, plot=False, min_std=min_std)
-
-        # num objects
-        mu = d[6]
-        std = d[7]
-        si_o = gaussian_si_1d(pred_mu=mu, pred_std=std, actual=actual_obs, plot=False, min_std=min_std)
-        si = np.min([si_x, si_y])  # TODO turned off sensor Model Quality
-        self.counter += self.sample_rate
-        print('t: {:.2f}, si: {:.2f}'.format(d[0], si))
-        return si, mux, muy
+    def get_si(self, actual_x, actual_y, actual_obs, t_now):
+        idx = find_nearest(self.data[:, 0], t_now)
+        pred = self.data[idx]
+        actuals = [actual_x, actual_y, actual_obs]
+        pred_mus = [pred[2], pred[4], pred[6]]
+        pred_stds = [pred[3], pred[5], pred[7]]
+        sis = []
+        for actual, pred_mu, pred_std, min_std in zip(actuals, pred_mus, pred_stds, self.min_stds):
+            si = gaussian_si_1d(pred_mu, pred_std, actual, min_std)
+            sis.append(si)
+        print("mu(x,y, obs): ({:.2f}, {:.2f}, {:.2f}) || act({:.2f}, {:.2f}, {:.2f})".
+              format(pred_mus[0], pred_mus[1], pred_mus[2], actuals[0], actuals[1], actuals[2]))
+        print('si(x): {:.2f}, si(y): {:.2f}, si(v): {:.2f}'.format(*sis))
+        return sis
 
     def get_goa_times(self, time_cutoff, time_completed):
         predicted_states = [np.load(d, allow_pickle=True) for d in self.pred_paths]
         times = [d[-1, -2] + time_completed for d in predicted_states]
-        print("GOA TIMES: ", times)
         distribution = [int(x < time_cutoff) for x in times]
         partition = np.array([-2, 0, 2])
         z_star = 2
@@ -163,13 +162,6 @@ class et_goa:
 
 if __name__ == '__main__':
     pred_paths = [r'C:\DATA\webots\rollout{}_state.npy'.format(x) for x in np.arange(0, 10)]
-    # et_obj = et_goa()
-    # et_obj.set_pred_paths(pred_paths)
-    # et_obj.preprocess()
-    # et_obj.get_goa_times(135, 0)
-    # data = et_obj.data
-    # et_obj.get_si(0, 0, 0, t=120.01)
-
     raw = [np.load(d, allow_pickle=True) for d in pred_paths]
     act = 0
     t = 0

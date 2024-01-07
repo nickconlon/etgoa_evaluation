@@ -20,7 +20,6 @@ from sensor_msgs.msg import NavSatFix
 
 from base_interface.base_interface import BaseInterface
 from motion_planning.waypoint_follower import extract_msg
-from famsec import goa, rollout
 
 
 class InterfaceImpl(BaseInterface):
@@ -41,8 +40,6 @@ class InterfaceImpl(BaseInterface):
                                              self.ros_position_callback)
         self.velocity_sub = rospy.Subscriber('/navsat/vel', Vector3Stamped,
                                              self.ros_velocity_callback)
-        self.heading_sub = rospy.Subscriber('/gazebo/model_states', ModelStates,
-                                            self.ros_heading_callback)
         self.velocity_pub = rospy.Publisher('/jackal_velocity_controller/cmd_vel', Twist,
                                             queue_size=10)
         self.waypoint_speed_pub = rospy.Publisher('/{}/control'.format('tars'), Float32,
@@ -50,43 +47,7 @@ class InterfaceImpl(BaseInterface):
         self.waypoint_plan_pub = rospy.Publisher('/{}/waypoints'.format('tars'), Float32MultiArray,
                                                  queue_size=10)
 
-        self.rollout_thread = None
         self.ui_connected = True
-
-    def start_competency_assessment(self):
-        try:
-            labels = [self.label_6, self.label_7, self.label_8, self.label_15, self.label_16]
-            for label in labels:
-                label.setStyleSheet(
-                    'background-color: {}; color: black'.format('green'))
-                label.setText("{}".format('Computing...'))
-            self.splash_of_color(self.competency_assessment_frame, color='light grey', timeout=0)
-
-            plan = self.mission_manager.current_plan
-            self.splash_of_color(self.competency_assessment_frame, timeout=0)
-            self.rollout_thread = rollout.RolloutThread()
-            self.rollout_thread.pose = [self.position.x, self.position.y, self.position.z]
-            self.rollout_thread.orientation = [0, 0, np.deg2rad(self.heading), 0]
-            self.rollout_thread.waypoints = plan
-            self.rollout_thread.known_obstacles = {}
-            self.rollout_thread.goal = plan[-1]
-            print('driving to', plan[-1])
-            self.rollout_thread.finished.connect(self.finish_competency_assessment)
-            self.rollout_thread.start()
-        except Exception as e:
-            traceback.print_exc()
-
-    def finish_competency_assessment(self, goa_ret):
-        try:
-            labels = [self.label_6, self.label_7, self.label_8, self.label_15, self.label_16]
-            for gg, label in zip(goa_ret.items(), labels):
-                outcome = gg[1]
-                label.setStyleSheet(
-                    'background-color: {}; color: black'.format(goa.semantic_label_color(outcome)))
-                label.setText("{}".format(goa.semantic_label_text(outcome)))
-            self.splash_of_color(self.competency_assessment_frame, color='light grey', timeout=0)
-        except Exception as e:
-            traceback.print_exc()
 
     def ros_control_waypoint_follower(self, speed):
         try:
@@ -148,23 +109,6 @@ class InterfaceImpl(BaseInterface):
         :return:
         """
         pass
-
-    def ros_heading_callback(self, msg):
-        try:
-            model_idx = msg.name.index('jackal')
-            lin = msg.pose[model_idx].position
-            ang = msg.pose[model_idx].orientation
-            pose = (lin.x, lin.y, lin.z)
-            angle = euler_from_quaternion([ang.x, ang.y, ang.z, ang.w])
-            # self.heading = (np.rad2deg(angle[2]) + 360) % 360
-        except Exception as e:
-            traceback.print_exc()
-
-    def ros_battery_callback(self, msg):
-        try:
-            self.battery_remaining = msg.data
-        except Exception as e:
-            traceback.print_exc()
 
 
 if __name__ == '__main__':

@@ -26,16 +26,19 @@ class Projector:
         self.TL_poi = PointOfInterest()
         self.TL_poi.px_x, self.TL_poi.px_y = 300, 68
         self.TL_poi.latitude, self.TL_poi.longitude = 40.01082206, 105.24452537
-        self.TL_poi.x, self.TL_poi.y = self.equirectangular_projection(self.TL_poi.latitude, self.TL_poi.longitude)
+        self.TL_poi.x, self.TL_poi.y = self.equirectangular_projection(self.TL_poi.latitude,
+                                                                       self.TL_poi.longitude)
 
         self.BR_poi = PointOfInterest()
         self.BR_poi.px_x, self.BR_poi.px_y = 710, 723
         self.BR_poi.latitude, self.BR_poi.longitude = 40.01027355, 105.24409488
-        self.BR_poi.x, self.BR_poi.y = self.equirectangular_projection(self.BR_poi.latitude, self.BR_poi.longitude)
+        self.BR_poi.x, self.BR_poi.y = self.equirectangular_projection(self.BR_poi.latitude,
+                                                                       self.BR_poi.longitude)
 
     def equirectangular_projection(self, latitude, longitude):
         y = (latitude - self.latitude_center) * self.poles_circumference / 360
-        x = (longitude - self.longitude_center) * self.equator_circumference * np.cos(np.deg2rad(latitude)) / 360
+        x = (longitude - self.longitude_center) * self.equator_circumference * np.cos(
+            np.deg2rad(latitude)) / 360
         return x, y
 
     def project(self, latitude, longitude):
@@ -95,6 +98,30 @@ def equirectangular_projection(latitude, longitude, lat_center, lon_center):
     return x, y
 
 
+def get_heading(heading):
+    if 0 <= heading < 22.5:
+        desc = 'North'
+    elif 22.5 <= heading < 67.5:
+        desc = 'North East'
+    elif 67.5 <= heading < 112.5:
+        desc = 'East'
+    elif 112.5 <= heading < 157.5:
+        desc = 'South East'
+    elif 157.5 <= heading < 202.5:
+        desc = 'South'
+    elif 202.5 <= heading < 247.5:
+        desc = 'South West'
+    elif 247.5 <= heading < 292.5:
+        desc = 'West'
+    elif 292.5 <= heading < 337.5:
+        desc = 'North West'
+    elif 337.5 <= heading < 360:
+        desc = 'North'
+    else:
+        desc = 'Error'
+    return desc
+
+
 '''
 def convert(bytes):
     if 'G' in bytes:
@@ -128,7 +155,6 @@ x, y = equirectangular_projection(lat, lon)
 
 print(x, y)
 '''
-
 
 
 class PointOfInterest:

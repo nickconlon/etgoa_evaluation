@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1330</width>
-    <height>599</height>
+    <width>1423</width>
+    <height>816</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -329,7 +329,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Latitude: 0.0</string>
+         <string>x: 0.0</string>
         </property>
        </widget>
       </item>
@@ -341,7 +341,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Longitude: 0.0</string>
+         <string>y: 0.0</string>
         </property>
        </widget>
       </item>
@@ -353,7 +353,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Altitude: 0.0</string>
+         <string>z: 0.0</string>
         </property>
        </widget>
       </item>
@@ -365,8 +365,8 @@
      <rect>
       <x>530</x>
       <y>20</y>
-      <width>391</width>
-      <height>321</height>
+      <width>491</width>
+      <height>421</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -380,8 +380,8 @@
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>371</width>
-       <height>301</height>
+       <width>471</width>
+       <height>401</height>
       </rect>
      </property>
      <property name="mouseTracking">
@@ -407,7 +407,7 @@
    <widget class="QFrame" name="competency_assessment_frame">
     <property name="geometry">
      <rect>
-      <x>930</x>
+      <x>1030</x>
       <y>20</y>
       <width>381</width>
       <height>251</height>
@@ -872,7 +872,7 @@
    <widget class="QFrame" name="frame_6">
     <property name="geometry">
      <rect>
-      <x>930</x>
+      <x>1030</x>
       <y>280</y>
       <width>381</width>
       <height>211</height>
@@ -981,8 +981,8 @@
     <property name="geometry">
      <rect>
       <x>530</x>
-      <y>350</y>
-      <width>391</width>
+      <y>450</y>
+      <width>491</width>
       <height>191</height>
      </rect>
     </property>
@@ -995,7 +995,7 @@
     <widget class="QDial" name="robot_gps_dial">
      <property name="geometry">
       <rect>
-       <x>270</x>
+       <x>360</x>
        <y>100</y>
        <width>111</width>
        <height>61</height>
@@ -1008,8 +1008,8 @@
     <widget class="QLCDNumber" name="robot_gps_lcd">
      <property name="geometry">
       <rect>
-       <x>270</x>
-       <y>62</y>
+       <x>360</x>
+       <y>60</y>
        <width>111</width>
        <height>31</height>
       </rect>
@@ -1018,7 +1018,7 @@
     <widget class="QLCDNumber" name="robot_battery_lcd">
      <property name="geometry">
       <rect>
-       <x>10</x>
+       <x>20</x>
        <y>62</y>
        <width>111</width>
        <height>31</height>
@@ -1028,7 +1028,7 @@
     <widget class="QSlider" name="robot_battery_slider">
      <property name="geometry">
       <rect>
-       <x>10</x>
+       <x>20</x>
        <y>110</y>
        <width>111</width>
        <height>41</height>
@@ -1044,7 +1044,7 @@
     <widget class="QLabel" name="label_30">
      <property name="geometry">
       <rect>
-       <x>10</x>
+       <x>20</x>
        <y>0</y>
        <width>111</width>
        <height>51</height>
@@ -1068,7 +1068,7 @@
     <widget class="QSlider" name="robot_power_slider">
      <property name="geometry">
       <rect>
-       <x>180</x>
+       <x>230</x>
        <y>100</y>
        <width>41</width>
        <height>61</height>
@@ -1084,8 +1084,8 @@
     <widget class="QLCDNumber" name="robot_power_lcd">
      <property name="geometry">
       <rect>
-       <x>140</x>
-       <y>62</y>
+       <x>190</x>
+       <y>60</y>
        <width>111</width>
        <height>31</height>
       </rect>
@@ -1094,7 +1094,7 @@
     <widget class="QLabel" name="label_31">
      <property name="geometry">
       <rect>
-       <x>150</x>
+       <x>200</x>
        <y>0</y>
        <width>101</width>
        <height>51</height>
@@ -1118,7 +1118,7 @@
     <widget class="QLabel" name="label_32">
      <property name="geometry">
       <rect>
-       <x>270</x>
+       <x>360</x>
        <y>0</y>
        <width>111</width>
        <height>51</height>
@@ -1226,14 +1226,24 @@
      </property>
     </widget>
    </widget>
+   <widget class="QComboBox" name="condition_combo_box">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>720</y>
+      <width>221</width>
+      <height>25</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1330</width>
-     <height>21</height>
+     <width>1423</width>
+     <height>22</height>
     </rect>
    </property>
   </widget>

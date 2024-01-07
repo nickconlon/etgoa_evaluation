@@ -167,7 +167,7 @@ def update_machine(_current_state_machine, _current_state, _goal, _next_waypoint
 
 
 def run(goal, robot, wheels, gps, compass, known_obstacles, waypoints, waypoint_index, run_number, run_prefix, max_time):
-    noise = 0 #np.random.normal(loc=0.0, scale=0.05)
+    noise = np.random.normal(loc=0.0, scale=0.5)
     print('velocity noise', noise)
     state_path = '/data/webots/{}{}_state.npy'.format(run_prefix, run_number)
 
