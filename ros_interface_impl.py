@@ -26,13 +26,11 @@ class InterfaceImpl(BaseInterface):
     def __init__(self):
         BaseInterface.__init__(self)
         rospy.init_node('user_interface', anonymous=True)
-        self.update_map_display(np.asarray(Image.open(self.img_path)))
         self.poi_selection.addItems(["Select POI", "POI A", "POI B", "POI C", "POI D"])
         self.num_backup_batteries = 5
         self.robot_battery_slider.setMaximum(self.num_backup_batteries)
         self.robot_battery_slider.setMaximum(self.num_backup_batteries)
-        self.poi_selection.currentTextChanged.connect(self.start_competency_assessment)
-        self.accept_poi_order_button.clicked.connect(self.ros_send_waypoint_plan)
+        self.accept_poi_button.clicked.connect(self.ros_send_waypoint_plan)
         self.stop_mode_button.clicked.connect(lambda: self.ros_control_waypoint_follower(0.0))
         self.drive_mode_button.clicked.connect(lambda: self.ros_control_waypoint_follower(0.25))
 

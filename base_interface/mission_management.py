@@ -3,14 +3,13 @@ import matplotlib.pyplot as plt
 from PIL import Image
 
 from motion_planning import rrt
-from base_interface.yaml_writer import read_obstacles
 
 
 class MissionManager:
     ASPEN = 'aspen'
     OUTDOOR = 'outdoor'
 
-    def __init__(self, mission_area_image_path, projector):
+    def __init__(self, mission_area_image_path, projector, obstacles):
         area_miny, area_maxy, area_minx, area_maxx = -50, 50, -50, 50
         self.projector = projector
 
@@ -26,7 +25,7 @@ class MissionManager:
         self.visualize = False
         self.mission_area_image = np.asarray(Image.open(mission_area_image_path))
         self.mission_area_bounds = np.array([[area_miny, area_maxy], [area_minx, area_maxx]])
-        self.obstacles = read_obstacles('./base_interface/obstacles.yaml')
+        self.obstacles = obstacles
 
     def update_plan(self, new_plan):
         self.current_plan = new_plan
@@ -59,9 +58,9 @@ class MissionManager:
 
     def plan_waypoints(self, robot_x, robot_y, goal_x, goal_y):
         # RRT goal = [y, x]
-        goal = np.array([goal_y, goal_x])
+        goal = np.array([goal_x, goal_y])
         # RRT point [y, x]
-        start = np.array([robot_y, robot_x])
+        start = np.array([robot_x, robot_y])
         # RRT Obstacle
         obstacles = self.obstacles
         # [ymin ymax], [xmin, xmax]
@@ -164,9 +163,13 @@ class MissionManager:
 
 
 if __name__ == '__main__':
-    m = MissionManager('../base_interface/mission_area.png')
-    m.plan_waypoints(m.home.x, m.home.y, m.poi_c.x, m.poi_c.y)
-    img = m.get_overlay_image(m.home.x + 1, m.home.y + 3)
+    from motion_planning.projections import Projector
+    lat_center, lon_center = 40.01045433, 105.24432153
+    projector = Projector(lat_center, lon_center)
+    projector.setup()
+    m = MissionManager('../imgs/mission_area.png', projector, [])
+    m.plan_waypoints(0, 0, 0, 20)
+    print(m.get_plan())
+    img = m.get_overlay_image_aspen(0, 0)
     plt.imshow(img)
-    plt.axis('off')
     plt.show()

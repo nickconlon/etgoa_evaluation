@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1423</width>
-    <height>816</height>
+    <width>1481</width>
+    <height>698</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -409,7 +409,7 @@
      <rect>
       <x>1030</x>
       <y>20</y>
-      <width>381</width>
+      <width>401</width>
       <height>251</height>
      </rect>
     </property>
@@ -448,10 +448,10 @@
     <widget class="QLabel" name="label_6">
      <property name="geometry">
       <rect>
-       <x>250</x>
-       <y>40</y>
+       <x>260</x>
+       <y>50</y>
        <width>121</width>
-       <height>41</height>
+       <height>21</height>
       </rect>
      </property>
      <property name="font">
@@ -460,7 +460,7 @@
       </font>
      </property>
      <property name="frameShape">
-      <enum>QFrame::Box</enum>
+      <enum>QFrame::NoFrame</enum>
      </property>
      <property name="text">
       <string/>
@@ -472,10 +472,10 @@
     <widget class="QLabel" name="label_7">
      <property name="geometry">
       <rect>
-       <x>250</x>
-       <y>80</y>
+       <x>260</x>
+       <y>90</y>
        <width>121</width>
-       <height>41</height>
+       <height>21</height>
       </rect>
      </property>
      <property name="font">
@@ -484,7 +484,7 @@
       </font>
      </property>
      <property name="frameShape">
-      <enum>QFrame::Box</enum>
+      <enum>QFrame::NoFrame</enum>
      </property>
      <property name="text">
       <string/>
@@ -496,10 +496,10 @@
     <widget class="QLabel" name="label_8">
      <property name="geometry">
       <rect>
-       <x>250</x>
-       <y>120</y>
+       <x>260</x>
+       <y>130</y>
        <width>121</width>
-       <height>41</height>
+       <height>21</height>
       </rect>
      </property>
      <property name="font">
@@ -508,7 +508,7 @@
       </font>
      </property>
      <property name="frameShape">
-      <enum>QFrame::Box</enum>
+      <enum>QFrame::NoFrame</enum>
      </property>
      <property name="text">
       <string/>
@@ -520,10 +520,10 @@
     <widget class="QLabel" name="label_15">
      <property name="geometry">
       <rect>
-       <x>250</x>
-       <y>160</y>
+       <x>260</x>
+       <y>170</y>
        <width>121</width>
-       <height>41</height>
+       <height>21</height>
       </rect>
      </property>
      <property name="font">
@@ -532,7 +532,7 @@
       </font>
      </property>
      <property name="frameShape">
-      <enum>QFrame::Box</enum>
+      <enum>QFrame::NoFrame</enum>
      </property>
      <property name="text">
       <string/>
@@ -544,10 +544,10 @@
     <widget class="QLabel" name="label_16">
      <property name="geometry">
       <rect>
-       <x>250</x>
-       <y>200</y>
+       <x>260</x>
+       <y>210</y>
        <width>121</width>
-       <height>41</height>
+       <height>21</height>
       </rect>
      </property>
      <property name="font">
@@ -556,7 +556,7 @@
       </font>
      </property>
      <property name="frameShape">
-      <enum>QFrame::Box</enum>
+      <enum>QFrame::NoFrame</enum>
      </property>
      <property name="text">
       <string/>
@@ -570,7 +570,7 @@
       <rect>
        <x>10</x>
        <y>160</y>
-       <width>361</width>
+       <width>381</width>
        <height>41</height>
       </rect>
      </property>
@@ -591,7 +591,7 @@
       <rect>
        <x>10</x>
        <y>80</y>
-       <width>361</width>
+       <width>381</width>
        <height>41</height>
       </rect>
      </property>
@@ -612,7 +612,7 @@
       <rect>
        <x>10</x>
        <y>120</y>
-       <width>361</width>
+       <width>381</width>
        <height>41</height>
       </rect>
      </property>
@@ -633,7 +633,7 @@
       <rect>
        <x>10</x>
        <y>40</y>
-       <width>361</width>
+       <width>381</width>
        <height>41</height>
       </rect>
      </property>
@@ -654,7 +654,7 @@
       <rect>
        <x>10</x>
        <y>200</y>
-       <width>361</width>
+       <width>381</width>
        <height>41</height>
       </rect>
      </property>
@@ -874,7 +874,7 @@
      <rect>
       <x>1030</x>
       <y>280</y>
-      <width>381</width>
+      <width>401</width>
       <height>211</height>
      </rect>
     </property>
@@ -889,7 +889,7 @@
       <rect>
        <x>0</x>
        <y>0</y>
-       <width>381</width>
+       <width>401</width>
        <height>31</height>
       </rect>
      </property>
@@ -912,7 +912,7 @@
       <rect>
        <x>10</x>
        <y>30</y>
-       <width>361</width>
+       <width>381</width>
        <height>31</height>
       </rect>
      </property>
@@ -925,55 +925,19 @@
       <string>Request Help</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="send_mission_control_udpate_button">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>170</y>
-       <width>181</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Send Message</string>
-     </property>
-    </widget>
     <widget class="QPlainTextEdit" name="mission_control_update_text">
      <property name="geometry">
       <rect>
        <x>10</x>
        <y>70</y>
-       <width>361</width>
-       <height>91</height>
+       <width>381</width>
+       <height>131</height>
       </rect>
      </property>
      <property name="font">
       <font>
        <pointsize>10</pointsize>
       </font>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="clera_mission_control_text_button">
-     <property name="geometry">
-      <rect>
-       <x>200</x>
-       <y>170</y>
-       <width>171</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Clear text</string>
      </property>
     </widget>
    </widget>
@@ -1200,17 +1164,17 @@
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>161</width>
+       <width>91</width>
        <height>31</height>
       </rect>
      </property>
     </widget>
-    <widget class="QPushButton" name="accept_poi_order_button">
+    <widget class="QPushButton" name="accept_poi_button">
      <property name="geometry">
       <rect>
-       <x>180</x>
+       <x>230</x>
        <y>10</y>
-       <width>161</width>
+       <width>111</width>
        <height>31</height>
       </rect>
      </property>
@@ -1225,16 +1189,26 @@
       <string>Accept POI</string>
      </property>
     </widget>
-   </widget>
-   <widget class="QComboBox" name="condition_combo_box">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>720</y>
-      <width>221</width>
-      <height>25</height>
-     </rect>
-    </property>
+    <widget class="QPushButton" name="plan_poi_button">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>10</y>
+       <width>111</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Plan POI</string>
+     </property>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -1242,7 +1216,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1423</width>
+     <width>1481</width>
      <height>22</height>
     </rect>
    </property>

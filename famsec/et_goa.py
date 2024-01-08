@@ -89,12 +89,12 @@ def kde_assessment(actual, predicted, ax=None):
 
 
 class et_goa:
-    def __init__(self):
+    def __init__(self, min_stds):
         self.pred_paths = None
         self.data = None
         self.counter = 0
         self.t_start = None
-        self.min_stds = [5, 5, 0.5]
+        self.min_stds = min_stds
         self.texts = ['t', 'x', 'y', 'v']
 
     def has_data(self):

@@ -12,7 +12,6 @@ from famsec import goa
 class InterfaceImpl(BaseInterface):
     def __init__(self):
         BaseInterface.__init__(self)
-        self.update_map_display(np.asarray(Image.open(self.img_path)))
         self.poi_selection.addItems(["Select POI", "POI A", "POI B", "POI C", "POI D"])
         self.num_backup_batteries = 5
         self.robot_battery_slider.setMaximum(self.num_backup_batteries)

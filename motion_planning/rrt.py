@@ -414,7 +414,7 @@ def plan_rrt_webots(start, goal, obstacles, bounds, visualize_route=False, filen
 
     nodes = planner.rrt_star(start, goal, iterations,  2)  # np.linalg.norm(bounds / 10.))
     waypoints = planner.get_path(nodes, goal)
-    waypoints = np.flip(waypoints)
+    waypoints = np.flip(waypoints, axis=0)
     if visualize_route:
         visualize(bounds, planner.get_obstacles_dict(), nodes, goal, filename)
 

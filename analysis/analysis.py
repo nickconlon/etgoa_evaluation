@@ -19,15 +19,18 @@ def make_plots(df, save_path=None):
         H3.2 -> C2/C3 > C1 after execution
     """
     trust_baseline = [df.loc[df['condition'] == c]['baseline trust'].tolist() for c in [0, 1, 2]]
-    trust_planning = [df.loc[df['condition'] == c]['post planning trust'].tolist() for c in [0, 1, 2]]
-    trust_execution = [df.loc[df['condition'] == c]['post execution trust'].tolist() for c in [0, 1, 2]]
+    trust_planning = [df.loc[df['condition'] == c]['post planning trust'].tolist() for c in
+                      [0, 1, 2]]
+    trust_execution = [df.loc[df['condition'] == c]['post execution trust'].tolist() for c in
+                       [0, 1, 2]]
     plot_trust(trust_baseline, trust_planning, trust_execution, save_path)
 
     usability = [df.loc[df['condition'] == c]['usability'].tolist() for c in [0, 1, 2]]
     plot_usability(usability, save_path)
 
     anomaly_resp_time = [df.loc[df['condition'] == c]['anomaly resp'].tolist() for c in [0, 1, 2]]
-    anomaly_resp_acc = [df.loc[df['condition'] == c]['anomaly accuracy'].tolist() for c in [0, 1, 2]]
+    anomaly_resp_acc = [df.loc[df['condition'] == c]['anomaly accuracy'].tolist() for c in
+                        [0, 1, 2]]
     task_score = [df.loc[df['condition'] == c]['task score'].tolist() for c in [0, 1, 2]]
     plot_performance(anomaly_resp_time, anomaly_resp_acc, task_score, save_path)
 
@@ -46,12 +49,14 @@ def plot_performance(perf_response_time, perf_response_accuracy, perf_task_score
     colors = ['red', 'orange', 'blue']
 
     response_time = plt.boxplot(perf_response_time,
-                                positions=np.array(np.arange(len(perf_response_time))) * 3.0 - 2 * 0.3,
+                                positions=np.array(
+                                    np.arange(len(perf_response_time))) * 3.0 - 2 * 0.3,
                                 widths=0.5,
                                 patch_artist=True,
                                 flierprops=dict(markerfacecolor=colors[0]))
     response_score = plt.boxplot(perf_response_accuracy,
-                                 positions=np.array(np.arange(len(perf_response_accuracy))) * 3.0 + 0,
+                                 positions=np.array(
+                                     np.arange(len(perf_response_accuracy))) * 3.0 + 0,
                                  widths=0.5,
                                  patch_artist=True,
                                  flierprops=dict(markerfacecolor=colors[1]))
@@ -69,10 +74,10 @@ def plot_performance(perf_response_time, perf_response_accuracy, perf_task_score
     # set the x label values
     plt.xticks([0, 3, 6], ticks)
 
-    # set the limit for x axis
+    # set the limit for x-axis
     plt.xlim(-2, 8)
 
-    # set the limit for y axis
+    # set the limit for y-axis
     plt.ylim(0, 100)
 
     plt.legend()
@@ -126,7 +131,8 @@ def plot_trust(trust_baseline, trust_planning, trust_execution, save_path):
     colors = ['red', 'orange', 'blue']
 
     trust_baseline_plot = plt.boxplot(trust_baseline,
-                                      positions=np.array(np.arange(len(trust_baseline))) * 3.0 - 2 * 0.3,
+                                      positions=np.array(
+                                          np.arange(len(trust_baseline))) * 3.0 - 2 * 0.3,
                                       widths=0.5,
                                       patch_artist=True,
                                       flierprops=dict(markerfacecolor=colors[0]))
@@ -136,7 +142,8 @@ def plot_trust(trust_baseline, trust_planning, trust_execution, save_path):
                                       patch_artist=True,
                                       flierprops=dict(markerfacecolor=colors[1]))
     trust_execution_plot = plt.boxplot(trust_execution,
-                                       positions=np.array(np.arange(len(trust_execution))) * 3.0 + 2 * 0.3,
+                                       positions=np.array(
+                                           np.arange(len(trust_execution))) * 3.0 + 2 * 0.3,
                                        widths=0.5,
                                        patch_artist=True,
                                        flierprops=dict(markerfacecolor=colors[2]))
@@ -162,6 +169,66 @@ def plot_trust(trust_baseline, trust_planning, trust_execution, save_path):
     plt.show()
 
 
+def plot_mqa_over_time(df):
+    """
+    plot colors for states (planning, execution)
+    :param df:
+    :return:
+    """
+    data = df#df.loc[df['control mode'] == 'Driving'][['mqa', 'timestamp']]
+    d_mqa = data['mqa'].to_numpy()
+    d_t = data['timestamp'].to_numpy()
+    d_t = d_t[1:]
+    d_mqa = d_mqa[1:]
+
+    data_mqa = np.zeros((len(d_mqa), 3))
+    data_t = np.zeros(len(d_mqa))
+
+    i = 0
+    for mqa, t in zip(d_mqa, d_t):
+        mqas = mqa.split('_')
+        data_mqa[i] = np.array([float(x) for x in mqas])
+        data_t[i] = t
+        i += 1
+    plt.plot(data_t, data_mqa[:, 0], label='x pos')
+    plt.plot(data_t, data_mqa[:, 1], label='y pos')
+    plt.plot(data_t, data_mqa[:, 2], label='speed')
+    plt.ylim([0, 1.1])
+    plt.legend()
+    plt.show()
+
+
+def plot_goa_over_time(df):
+    """
+
+    :param df:
+    :return:
+    """
+    d_goa = df['goa'].to_numpy()
+    d_t = df['timestamp'].to_numpy()
+
+    data_goa = np.zeros((len(d_goa), 5))
+    data_t = np.zeros(len(d_goa))
+
+    i = 0
+    for goa, t in zip(d_goa, d_t):
+        if type(goa) is not str:
+            data_goa[i] = np.array([0, 0, 0, 0, 0])
+            data_t[i] = t
+        else:
+            goas = goa.split('_')
+            data_goa[i] = np.array([float(x) for x in goas])
+            data_t[i] = t
+        i += 1
+    plt.plot(data_t, data_goa[:, 0], label='x pos')
+    plt.plot(data_t, data_goa[:, 1], label='y pos')
+    plt.plot(data_t, data_goa[:, 2], label='speed')
+    plt.ylim([0, 1.1])
+    plt.legend()
+    plt.show()
+
+
 if __name__ == '__main__':
-    data = pd.read_csv('../data/test_recorder.csv')
-    make_plots(data)
+    data = pd.read_csv('../data/recording.csv', )
+    #plot_goa_over_time(data)
+    plot_mqa_over_time(data)
