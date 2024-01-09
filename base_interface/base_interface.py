@@ -116,7 +116,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         # Setup the Competency Assessment Panel
         if self.condition == self.COND_GOA or self.condition == self.COND_ETGOA:
             print('Setting up Competency Assessment')
-            self.etgoa = et_goa.et_goa(min_stds=[5, 5, 0.5])
+            self.etgoa = et_goa.et_goa(min_stds=settings.et_goa_stds)
             self.etgoa.set_pred_paths([self.rollout_path.format(i) for i in range(10)])
             self.rollout_thread = None
             self.et_goa_threshold = settings.et_goa_threshold
@@ -124,6 +124,11 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.competency_assessment_frame.hide()
         self.mqa = [0] * 3  # [x, y, v]
         self.goa = [0] * 5  # []
+
+        #################
+        # Setup the questionnaire prompts
+        self.surveys = {0: False, 1: False, 2: False}
+        self.survey_prompt(0)
 
     def periodic_update(self):
         """
@@ -289,8 +294,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             secs = mission_time.total_seconds() % 60
             textm = "{}".format(str(int(mins)).rjust(2, "0"))
             texts = "{}".format(str(int(secs)).rjust(2, "0"))
-            text = '{}:{} into {} | {} MT'.format(textm, texts, self.mission_mode,
-                                                  now.strftime("%H:%M:%S"))
+            text = '{}:{} | {} MT'.format(textm, texts,  now.strftime("%H:%M:%S"))
             self.time_text.setText(text)
         except Exception as e:
             traceback.print_exc()
@@ -389,10 +393,11 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         :return:
         """
         try:
-            self.poi_selected = self.poi_selection.currentText()
-            print('Selected POI ', self.poi_selected)
-            self.accept_poi_button.setStyleSheet('background-color: light grey')
-            self.update_mission_control_text("")
+            if self.poi_selection.currentText() != "Select POI":
+                self.poi_selected = self.poi_selection.currentText()
+                print('Selected POI: ', self.poi_selected)
+                self.accept_poi_button.setStyleSheet('background-color: light grey')
+                self.update_mission_control_text("")
         except Exception as e:
             traceback.print_exc()
 
@@ -402,11 +407,11 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
         :return:
         """
-        print('Planning route to POI ', self.poi_selected)
-        if self.poi_selection.currentText() == "Select POI":
-            return 0
-        self.splash_of_color(self.frame_2)
-        self.mission_manager.plan_known_poi(self.position.x, self.position.y, self.poi_selected)
+
+        if self.poi_selected:
+            print('Planning route to POI: ', self.poi_selected)
+            self.splash_of_color(self.frame_2)
+            self.mission_manager.plan_known_poi(self.position.x, self.position.y, self.poi_selected)
 
     def accept_poi_callback(self):
         """
@@ -415,14 +420,15 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         :return:
         """
         try:
-            self.poi_accepted = self.poi_selected
-            self.accept_poi_button.setStyleSheet('background-color: green')
-            msg = QMessageBox()
-            msg.setWindowTitle("Pre Mission Survey Request")
-            msg.setText("Please complete the survey and press OK when done")
-            x = msg.exec_()
-            self.drive_mode_button.setEnabled(True)
-            self.mission_mode.state = ControlModeState.execution
+            if self.poi_selected:
+                print('Accepted POI: ', self.poi_selected)
+                self.poi_accepted = self.poi_selected
+                self.accept_poi_button.setStyleSheet('background-color: green')
+                self.survey_prompt(1)
+                #self.poi_selection.setDisabled(True)
+                #self.plan_poi_button.setDisabled(True)
+                #self.drive_mode_button.setEnabled(True)
+                self.mission_mode.state = ControlModeState.execution
         except Exception as e:
             traceback.print_exc()
 
@@ -571,6 +577,14 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.mission_control_update_text.setEnabled(True)
         except Exception as e:
             traceback.print_exc()
+
+    def survey_prompt(self, survey):
+        if not self.surveys[survey]:
+            self.surveys[survey] = True
+            msg = QMessageBox()
+            msg.setWindowTitle("Questionnaire Request")
+            msg.setText("Please complete questionnaire {} and press OK when done".format(survey))
+            x = msg.exec_()
 
     def splash_of_color(self, obj, color='green', timeout=500):
         """

@@ -18,6 +18,7 @@ class Settings:
         self.lon_center = None
         self.anomalies = False
         self.et_goa_threshold = None
+        self.et_goa_stds = None
 
     def read(self):
         try:
@@ -37,7 +38,8 @@ class Settings:
                 self.lat_center = settings['latitude_center']
                 self.lon_center = settings['longitude_center']
                 self.anomalies = settings['anomalies']
-                self.et_goa_threshold = settings['et-goa_threshold']
+                self.et_goa_threshold = settings['et_goa_threshold']
+                self.et_goa_stds = settings['et_goa_stds']
         except Exception as e:
             traceback.print_exc()
 
@@ -58,7 +60,8 @@ if __name__ == '__main__':
         'latitude_center': 40.01045433,
         'longitude_center': 105.24432153,
         'anomalies': False,
-        'et-goa_threshold': 0.05
+        'et_goa_threshold': 0.05,
+        'et_goa_stds': [0.5, 0.5, 0.5]
     }
 
     base = '../'

@@ -26,7 +26,7 @@ class InterfaceImpl(BaseInterface):
     def __init__(self):
         BaseInterface.__init__(self)
         rospy.init_node('user_interface', anonymous=True)
-        self.poi_selection.addItems(["Select POI", "POI A", "POI B", "POI C", "POI D"])
+        self.poi_selection.addItems(["Select POI", "POI A", "POI B", "POI C", "POI D", "HOME"])
         self.num_backup_batteries = 5
         self.robot_battery_slider.setMaximum(self.num_backup_batteries)
         self.robot_battery_slider.setMaximum(self.num_backup_batteries)
@@ -83,7 +83,8 @@ class InterfaceImpl(BaseInterface):
             self.position.x = pose[0]
             self.position.y = pose[1]
             self.position.z = pose[2]
-            self.heading = np.rad2deg(angle[-1] + 180) % 360
+            a = 360 + 90 - np.rad2deg(angle[-1])
+            self.heading = a % 360
         except Exception as e:
             traceback.print_exc()
 

@@ -82,6 +82,9 @@ class MissionManager:
             ax.scatter([poi.x], [poi.y], c='green', s=200)
             ax.text(poi.x+2, poi.y-1, poi.name, size='large')
 
+        ax.scatter([self.home.x], [self.home.y], c='gold', s=200, marker='*')
+        ax.text(self.home.x+2, self.home.y-1, self.home.name, size='large')
+
         # plot the obstacles
         for o in self.obstacles:
             rx, ry = o.center

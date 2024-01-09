@@ -20,4 +20,5 @@ condition: ET-GOA
 latitude_center: 40.01045433
 longitude_center: 105.24432153
 anomalies: false
-et-goa_threshold: 0.05
+et_goa_threshold: 0.05
+et_goa_stds: [0.5, 0.5, 0.5]
