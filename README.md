@@ -12,6 +12,8 @@ and how its competency changes during task execution. This project extends the f
 [Dynamic Competency Self-Assessment for Autonomous Agents](https://arxiv.org/abs/2303.01646)
 
 ### Installation
+Ubuntu 20.04
+
 Python: 3.8.10
 
 ROS: noetic
