@@ -1,3 +1,4 @@
+import time
 import traceback
 
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
@@ -53,6 +54,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         print('Setting up state')
         self.mission_mode = ControlModeState(ControlModeState.planning)  # planning or executing
         self.control_mode = ControlModeState(ControlModeState.stopped)  # stopped or driving
+        self.mission_phase = ControlModeState(ControlModeState.phase_mission_planning)
 
         #################
         # Setup the Mission Planning Panel
@@ -114,9 +116,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
         #################
         # Setup the Competency Assessment Panel
+        self.etgoa = et_goa.et_goa(min_stds=settings.et_goa_stds)
         if self.condition == self.COND_GOA or self.condition == self.COND_ETGOA:
             print('Setting up Competency Assessment')
-            self.etgoa = et_goa.et_goa(min_stds=settings.et_goa_stds)
             self.etgoa.set_pred_paths([self.rollout_path.format(i) for i in range(10)])
             self.rollout_thread = None
             self.et_goa_threshold = settings.et_goa_threshold
@@ -137,7 +139,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         :return:
         """
         try:
-            self.update_control_loa_mode_text()
+            self.update_control_mode_text()
             self.update_mission_mode_text()
             self.update_time_text()
             self.update_battery_text()
@@ -163,9 +165,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
     def navigation_complete(self):
         self.update_control_mode_state(ControlModeState.stopped)
         self.update_mission_mode_state(ControlModeState.planning)
-        # self.poi_accepted = None
-        # self.poi_selected = None
-        # self.drive_mode_button.setDisabled(True)
 
     def update_map(self):
         """
@@ -204,7 +203,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         except Exception as e:
             traceback.print_exc()
 
-    def update_control_loa_mode_text(self):
+    def update_control_mode_text(self):
         """
         Updater for control mode
 
@@ -231,6 +230,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.drive_mode_button.setEnabled(True)
         except Exception as e:
             traceback.print_exc()
+
+    def update_phase_text(self):
+        pass
 
     def update_position_text(self):
         """
@@ -353,6 +355,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             if text != "":
                 self.update_mission_control_text(text, 'green')
                 self.enable_buttons()
+                # delete the old stuff here
+                self.plan_poi_callback()
+                self.start_competency_assessment()
 
     def update_control_mode_state(self, new_state):
         """
@@ -369,7 +374,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             elif self.control_mode.state == ControlModeState.drive:
                 self.stop_mode_button.setStyleSheet('background-color: light gray')
                 self.drive_mode_button.setStyleSheet('background-color: green')
-            self.update_control_loa_mode_text()
+            self.update_control_mode_text()
         except Exception as e:
             traceback.print_exc()
 
@@ -425,9 +430,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.poi_accepted = self.poi_selected
                 self.accept_poi_button.setStyleSheet('background-color: green')
                 self.survey_prompt(1)
-                #self.poi_selection.setDisabled(True)
-                #self.plan_poi_button.setDisabled(True)
-                #self.drive_mode_button.setEnabled(True)
+                self.mission_phase.state = ControlModeState.phase_mission_execution
                 self.mission_mode.state = ControlModeState.execution
         except Exception as e:
             traceback.print_exc()
@@ -453,11 +456,14 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
         :return:
         """
+        print('requesting help')
         self.accept_poi_button.setStyleSheet('background-color: light grey')
         text = self.mission_control.get_response(self.mission_control.BATTERY)
         self.update_mission_control_text(text, 'red')
         self.update_mission_mode_state(ControlModeState.planning)
+        print('stopping waypoint follower')
         self.stop_mode_button.click()
+        time.sleep(0.1)
         self.disable_buttons()
 
     def start_competency_assessment(self):
@@ -512,7 +518,11 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             if self.condition == self.COND_ETGOA:
                 self.etgoa.preprocess()
             self.enable_buttons()
-            self.mission_mode.state = ControlModeState.planning
+            if self.mission_phase.state == ControlModeState.phase_mission_planning:
+                self.mission_mode.state = ControlModeState.planning
+            elif self.mission_phase.state == ControlModeState.phase_mission_execution:
+                self.mission_mode.state = ControlModeState.execution
+                self.accept_poi_button.click()
             self.splash_of_color(self.competency_assessment_frame, color='light grey', timeout=0)
         except Exception as e:
             traceback.print_exc()
@@ -553,7 +563,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.drive_mode_button.setDisabled(True)
             self.poi_selection.setDisabled(True)
             self.plan_poi_button.setDisabled(True)
-            self.stop_mode_button.setDisabled(True)
+            #self.stop_mode_button.setDisabled(True)
             self.accept_poi_button.setDisabled(True)
             self.request_mission_control_help_button.setDisabled(True)
             self.mission_control_update_text.setDisabled(True)
@@ -569,9 +579,10 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         try:
             if self.poi_accepted:
                 self.drive_mode_button.setEnabled(True)
+                self.stop_mode_button.setEnabled(True)
+
             self.poi_selection.setEnabled(True)
             self.plan_poi_button.setEnabled(True)
-            self.stop_mode_button.setEnabled(True)
             self.accept_poi_button.setEnabled(True)
             self.request_mission_control_help_button.setEnabled(True)
             self.mission_control_update_text.setEnabled(True)

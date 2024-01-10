@@ -72,6 +72,26 @@ class MissionManager:
         plan = np.vstack((np.array([robot_x, robot_y]), plan))
         self.update_plan(plan)
 
+    def plan_to_from(self, robot_x, robot_y, goal_x, goal_y, home_x, home_y):
+        # RRT goal = [y, x]
+        goal = np.array([goal_x, goal_y])
+        robot = np.array([robot_x, robot_y])
+        home = np.array([home_x, home_y])
+        obstacles = self.obstacles
+        bounds = self.mission_area_bounds
+        # from robot (x, y) to goal (x, y)
+        plan_to = rrt.plan_rrt_webots(robot, goal, obstacles, bounds,
+                                      visualize_route=self.visualize,
+                                      filename='')
+        plan_to = np.vstack((np.array([robot_x, robot_y]), plan_to))
+
+        # from goal (x, y) to home (x, y)
+        plan_from = rrt.plan_rrt_webots(goal, home, obstacles, bounds,
+                                        visualize_route=self.visualize,
+                                        filename='')
+        plan = np.vstack((plan_to, plan_from))
+        self.update_plan(plan)
+
     def get_overlay_image_aspen(self, robot_x, robot_y, path_color='black'):
         fig, ax = plt.subplots(frameon=False)
         ax.set_xlim([-50, 50])
@@ -80,10 +100,10 @@ class MissionManager:
         # plot the POIs
         for poi in [self.poi_a, self.poi_b, self.poi_c, self.poi_d]:
             ax.scatter([poi.x], [poi.y], c='green', s=200)
-            ax.text(poi.x+2, poi.y-1, poi.name, size='large')
+            ax.text(poi.x + 2, poi.y - 1, poi.name, size='large')
 
         ax.scatter([self.home.x], [self.home.y], c='gold', s=200, marker='*')
-        ax.text(self.home.x+2, self.home.y-1, self.home.name, size='large')
+        ax.text(self.home.x + 2, self.home.y - 1, self.home.name, size='large')
 
         # plot the obstacles
         for o in self.obstacles:
@@ -167,12 +187,14 @@ class MissionManager:
 
 if __name__ == '__main__':
     from motion_planning.projections import Projector
+
     lat_center, lon_center = 40.01045433, 105.24432153
     projector = Projector(lat_center, lon_center)
     projector.setup()
-    m = MissionManager('../imgs/mission_area.png', projector, [])
-    m.plan_waypoints(0, 0, 0, 20)
-    print(m.get_plan())
+    obs = [rrt.Obstacle(rrt.Obstacle.circle, (-5, 5), [2], 'ob')]
+    m = MissionManager('../imgs/mission_area.png', projector, obs)
+    # m.plan_waypoints(0, 0, 0, 20)
+    m.plan_to_from(0, 0, -20, 20, 0, 0)
     img = m.get_overlay_image_aspen(0, 0)
     plt.imshow(img)
     plt.show()

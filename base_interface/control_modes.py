@@ -7,6 +7,11 @@ class ControlModeState:
     automatic = 5
     manual = 6
 
+    phase_mission_planning = 7
+    phase_mission_execution = 8
+
+    go_home = 9
+
     descriptions = ['Driving', 'Stopped', 'Planning', 'Execution', 'Assessing', 'Automatic', 'Manual']
 
     def __init__(self, mode):

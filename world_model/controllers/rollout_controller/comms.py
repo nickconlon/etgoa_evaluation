@@ -30,8 +30,7 @@ class StateObject:
         self.wall_time = 0
         self.goal = []
         self.waypoint = 0
-
-        self.battery = 100
+        self.battery = 0
         self.speed = 0
 
     def get_state_dict(self):
@@ -51,13 +50,13 @@ class StateObject:
             *self.pos, # 3
             *self.ori, # 4
             self.speed, # 1
-            self.obs,
+            self.battery, # 1
             *self.goal, # 3
-            self.robot_time,
-            self.wall_time
+            self.robot_time, # 1
+            self.wall_time # 1
         ]
 
-    def set_state(self, position, orientation, velocity, t_robot, t_wall, goal, waypoint):
+    def set_state(self, position, orientation, velocity, battery, t_robot, t_wall, goal, waypoint):
         self.pos = [float(x) for x in position]
         self.ori = [float(x) for x in orientation]
         self.obs = []
@@ -66,7 +65,7 @@ class StateObject:
         self.goal = [float(x) for x in goal]
         self.waypoint = waypoint
         self.speed = np.linalg.norm(velocity)
-        #self.battery = self.battery - self.battery*self.speed*dt
+        self.battery = battery
 
     def set_state_from_object(self, obj):
         self.pos = obj['position']

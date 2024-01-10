@@ -13,7 +13,16 @@ if __name__ == '__main__':
     settings = settings_reader('settings.yaml')
     robot = Supervisor()
     wheels, gps, compass, camera, keyboard = init_robot(robot)
-
+    """
+    TODO
+    velocity multiplier
+    start battery level
+    battery rate per second
+    delete waypoint_index stuff
+    delete run type stuff
+    delete pub stuff
+    obstacles as (x, y, r) + effect
+    """
     start = settings['start_position']
     orientation = settings['start_orientation']
     goal = np.array(settings['goal_position'])

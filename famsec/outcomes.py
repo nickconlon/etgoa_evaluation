@@ -28,7 +28,7 @@ t_wall = 12  # seconds since epoch
 def get_rollouts():
     base = '/data/webots/rollout{}_state.npy'
     data = []
-    for i in range(5):
+    for i in range(10):
         d = np.load(base.format(i), allow_pickle=True)
         data.append(d)
     return data
@@ -37,8 +37,9 @@ def get_rollouts():
 def outcome_time(rollouts, outcome):
     """
     time: the mission time at the final state
-    GOA < 10 minutes
+    GOA = final time < outcome
 
+    :param outcome:
     :param rollouts:
     :return:
     """
@@ -55,25 +56,26 @@ def outcome_time(rollouts, outcome):
 def outcome_battery(rollouts, outcome):
     """
     battery level: the battery level at the final state
-    b_t+1 = b_t-v * eff
-    GOA > 50%
+    GOA  == final battery > outcome
 
+    :param outcome:
     :param rollouts:
     :return:
     """
     batt = []
     for rollout in rollouts:
-        batt.append(1)
+        a = rollout[:, 8] >= outcome
+        a = int(a.sum() == len(rollout))
+        batt.append(a)
     return batt
 
 
 def outcome_obstacles(rollouts, outcome):
     """
     stability: the mean obstacle avoidance ability of the robot
-    s_t = 1-p(obstacle)_t, p(obstacle) ~ N(mu, sigma)
-    GOA > 90%
+    GOA = obstacles hit < outcome
 
-    :param obstacles:
+    :param outcome:
     :param rollouts:
     :return:
     """
@@ -89,10 +91,9 @@ def outcome_obstacles(rollouts, outcome):
 def outcome_survey_quality(rollouts, outcome):
     """
     survey quality: the closest the robot was able to get to the POI
-    sq = min d(robot, poi)
-    GOA > 90
+    GOA = total quality > outcome
 
-    :param goal:
+    :param outcome:
     :param rollouts:
     :return:
     """
@@ -111,10 +112,10 @@ def outcome_survey_quality(rollouts, outcome):
 def outcome_arrival(rollouts, outcome):
     """
     arrival: if the robot arrived at the goal location
-    GOA = 1
+    GOA = |robot-goal| < outcome
 
+    :param outcome:
     :param rollouts:
-    :param goal:
     :return:
     """
     arrived = []
@@ -135,7 +136,7 @@ def compute_outcomes():
     goas = {}
     functions = {
         'arrival': [outcome_arrival, 1, [-0.5, 0.5, 1.5], 2],
-        'battery': [outcome_battery, 1, [-0.5, 0.5, 1.5], 2],
+        'battery': [outcome_battery, 20, [-0.5, 0.5, 1.5], 2],
         'obstacles': [outcome_obstacles, 1, [-0.5, 0.5, 1.5], 2],
         'time': [outcome_time, 100, [-0.5, 0.5, 1.5], 2],
         'quality': [outcome_survey_quality, 1, [-0.5, 0.5, 1.5], 2],

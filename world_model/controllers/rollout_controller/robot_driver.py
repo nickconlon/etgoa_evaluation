@@ -167,8 +167,10 @@ def update_machine(_current_state_machine, _current_state, _goal, _next_waypoint
 
 
 def run(goal, robot, wheels, gps, compass, known_obstacles, waypoints, waypoint_index, run_number, run_prefix, max_time):
-    noise = np.random.normal(loc=0.0, scale=0.5)
-    print('velocity noise', noise)
+    velocity_noise = np.random.normal(loc=0.0, scale=0.5)
+    max_battery = 100
+    battery_noise = np.random.normal(0, 1.0)
+    print('velocity noise: {}\nbattery noise: {}'.format(velocity_noise, battery_noise))
     state_path = '/data/webots/{}{}_state.npy'.format(run_prefix, run_number)
 
     waypoint_counter = waypoint_index
@@ -178,21 +180,31 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, waypoints, waypoint_
     state = []
     t0 = robot.getTime()
 
-    # main loop
+    """
+    Main loop
+    """
     state_machine = StateMachine.driving
     while robot.step(TIME_STEP) != -1:
+        """
+        Capture the current state of the robot
+        """
+        sample_time = robot.getTime() - t0
         pose = robot.getSelf().getField('translation').getSFVec3f()
         orient = robot.getSelf().getField('rotation').getSFRotation()
         vel = robot.getSelf().getVelocity()
-                
-        sample_time = robot.getTime() - t0
+        battery = np.maximum(max_battery - sample_time/2+battery_noise, 0.0)
         state_object = StateObject()
-        state_object.set_state(pose, orient, vel[:2], sample_time, time.time(), goal, waypoint_counter)
+        state_object.set_state(pose, orient, vel[:2], battery, sample_time, time.time(), goal, waypoint_counter)
         state.append(np.array(state_object.get_state_array(), dtype=object))
 
+        """
+        Update the state machine
+        """
         state_machine = update_machine(state_machine, state_object, goal, next_waypoint, max_time)
 
-        # Robot should plan
+        """
+        Update current waypoint, or update control actions, or count the task as complete
+        """
         if state_machine == StateMachine.replan:
             waypoint_counter += 1
             if waypoint_counter >= len(waypoints):
@@ -203,7 +215,7 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, waypoints, waypoint_
 
         # Robot has more driving to do
         elif state_machine == StateMachine.driving:
-            speed, arrived = goto(next_waypoint, gps, compass, noise)
+            speed, arrived = goto(next_waypoint, gps, compass, velocity_noise)
 
             # Sand trap functionality
             sand_pos = get_obstacles(robot, ['SAND'])
