@@ -8,6 +8,7 @@ from Factorized Machine Self-Confidence (FaMSeC) to enable an autonomous robot t
 and how its competency changes during task execution. This project extends the following:
 
 [Event-triggered robot self-assessment to aid in autonomy adjustment](https://www.frontiersin.org/articles/10.3389/frobt.2023.1294533/full)
+
 [Dynamic Competency Self-Assessment for Autonomous Agents](https://arxiv.org/abs/2303.01646)
 
 ### Installation
