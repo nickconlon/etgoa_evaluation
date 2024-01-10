@@ -44,3 +44,10 @@ $ python3 ./ros_interface_impl.py
 The interface should be started. Telemetry should be flowing. Select a POI with the dropdown, plan, 
 and accept the plan to unlock the drive button. Drive button signals the robot to drive autonomously 
 along the planned waypoints to the POI.
+
+
+### Building
+rebuild the GUI with the pyqt5 Designer then this command:
+```commandline
+$ pyuic5 -x ui.ui -o ui.py
+```
