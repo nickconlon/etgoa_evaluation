@@ -13,7 +13,6 @@ from base_interface.control_modes import ControlModeState
 from mission_control.mission_control import MissionControl
 from base_interface.ui import Ui_MainWindow
 from analysis.data_recorder import DataRecorder
-from base_interface.battery_model import Battery
 from motion_planning.projections import Projector, PointOfInterest, get_heading
 from famsec import goa, rollout, et_goa
 from base_interface.settings import Settings
@@ -39,6 +38,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.projector.setup()
         self.mission_manager = MissionManager(self.mission_area_img_path, self.projector,
                                               settings.obstacles)
+        self.mission_time = 0.0
 
         #################
         # Setup the System Connections
@@ -69,7 +69,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         #################
         # Setup the Telemetry Panel
         print('Setting up telemetry')
-        self.battery_model = Battery()
+        self.battery_level = 100
+        self.battery_number = 0
         self.update_control_mode_state(self.control_mode.state)
         self.update_mission_mode_state(self.mission_mode.state)
         self.power_number = 50
@@ -82,17 +83,13 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.telemetry_updater.timeout.connect(self.periodic_update)
         self.telemetry_updater.setInterval(500)
         self.telemetry_updater.start()
-        self.battery_updater = QtCore.QTimer()
-        self.battery_updater.timeout.connect(lambda: self.battery_model.decrement(self.velocity))
-        self.battery_updater.setInterval(1000)
-        self.battery_updater.start()
 
         #################
         # Setup the Mission Control Panel
         print('Setting up Mission Control')
         self.mission_control = MissionControl(self.gps_frequency,
                                               self.power_number,
-                                              self.battery_model.battery_level,
+                                              self.battery_level,
                                               100, 100, 5)
         self.request_mission_control_help_button.clicked.connect(
             self.request_mission_control_help_callback)
@@ -111,7 +108,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.robot_battery_slider.valueChanged.connect(self.update_robot_battery_callback)
         self.robot_gps_dial.valueChanged.connect(self.update_robot_gps_frequency_callback)
         self.robot_power_slider.setValue(self.power_number)
-        self.robot_battery_slider.setValue(self.battery_model.get_number())
+        self.robot_battery_slider.setValue(self.battery_number)
         self.robot_gps_dial.setValue(self.gps_frequency)
 
         #################
@@ -139,6 +136,10 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         :return:
         """
         try:
+            self.update_mission_time()
+            self.update_battery_level()
+            self.update_connections()
+
             self.update_control_mode_text()
             self.update_mission_mode_text()
             self.update_time_text()
@@ -146,17 +147,16 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.update_velocity_text()
             self.update_heading_text()
             self.update_position_text()
-            self.update_connections()
+
             self.data_recorder.add_row(self.position.x, self.position.y, self.position.z,
                                        self.heading, self.velocity,
                                        self.control_mode, self.mission_mode,
-                                       self.battery_model.get_number(),
-                                       self.battery_model.get_level(),
+                                       self.battery_number, self.battery_level,
                                        self.power_number, self.gps_frequency,
                                        'N/A', 'N/A',
                                        "_".join(["{:.2f}".format(x) for x in self.goa]),
                                        "_".join(["{:.2f}".format(x) for x in self.mqa]),
-                                       (datetime.now() - self.time_start).total_seconds())
+                                       self.mission_time)
             self.update_map()
             self.update_et_goa()
         except Exception as e:
@@ -271,6 +271,14 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         except Exception as e:
             traceback.print_exc()
 
+    def update_battery_level(self):
+        try:
+            if self.control_mode.state == ControlModeState.drive:
+                dt = 1
+                self.battery_level = float(np.maximum(self.battery_level - dt / 2, 0.0))
+        except Exception as e:
+            traceback.print_exc()
+
     def update_battery_text(self):
         """
         Updater for battery level
@@ -278,8 +286,14 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         :return:
         """
         try:
-            text = '{:.2f}%'.format(self.battery_model.get_level())
+            text = '{:.2f}%'.format(self.battery_level)
             self.battery_text.setText(text)
+        except Exception as e:
+            traceback.print_exc()
+
+    def update_mission_time(self):
+        try:
+            self.mission_time = (datetime.now() - self.time_start).total_seconds()
         except Exception as e:
             traceback.print_exc()
 
@@ -290,10 +304,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         :return:
         """
         try:
-            mission_time = datetime.now() - self.time_start
             now = datetime.now()
-            mins = mission_time.total_seconds() // 60
-            secs = mission_time.total_seconds() % 60
+            mins = self.mission_time // 60
+            secs = self.mission_time % 60
             textm = "{}".format(str(int(mins)).rjust(2, "0"))
             texts = "{}".format(str(int(secs)).rjust(2, "0"))
             text = '{}:{} | {} MT'.format(textm, texts,  now.strftime("%H:%M:%S"))
@@ -324,7 +337,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         try:
             val = self.robot_battery_slider.value()
             self.robot_battery_lcd.display(val)
-            self.battery_model.swap_battery(val)
+            self.battery_number = int(val)
+            self.battery_level = 100
             self.check_anomaly_strategy()
         except Exception as e:
             traceback.print_exc()
@@ -350,8 +364,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         :return:
         """
         if self.mission_control:
-            text = self.mission_control.check_strategy(self.power_number, self.gps_frequency,
-                                                       self.battery_model.get_number())
+            text = self.mission_control.check_strategy(self.power_number, self.gps_frequency, self.battery_number)
             if text != "":
                 self.update_mission_control_text(text, 'green')
                 self.enable_buttons()
@@ -492,6 +505,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                     self.rollout_thread.waypoints = plan
                     self.rollout_thread.known_obstacles = {}
                     self.rollout_thread.goal = plan[-1]
+                    self.rollout_thread.battery_rate = 0.5
+                    self.rollout_thread.battery = self.battery_level
                     print('driving to', plan[-1])
                     self.rollout_thread.finished.connect(self.finish_competency_assessment)
                     self.rollout_thread.start()
@@ -536,10 +551,10 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         try:
             if (self.control_mode.state == ControlModeState.drive
                     and self.etgoa.has_data() and self.condition == self.COND_ETGOA):
-                t = (datetime.now() - self.time_start).total_seconds()
+                t = self.mission_time
                 self.etgoa.set_start_time(t)
-                px, py, pv = self.position.x, self.position.y, self.velocity
-                si = self.etgoa.get_si(px, py, pv, t)
+                px, py, pv, pb = self.position.x, self.position.y, self.velocity, self.battery_level
+                si = self.etgoa.get_si(px, py, pv, pb, t)
                 self.mqa = si
                 if np.min(self.mqa) <= self.et_goa_threshold:
                     print('Should trigger a stop + reassessment')

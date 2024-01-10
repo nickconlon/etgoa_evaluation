@@ -39,7 +39,7 @@ class StateMachine:
 
 def init_robot(robot):
     """
-    Initialize the robot, return handles to it's components.
+    Initialize the robot, return handles to its components.
     """
     keyboard = robot.getKeyboard()
     keyboard.enable(30)
@@ -166,11 +166,11 @@ def update_machine(_current_state_machine, _current_state, _goal, _next_waypoint
     return _state_machine
 
 
-def run(goal, robot, wheels, gps, compass, known_obstacles, waypoints, waypoint_index, run_number, run_prefix, max_time):
+def run(goal, robot, wheels, gps, compass, known_obstacles, batt_level, batt_rate, waypoints, waypoint_index, run_number, run_prefix, max_time):
     velocity_noise = np.random.normal(loc=0.0, scale=0.5)
-    max_battery = 100
+    battery = batt_level
     battery_noise = np.random.normal(0, 1.0)
-    print('velocity noise: {}\nbattery noise: {}'.format(velocity_noise, battery_noise))
+    print('velocity noise: {}\nbattery {}:{}'.format(velocity_noise, batt_level, battery_noise))
     state_path = '/data/webots/{}{}_state.npy'.format(run_prefix, run_number)
 
     waypoint_counter = waypoint_index
@@ -192,7 +192,7 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, waypoints, waypoint_
         pose = robot.getSelf().getField('translation').getSFVec3f()
         orient = robot.getSelf().getField('rotation').getSFRotation()
         vel = robot.getSelf().getVelocity()
-        battery = np.maximum(max_battery - sample_time/2+battery_noise, 0.0)
+        battery = np.maximum(battery - 0.064 * batt_rate, 0.0)
         state_object = StateObject()
         state_object.set_state(pose, orient, vel[:2], battery, sample_time, time.time(), goal, waypoint_counter)
         state.append(np.array(state_object.get_state_array(), dtype=object))
@@ -220,7 +220,7 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, waypoints, waypoint_
             # Sand trap functionality
             sand_pos = get_obstacles(robot, ['SAND'])
             if len(sand_pos) == 1:
-                sand_pos = [2.4, 3.4]#TODO fix this after baseline testing sand_pos[0].center
+                sand_pos = [2.4, 3.4]
                 offset = 0.2
                 robot_pos = robot.getSelf().getField('translation').getSFVec3f()
                 if sand_pos[1] - offset < robot_pos[1] < sand_pos[1] + offset:
@@ -237,6 +237,7 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, waypoints, waypoint_
 
             print('Pose ', robot.getSelf().getField('translation').getSFVec3f())
             print('Rot', robot.getSelf().getField('rotation').getSFRotation())
+            print('Batt', battery)
             print('Time', robot.getTime() - t0)
             np.save(state_path, state)
             d = {

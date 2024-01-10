@@ -31,6 +31,10 @@ if __name__ == '__main__':
     run_type = settings['prefix']
     known_obs = settings['known_obs']
     max_time = settings['max_time']
+    batt_level = settings['batt_level']
+    batt_rate = settings['batt_rate']
+    #velocity = settings['velocity']
+
     wpx = settings['wp_x']
     wpy = settings['wp_y']
     waypoints = np.dstack((wpx, wpy)).squeeze()
@@ -54,7 +58,7 @@ if __name__ == '__main__':
     t0 = time.time()
     for run_id in range(num_runs):
         print('run {}'.format(run_id))
-        run(goal, robot, wheels, gps, compass, known_obs, waypoints, waypoint_index, run_id, run_type, max_time)
+        run(goal, robot, wheels, gps, compass, known_obs, batt_level, batt_rate, waypoints, waypoint_index, run_id, run_type, max_time)
         print(orientation)
         reset_robot(robot, start, orientation)
     t1 = time.time()
