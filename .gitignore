@@ -1,5 +1,5 @@
 # world model stuff
-./world_model/controllers/rollout_controller/settings.yaml
+world_model/controllers/rollout_controller/settings.yaml
 
 # pycharm stuff
 .idea
