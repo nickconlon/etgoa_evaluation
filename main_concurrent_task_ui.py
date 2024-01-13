@@ -14,7 +14,7 @@ import qdarktheme
 
 from concurrent_task.concurrent_ui import Ui_MainWindow
 from analysis.data_recorder import ConcurrentTaskRecorder
-from concurrent_task.concurrent_task_images_generator import MarsMap, metals
+from concurrent_task.concurrent_task_helper import MarsMap, metals, get_image
 from base_interface.settings import Settings
 
 
@@ -22,11 +22,13 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
     def __init__(self, settings_path):
         QMainWindow.__init__(self)
         self.setupUi(self)
+
         settings = Settings('./settings.yaml')
         settings.read()
         self.map = MarsMap('./imgs/mars_map_cropped.png')
-        fname = 'secondary_' + datetime.now().strftime("%H_%M_%S__%d%m%y")
-        self.recorder = ConcurrentTaskRecorder(os.path.join(settings.record_path, fname + '.csv'))
+        self.set_legend('./imgs/legend.png')
+        fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_secondary.csv'
+        self.recorder = ConcurrentTaskRecorder(os.path.join(settings.record_path, fname))
         self.request_time = None
         self.mineral_of_interest = None
         self.minerals2means = None
@@ -34,6 +36,13 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
         self.next_mineral()
         self.submit_button.clicked.connect(self.submit_button_callback)
         self.start_task = False
+
+    def set_legend(self, imgpath):
+        img = get_image(imgpath)
+        height, width, channel = img.shape
+        bytesPerLine = 3 * width
+        qImg = QtGui.QImage(img, width, height, bytesPerLine, QtGui.QImage.Format_RGB888)
+        self.key_label.setPixmap(QtGui.QPixmap(qImg))
 
     def make_timer(self, timeout):
         """

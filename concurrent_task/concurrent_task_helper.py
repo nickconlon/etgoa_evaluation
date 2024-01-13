@@ -7,10 +7,15 @@ import numpy as np
 metals = ['Iron', 'Gold', 'Lithium', 'Cobalt', 'Zinc']
 colors = [[183, 65, 14], [212, 175, 55], [192, 192, 192], [0, 71, 171], [52, 85, 70]]
 
+
+def get_image(path):
+    img = Image.open(path)
+    return np.asarray(img)
+
+
 class MarsMap:
     def __init__(self, imgpath):
-        img = Image.open(imgpath)
-        img = np.asarray(img)
+        img = get_image(imgpath)
         self.base_img = img
         self.maxy, self.maxx, _ = img.shape
         self.mapped_x, self.old_x_ticks, self.new_x_ticks = self.remap_x()
@@ -93,7 +98,7 @@ class MarsMap:
 
             patches = [mpatches.Patch(color=np.asarray(colors[i]) / 255., label=metals[i]) for i in range(len(colors))]
             # put those patched as legend-handles into the legend
-            #plt.legend(handles=patches, bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0., prop={'size': 20})
+            # plt.legend(handles=patches, bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0., prop={'size': 20})
 
         plt.grid(color='black', linestyle='-', linewidth=1)
         plt.imshow(img)
@@ -102,7 +107,7 @@ class MarsMap:
         plt.xticks(self.old_x_ticks, self.new_x_ticks)
 
         plt.tight_layout()
-        #plt.show()
+        # plt.show()
 
         if save_file:
             plt.savefig('test.png')
@@ -117,7 +122,7 @@ class MarsMap:
 
 
 if __name__ == '__main__':
-    #remap(0)
-    #save_path = ""
+    # remap(0)
+    # save_path = ""
     mars_map = MarsMap("./mars_map_cropped.png")
     mars_map.make_task_instance(False, False)

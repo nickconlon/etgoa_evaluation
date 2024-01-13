@@ -33,8 +33,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.mission_area_img_path = settings.map_path
         self.rollout_path = settings.rollout_path
         self.condition = settings.condition
-        fname = 'primary_' + datetime.now().strftime("%H_%M_%S__%d%m%y")
-        self.data_recorder = PrimaryTaskRecorder(self.condition, os.path.join(settings.record_path, fname + '.csv'))
+        fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_primary.csv'
+        self.data_recorder = PrimaryTaskRecorder(self.condition, os.path.join(settings.record_path, fname))
         self.projector = Projector(settings.lat_center, settings.lon_center)
         self.projector.setup()
         self.mission_manager = MissionManager(self.mission_area_img_path, self.projector,
