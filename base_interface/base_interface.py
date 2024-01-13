@@ -7,12 +7,13 @@ import PyQt5.QtGui as QtGui
 import sys
 from datetime import datetime
 import numpy as np
+import os
 
 from base_interface.mission_management import MissionManager
 from base_interface.control_modes import ControlModeState
 from mission_control.mission_control import MissionControl
 from base_interface.ui import Ui_MainWindow
-from analysis.data_recorder import DataRecorder
+from analysis.data_recorder import PrimaryTaskRecorder
 from motion_planning.projections import Projector, PointOfInterest, get_heading
 from famsec import goa, rollout, et_goa
 from base_interface.settings import Settings
@@ -23,17 +24,17 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
     COND_GOA = 'GOA'
     COND_ETGOA = 'ET-GOA'
 
-    def __init__(self):
+    def __init__(self, settings_path):
         QMainWindow.__init__(self)
         self.setupUi(self)
-        settings = Settings('./settings.yaml')
+        settings = Settings(settings_path)
         settings.read()
         self.cohrint_logo_img_path = settings.logo_path
         self.mission_area_img_path = settings.map_path
         self.rollout_path = settings.rollout_path
         self.condition = settings.condition
-        self.record_path = settings.record_path
-        self.data_recorder = DataRecorder(self.condition, self.record_path.format(''))
+        fname = 'primary_' + datetime.now().strftime("%H_%M_%S__%d%m%y")
+        self.data_recorder = PrimaryTaskRecorder(self.condition, os.path.join(settings.record_path, fname + '.csv'))
         self.projector = Projector(settings.lat_center, settings.lon_center)
         self.projector.setup()
         self.mission_manager = MissionManager(self.mission_area_img_path, self.projector,

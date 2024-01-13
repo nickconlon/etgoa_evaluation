@@ -1,13 +1,9 @@
 import sys
-import time
+import argparse
 import traceback
-from PyQt5.Qt import Qt
 from PyQt5.QtWidgets import QApplication
-import PyQt5.QtCore as QtCore
-import PyQt5.QtGui as QtGui
 import numpy as np
 import qdarktheme
-from PIL import Image
 
 import rospy
 from geometry_msgs.msg import Twist  # Twist messages
@@ -23,8 +19,8 @@ from motion_planning.waypoint_follower import extract_msg
 
 
 class InterfaceImpl(BaseInterface):
-    def __init__(self):
-        BaseInterface.__init__(self)
+    def __init__(self, settings_path):
+        BaseInterface.__init__(self, settings_path)
         rospy.init_node('user_interface', anonymous=True)
         self.poi_selection.addItems(["Select POI", "POI A", "POI B", "POI C", "POI D", "HOME"])
         self.num_backup_batteries = 5
@@ -111,9 +107,15 @@ class InterfaceImpl(BaseInterface):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-s", "--settings",
+                        help='path to settings file',
+                        default="./settings.yaml")
+    args = parser.parse_args()
+
     qdarktheme.enable_hi_dpi()
     app = QApplication(sys.argv)
     qdarktheme.setup_theme()
-    MainWindow = InterfaceImpl()
+    MainWindow = InterfaceImpl(args.settings)
     MainWindow.show()
     app.exec_()

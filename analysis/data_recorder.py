@@ -15,6 +15,7 @@ class DataRecorderBase:
             traceback.print_exc()
 
     def record(self, row):
+        self.data.append(row)
         d = {c: [d] for c, d in zip(self.header, row)}
         pd.DataFrame(d).to_csv(self.path, mode='a', index=False, header=False)
 
@@ -27,12 +28,11 @@ class ConcurrentTaskRecorder(DataRecorderBase):
 
     def add_row(self, timestamp, correct, decition_time, mineral):
         row = [timestamp, correct, decition_time, mineral]
-        self.data.append(row)
         self.record(row)
 
 
-class DataRecorder:
-    def __init__(self, condition, fname='./data/recording.csv'):
+class PrimaryTaskRecorder(DataRecorderBase):
+    def __init__(self, condition, fname):
         """
         position (latitude, longitude, altitude)
         heading (degrees from N)
@@ -43,17 +43,17 @@ class DataRecorder:
         mission control response (text | 0)
         time
         """
-        self.fname = fname
-        self.header = ['latitude', 'longitude', 'altitude',
-                       'heading', 'velocity',
-                       'control mode', 'mission mode',
-                       'battery number', 'battery remaining',
-                       'power value', 'gps frequency',
-                       'help request', 'help response',
-                       'goa', 'mqa',
-                       'timestamp',
-                       'condition']
-        pd.DataFrame(columns=self.header).to_csv(self.fname, index=False)
+        header = ['latitude', 'longitude', 'altitude',
+                  'heading', 'velocity',
+                  'control mode', 'mission mode',
+                  'battery number', 'battery remaining',
+                  'power value', 'gps frequency',
+                  'help request', 'help response',
+                  'goa', 'mqa',
+                  'timestamp',
+                  'condition']
+        DataRecorderBase.__init__(self, fname, header)
+        self.write_header()
         self.condition = condition
         self.data = []
 
@@ -76,8 +76,6 @@ class DataRecorder:
                    goa, mqa,
                    mission_time,
                    self.condition]
-            self.data.append(row)
-            d = {c: [d] for c, d in zip(self.header, row)}
-            pd.DataFrame(d).to_csv(self.fname, mode='a', index=False, header=False)
+            self.record(row)
         except Exception as e:
             traceback.print_exc()

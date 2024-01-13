@@ -4,6 +4,7 @@ import numpy as np
 import traceback
 import os
 from datetime import datetime
+import argparse
 
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QMainWindow
@@ -13,16 +14,19 @@ import qdarktheme
 
 from concurrent_task.concurrent_ui import Ui_MainWindow
 from analysis.data_recorder import ConcurrentTaskRecorder
-from concurrent_task_images_generator import MarsMap, metals
+from concurrent_task.concurrent_task_images_generator import MarsMap, metals
+from base_interface.settings import Settings
 
 
 class ConcurrentTask(QMainWindow, Ui_MainWindow):
-    def __init__(self):
+    def __init__(self, settings_path):
         QMainWindow.__init__(self)
         self.setupUi(self)
-        self.map = MarsMap('./mars_map_cropped.png')
-        fname = 'concurrent_' + datetime.now().strftime("%H_%M_%S__%d%m%y")
-        self.recorder = ConcurrentTaskRecorder(os.path.join('./', fname + '.csv'))
+        settings = Settings('./settings.yaml')
+        settings.read()
+        self.map = MarsMap('./imgs/mars_map_cropped.png')
+        fname = 'secondary_' + datetime.now().strftime("%H_%M_%S__%d%m%y")
+        self.recorder = ConcurrentTaskRecorder(os.path.join(settings.record_path, fname + '.csv'))
         self.request_time = None
         self.mineral_of_interest = None
         self.minerals2means = None
@@ -58,7 +62,7 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
 
             for mean_std in mean_stds:
                 mu_y, mu_x, std = mean_std
-                if (abs(mu_x-x) <= 2*std) and (abs(mu_y-y) <= 2*std):
+                if (abs(mu_x - x) <= 2 * std) and (abs(mu_y - y) <= 2 * std):
                     correct = True
                     break
         except Exception as e:
@@ -95,7 +99,7 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
                 lon = int(lon)
                 correct = self.check_response(lat, lon)
                 self.splash_of_color(self.frame)
-                dt = time.time()-self.request_time
+                dt = time.time() - self.request_time
                 self.recorder.add_row(time.time(), correct, dt, self.mineral_of_interest)
                 self.latitude_input.setPlainText("")
                 self.longitude_input.setPlainText("")
@@ -153,9 +157,15 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-s", "--settings",
+                        help='path to settings file',
+                        default="./settings.yaml")
+    args = parser.parse_args()
+
     qdarktheme.enable_hi_dpi()
     app = QApplication(sys.argv)
     qdarktheme.setup_theme()
-    MainWindow = ConcurrentTask()
+    MainWindow = ConcurrentTask(args.settings)
     MainWindow.show()
     app.exec_()

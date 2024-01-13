@@ -12,7 +12,7 @@ blockers:
   b1:
   - [10, 15]
   - [5]
-record_path: ./data/recording{}.csv
+record_path: ./data
 map_path: ./imgs/mission_area.png
 logo_path: ./imgs/logo.png
 rollout_path: /data/webots/rollout{}_state.npy
