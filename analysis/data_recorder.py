@@ -2,6 +2,35 @@ import traceback
 import pandas as pd
 
 
+class DataRecorderBase:
+    def __init__(self, path, header):
+        self.path = path
+        self.header = header
+        self.data = []
+
+    def write_header(self):
+        try:
+            pd.DataFrame(columns=self.header).to_csv(self.path, index=False)
+        except Exception as e:
+            traceback.print_exc()
+
+    def record(self, row):
+        d = {c: [d] for c, d in zip(self.header, row)}
+        pd.DataFrame(d).to_csv(self.path, mode='a', index=False, header=False)
+
+
+class ConcurrentTaskRecorder(DataRecorderBase):
+    def __init__(self, path):
+        header = ['time stamp', 'correct', 'decision time', 'mineral']
+        DataRecorderBase.__init__(self, path, header)
+        self.write_header()
+
+    def add_row(self, timestamp, correct, decition_time, mineral):
+        row = [timestamp, correct, decition_time, mineral]
+        self.data.append(row)
+        self.record(row)
+
+
 class DataRecorder:
     def __init__(self, condition, fname='./data/recording.csv'):
         """

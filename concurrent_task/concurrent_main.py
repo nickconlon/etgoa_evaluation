@@ -2,14 +2,17 @@ import sys
 import time
 import numpy as np
 import traceback
+import os
+from datetime import datetime
 
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QMainWindow
 import PyQt5.QtGui as QtGui
 import PyQt5.QtCore as QtCore
 import qdarktheme
-from concurrent_task.concurrent_ui import Ui_MainWindow
 
+from concurrent_task.concurrent_ui import Ui_MainWindow
+from analysis.data_recorder import ConcurrentTaskRecorder
 from concurrent_task_images_generator import MarsMap, metals
 
 
@@ -18,6 +21,8 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
         QMainWindow.__init__(self)
         self.setupUi(self)
         self.map = MarsMap('./mars_map_cropped.png')
+        fname = 'concurrent_' + datetime.now().strftime("%H_%M_%S__%d%m%y")
+        self.recorder = ConcurrentTaskRecorder(os.path.join('./', fname + '.csv'))
         self.request_time = None
         self.mineral_of_interest = None
         self.minerals2means = None
@@ -27,8 +32,16 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
         self.start_task = False
 
     def make_timer(self, timeout):
-        self.next_mineral()
-        QtCore.QTimer.singleShot(timeout, lambda: self.request_new_identification(True))
+        """
+
+        :param timeout:
+        :return:
+        """
+        try:
+            self.next_mineral()
+            QtCore.QTimer.singleShot(timeout, lambda: self.request_new_identification(True))
+        except Exception as e:
+            traceback.print_exc()
 
     def check_response(self, lat_y, lon_x):
         """
@@ -36,20 +49,31 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
         :param lon_x:
         :return:
         """
-        mineral = self.mineral_of_interest
-        mean_stds = self.minerals2means[mineral]
-        x = self.map.mapped_x[lon_x]
-        y = self.map.mapped_y[lat_y]
-        print(y, x)
-        print(mean_stds)
-        for mean_std in mean_stds:
-            mu_y, mu_x, std = mean_std
-            print(abs(mu_x-x) <= 2*std)
-            print(abs(mu_y-y) <= 2*std)
-        return True
+        correct = False
+        try:
+            mineral = self.mineral_of_interest
+            mean_stds = self.minerals2means[mineral]
+            x = self.map.mapped_x[lon_x]
+            y = self.map.mapped_y[lat_y]
+
+            for mean_std in mean_stds:
+                mu_y, mu_x, std = mean_std
+                if (abs(mu_x-x) <= 2*std) and (abs(mu_y-y) <= 2*std):
+                    correct = True
+                    break
+        except Exception as e:
+            traceback.print_exc()
+        return correct
 
     def next_mineral(self):
-        self.mineral_of_interest = np.random.choice(a=metals)
+        """
+        
+        :return:
+        """
+        try:
+            self.mineral_of_interest = np.random.choice(a=metals)
+        except Exception as e:
+            traceback.print_exc()
 
     def submit_button_callback(self):
         """
@@ -65,21 +89,20 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
 
             lat = self.latitude_input.toPlainText().strip()
             lon = self.longitude_input.toPlainText().strip()
-            print('received:')
-            print('   latitude:  {}'.format(lat))
-            print('   longitude: {}'.format(lon))
 
             try:
                 lat = int(lat)
                 lon = int(lon)
                 correct = self.check_response(lat, lon)
-                if correct:
-                    self.mineral_of_interest = None
-                    self.request_new_identification(False)
-                    self.splash_of_color(self.frame)
-                    print('correct in {:2f} seconds'.format(time.time()-self.request_time))
-                    self.request_time = None
-                    self.make_timer(int(np.random.uniform(3000, 5000)))
+                self.splash_of_color(self.frame)
+                dt = time.time()-self.request_time
+                self.recorder.add_row(time.time(), correct, dt, self.mineral_of_interest)
+                self.latitude_input.setPlainText("")
+                self.longitude_input.setPlainText("")
+                self.mineral_of_interest = None
+                self.request_time = None
+                self.request_new_identification(False)
+                self.make_timer(int(np.random.uniform(3000, 5000)))
             except Exception as e:
                 traceback.print_exc()
 
