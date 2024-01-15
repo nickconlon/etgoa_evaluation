@@ -41,7 +41,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.mission_manager = MissionManager(self.mission_area_img_path, self.projector,
                                               settings.obstacles)
         self.mission_time = 0.0
-
+        self.update_rate = 0.5  # seconds
         #################
         # Setup the System Connections
         print('Setting up connections')
@@ -83,7 +83,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.time_start = datetime.now()
         self.telemetry_updater = QtCore.QTimer()
         self.telemetry_updater.timeout.connect(self.periodic_update)
-        self.telemetry_updater.setInterval(500)
+        self.telemetry_updater.setInterval(int(self.update_rate * 1000))
         self.telemetry_updater.start()
 
         self.mean_velocity = deque(maxlen=10)
@@ -277,15 +277,18 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             traceback.print_exc()
 
     def update_battery_level(self):
+        """
+        Updater for the battery level -  default is to lose 0.25 % at each 1/2 second timestep
+
+        :return:
+        """
         try:
             if self.control_mode.state == ControlModeState.drive:
-                dt = 1
+                dt = self.update_rate
                 prev_battery = self.battery_level
                 new_battery = float(np.maximum(self.battery_level - dt / 2, 0.0))
                 self.mean_battery.append(abs(prev_battery-new_battery)/dt)
                 self.battery_level = new_battery
-                print('mean battery:', np.mean(self.mean_battery)/0.5)
-                print('mean velocity:', np.mean(self.mean_velocity)/0.25)
         except Exception as e:
             traceback.print_exc()
 
@@ -498,6 +501,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         try:
             if self.condition == self.COND_ETGOA or self.condition == self.COND_GOA:
                 if self.mission_manager.has_plan():
+                    # Maybe add back the current (x,y) location to the beginning of the plan?
                     self.mission_mode.state = ControlModeState.assessing
                     self.splash_of_color(self.competency_assessment_frame, color='light grey',
                                          timeout=0)
@@ -507,7 +511,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                     for label in labels:
                         label.setStyleSheet('background-color: {}; color: black'.format('green'))
                         label.setText("{}".format('Computing...'))
-                    plan = self.mission_manager.current_plan
+                    plan = self.mission_manager.get_plan() # TODO manager add current (x,y) of robot to plan start
                     self.splash_of_color(self.competency_assessment_frame, timeout=0)
                     self.rollout_thread = rollout.RolloutThread()
                     self.rollout_thread.pose = [self.position.x, self.position.y, self.position.z]
@@ -572,6 +576,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.mqa = si
                 if np.min(self.mqa) <= self.et_goa_threshold:
                     print('Should trigger a stop + reassessment')
+                    self.stop_mode_button.click()
                     # mean speed
                     # mean battery drain
                     # newly observed obstacles

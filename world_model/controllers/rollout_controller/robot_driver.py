@@ -192,7 +192,7 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, batt_level, batt_rat
         pose = robot.getSelf().getField('translation').getSFVec3f()
         orient = robot.getSelf().getField('rotation').getSFRotation()
         vel = robot.getSelf().getVelocity()
-        battery = np.maximum(battery - 0.064 * batt_rate+np.random.normal(0.0, 0.5), 0.0)
+        battery = np.maximum(battery - 0.064 * batt_rate+(np.random.normal(0.0, 0.05)), 0.0)
         state_object = StateObject()
         state_object.set_state(pose, orient, vel[:2], battery, sample_time, time.time(), goal, waypoint_counter)
         state.append(np.array(state_object.get_state_array(), dtype=object))

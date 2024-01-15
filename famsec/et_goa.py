@@ -143,8 +143,8 @@ class et_goa:
         for actual, pred_mu, pred_std, min_std in zip(actuals, pred_mus, pred_stds, self.min_stds):
             si = gaussian_si_1d(pred_mu, pred_std, actual, min_std)
             sis.append(si)
-        print("mu(x,y,v,b): ({:.2f}, {:.2f}, {:.2f}, {:.2f}) || act({:.2f}, {:.2f}, {:.2f}, {:.2f})".
-              format(pred_mus[0], pred_mus[1], pred_mus[2], pred_mus[3],
+        print("t={:.2f} | mu(x,y,v,b): ({:.2f}, {:.2f}, {:.2f}, {:.2f}) || act({:.2f}, {:.2f}, {:.2f}, {:.2f})".
+              format(t_now, pred_mus[0], pred_mus[1], pred_mus[2], pred_mus[3],
                      actuals[0], actuals[1], actuals[2], actuals[3]))
         print('si(x): {:.2f}, si(y): {:.2f}, si(v): {:.2f}, si(b): {:.2f}'.format(*sis))
         return sis
