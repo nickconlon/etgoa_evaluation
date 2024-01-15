@@ -1,14 +1,15 @@
 import traceback
 
 import yaml
-import motion_planning.rrt as rrt
+from motion_planning.rrt import Obstacle
 
 
 class Settings:
     def __init__(self, settings_fname):
         self.fname = settings_fname
-        self.obstacles = []
-        self.blockers = []
+        self.obstructions = []
+        self.hazards = []
+        self.power_draws = []
         self.record_path = None
         self.map_path = None
         self.logo_path = None
@@ -24,12 +25,18 @@ class Settings:
         try:
             with open(self.fname, 'r') as file:
                 settings = yaml.safe_load(file)
-                for id, obs in settings['obstacles'].items():
-                    ob = rrt.Obstacle(rrt.Obstacle.circle, obs[0], obs[1], id)
-                    self.obstacles.append(ob)
-                for id, obs in settings['blockers'].items():
-                    ob = rrt.Obstacle(rrt.Obstacle.circle, obs[0], obs[1], id)
-                    self.blockers.append(ob)
+                for id, obs in settings['obstructions'].items():
+                    ob = Obstacle(Obstacle.circle, obs[0], obs[1], id, data=obs[2])
+                    self.obstructions.append(ob)
+
+                for id, obs in settings['hazards'].items():
+                    ob = Obstacle(Obstacle.circle, obs[0], obs[1], id, data=obs[2])
+                    self.hazards.append(ob)
+
+                for id, obs in settings['power_draws'].items():
+                    ob = Obstacle(Obstacle.circle, obs[0], obs[1], id, data=obs[2])
+                    self.power_draws.append(ob)
+
                 self.record_path = settings['record_path']
                 self.map_path = settings['map_path']
                 self.logo_path = settings['logo_path']
@@ -44,15 +51,19 @@ class Settings:
             traceback.print_exc()
 
 
-
 if __name__ == '__main__':
+    # [[x, y], [radius]]
     d = {
-        'obstacles': {'o1': [[10, 15], [5]],  # [[x, y], [radius]]
-                      'o2': [[4, -5], [5]],
-                      'o3': [[12, 21], [5]]
-                      },
-        'blockers': {'b1': [[10, 15], [5]]},  # [[x, y], [radius]]
-        'record_path': './data/recording{}.csv',
+        'obstructions': {'o1': [[10, 15], [2], 1],
+                         'o2': [[4, -5], [5], 1],
+                         'o3': [[12, 21], [2.5], 1]
+                         },
+        'hazards': {'h1': [[-2, 5], [2.5], 0.25],  # [[x, y], [radius], [impact % change]]
+                    },
+        'power_draws': {'b1': [[-8, 0], [5], 1.5],
+                        'b2': [[-12, 5], [5], 1.5]
+                        },
+        'record_path': './data',
         'map_path': './imgs/mission_area.png',
         'logo_path': './imgs/logo.png',
         'rollout_path': '/data/webots/rollout{}_state.npy',
@@ -61,7 +72,7 @@ if __name__ == '__main__':
         'longitude_center': 105.24432153,
         'anomalies': False,
         'et_goa_threshold': 0.05,
-        'et_goa_stds': [0.5, 0.5, 0.5]
+        'et_goa_stds': [1.5, 1.5, 0.5, 1.5]
     }
 
     base = '../'

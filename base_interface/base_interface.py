@@ -39,7 +39,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.projector = Projector(settings.lat_center, settings.lon_center)
         self.projector.setup()
         self.mission_manager = MissionManager(self.mission_area_img_path, self.projector,
-                                              settings.obstacles)
+                                              settings.obstructions,
+                                              settings.hazards,
+                                              settings.power_draws)
         self.mission_time = 0.0
         self.update_rate = 0.5  # seconds
         #################
@@ -285,8 +287,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         try:
             if self.control_mode.state == ControlModeState.drive:
                 dt = self.update_rate
+                drain_rate = 0.5 # TODO should be read in; updated with settings.power_draws
                 prev_battery = self.battery_level
-                new_battery = float(np.maximum(self.battery_level - dt / 2, 0.0))
+                new_battery = float(np.maximum(self.battery_level - dt * drain_rate, 0.0))
                 self.mean_battery.append(abs(prev_battery-new_battery)/dt)
                 self.battery_level = new_battery
         except Exception as e:
@@ -511,7 +514,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                     for label in labels:
                         label.setStyleSheet('background-color: {}; color: black'.format('green'))
                         label.setText("{}".format('Computing...'))
-                    plan = self.mission_manager.get_plan() # TODO manager add current (x,y) of robot to plan start
+                    plan = self.mission_manager.get_plan()
                     self.splash_of_color(self.competency_assessment_frame, timeout=0)
                     self.rollout_thread = rollout.RolloutThread()
                     self.rollout_thread.pose = [self.position.x, self.position.y, self.position.z]
@@ -575,11 +578,15 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 si = self.etgoa.get_si(px, py, pv, pb, t)
                 self.mqa = si
                 if np.min(self.mqa) <= self.et_goa_threshold:
-                    print('Should trigger a stop + reassessment')
                     self.stop_mode_button.click()
-                    # mean speed
-                    # mean battery drain
-                    # newly observed obstacles
+                    print('Should trigger a stop + reassessment with:')
+                    print('    speed: {:.2f}'.format(np.mean(self.mean_velocity)))
+                    print('    battery level: {:.2f}'.format(self.battery_level))
+                    print('    battery rate: {:.2f}'.format(np.mean(self.mean_battery)))
+                    print('    position: ({:.2f}, {:.2f})'.format(self.position.x, self.position.y))
+                    print('    heading: {:.2f}'.format(self.heading))
+                    self.start_competency_assessment()
+
             # TODO need an in-mission assmt state so we don't hit the below case when ET-GOA triggers
             if self.control_mode.state == ControlModeState.stopped and self.condition == self.COND_ETGOA:
                 self.etgoa.forget_start_time()

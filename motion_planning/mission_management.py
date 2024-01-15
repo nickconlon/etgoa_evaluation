@@ -9,7 +9,7 @@ class MissionManager:
     ASPEN = 'aspen'
     OUTDOOR = 'outdoor'
 
-    def __init__(self, mission_area_image_path, projector, obstacles):
+    def __init__(self, mission_area_image_path, projector, obstructions, hazards, power_draws):
         area_miny, area_maxy, area_minx, area_maxx = -50, 50, -50, 50
         self.projector = projector
 
@@ -25,7 +25,9 @@ class MissionManager:
         self.visualize = False
         self.mission_area_image = np.asarray(Image.open(mission_area_image_path))
         self.mission_area_bounds = np.array([[area_miny, area_maxy], [area_minx, area_maxx]])
-        self.obstacles = obstacles
+        self.obstructions = obstructions
+        self.hazards = hazards
+        self.power_draws = power_draws
 
     def update_plan(self, new_plan):
         self.current_plan = new_plan
@@ -62,7 +64,7 @@ class MissionManager:
         # RRT point [y, x]
         start = np.array([robot_x, robot_y])
         # RRT Obstacle
-        obstacles = self.obstacles
+        obstacles = self.obstructions
         # [ymin ymax], [xmin, xmax]
         bounds = self.mission_area_bounds
         plan = rrt.plan_rrt_webots(start, goal, obstacles, bounds,
@@ -77,7 +79,7 @@ class MissionManager:
         goal = np.array([goal_x, goal_y])
         robot = np.array([robot_x, robot_y])
         home = np.array([home_x, home_y])
-        obstacles = self.obstacles
+        obstacles = self.obstructions
         bounds = self.mission_area_bounds
         # from robot (x, y) to goal (x, y)
         plan_to = rrt.plan_rrt_webots(robot, goal, obstacles, bounds,
@@ -106,9 +108,19 @@ class MissionManager:
         ax.text(self.home.x + 2, self.home.y - 1, self.home.name, size='large')
 
         # plot the obstacles
-        for o in self.obstacles:
+        for o in self.obstructions:
             rx, ry = o.center
             c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='red', facecolor='red', alpha=0.5)
+            ax.add_patch(c)
+
+        for o in self.hazards:
+            rx, ry = o.center
+            c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='orange', facecolor='orange', alpha=0.5)
+            ax.add_patch(c)
+
+        for o in self.power_draws:
+            rx, ry = o.center
+            c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='blue', facecolor='blue', alpha=0.5)
             ax.add_patch(c)
 
         # plot the plan

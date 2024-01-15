@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # Import necessary libraries
 import time
+import argparse
 
 import rospy  # Ros library
 import math  # Math library
@@ -12,6 +13,8 @@ from gazebo_msgs.msg import ModelStates
 from std_msgs.msg import Float32, Float32MultiArray
 import numpy as np
 import threading
+
+from base_interface.settings import Settings
 
 
 def extract_msg(data):
@@ -47,11 +50,16 @@ class WaypointFollower:
     KIPP = 'kipp'
     CASE = 'case'
 
-    def __init__(self, area, robot):
+    def __init__(self, area, robot, settings):
+        self.settings = Settings(settings)
+        self.settings.read()
+        print(self.settings.hazards)
         self.xs = []
         self.ys = []
         self.x_dest = None
         self.y_dest = None
+        self.px = None
+        self.py = None
         self.pose_cmd_vel = None
         self.rot_cmd_vel = None
         self.dist_err = 1
@@ -127,6 +135,10 @@ class WaypointFollower:
             x_err = self.x_dest - x_pose
             y_err = self.y_dest - y_pose
 
+            # Calculate hazard errors
+            self.px = x_pose
+            self.py = y_pose
+
             # Calculate angular error
             angle_err = math.atan2(y_err, x_err)
 
@@ -174,6 +186,21 @@ class WaypointFollower:
 
         print("Done")
 
+    def check_hazards(self):
+        effect = 1.0
+        for hazard in self.settings.hazards:
+            if self.px is not None and self.py is not None:
+                rx, ry = hazard.center
+                r = hazard.axis[0]
+                x_haz_err = rx - self.px
+                y_haz_err = ry - self.py
+                dh = math.sqrt((x_haz_err ** 2) + (y_haz_err ** 2))
+                print('hazards', dh, dh <= r)
+                if dh <= r:
+                    effect = hazard.data
+                    break
+        return effect
+
     def go_to_waypoints(self):
         """
         Navigate to a waypoint at (_x, _y)
@@ -189,9 +216,10 @@ class WaypointFollower:
             # Go to waypoint
             while self.dist_err > 0.1 and abs(t0 - time.time()) < t_max and self.drive:
                 if self.pose_cmd_vel is not None and self.rot_cmd_vel is not None:
+                    hazard_effect = self.check_hazards()
                     vel = Twist()
-                    vel.linear.x = self.pose_cmd_vel
-                    vel.angular.z = self.rot_cmd_vel
+                    vel.linear.x = self.pose_cmd_vel * hazard_effect
+                    vel.angular.z = self.rot_cmd_vel * hazard_effect
                     self.pub_vel.publish(vel)
                 self.sleep_rate.sleep()
             print("At waypoint ({}, {})".format(_x, _y))
@@ -205,19 +233,15 @@ class WaypointFollower:
 
 if __name__ == '__main__':
     try:
-        # a circle of waypoints
-        # points = np.linspace(0, 2 * np.pi, 25)
-        # xs = 2 + 2 * np.cos(points)
-        # ys = 2 + 2 * np.sin(points)
+        parser = argparse.ArgumentParser()
+        parser.add_argument("-s", "--settings",
+                            help='path to settings file',
+                            default="../settings.yaml")
+        args = parser.parse_args()
 
-        xs = [13.077209337210164, 4.469345172648829, -5.485107059487756, -15.439559291624342,
-              -16.424231599799654]
-        ys = [-8.799172244139658, -13.888835742295582, -14.842188121067972, -15.795540499840364,
-              -15.889843999964624]
         mission_area = WaypointFollower.GAZEBO
         robot = WaypointFollower.TARS
-        wp = WaypointFollower(area=mission_area, robot=robot)
-        wp.set_waypoints(xs, ys)
+        wp = WaypointFollower(area=mission_area, robot=robot, settings=args.settings)
         wp.set_control(0.0)
         print('waiting for plan')
         rospy.spin()

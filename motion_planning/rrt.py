@@ -24,13 +24,14 @@ class Obstacle:
     rectangle: center (x,y), axis = [width, height]
     """
 
-    def __init__(self, obs_type, obs_center, obs_axis, name, obs_angle=0, buffer=None):
+    def __init__(self, obs_type, obs_center, obs_axis, name, obs_angle=0, buffer=None, data=1):
         self.center = obs_center
         self.axis = obs_axis
         self.type = obs_type
         self.id = name
         self.angle = obs_angle
         self.buffer = buffer
+        self.data = data
 
     def __str__(self):
         return 'Obstacle ID: {}\nCenter: ({},{})\nAxis: {}\n'.format(self.id, *self.center, self.axis)
