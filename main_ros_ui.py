@@ -15,6 +15,7 @@ from std_msgs.msg import String, Float32, Float32MultiArray
 from sensor_msgs.msg import NavSatFix
 
 from base_interface.base_interface import BaseInterface
+from base_interface.control_modes import ControlModeState
 from motion_planning.waypoint_follower import extract_msg
 
 
@@ -93,6 +94,8 @@ class InterfaceImpl(BaseInterface):
         try:
             v = msg.vector
             v = np.linalg.norm(np.array([v.x, v.y, v.z]))
+            if self.control_mode.state == ControlModeState.drive:
+                self.mean_velocity.append(v)
             self.velocity = v
         except Exception as e:
             traceback.print_exc()

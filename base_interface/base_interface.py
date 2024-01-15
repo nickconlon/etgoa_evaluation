@@ -1,5 +1,6 @@
 import time
 import traceback
+from collections import deque
 
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
 import PyQt5.QtCore as QtCore
@@ -9,7 +10,7 @@ from datetime import datetime
 import numpy as np
 import os
 
-from base_interface.mission_management import MissionManager
+from motion_planning.mission_management import MissionManager
 from base_interface.control_modes import ControlModeState
 from mission_control.mission_control import MissionControl
 from base_interface.ui import Ui_MainWindow
@@ -84,6 +85,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.telemetry_updater.timeout.connect(self.periodic_update)
         self.telemetry_updater.setInterval(500)
         self.telemetry_updater.start()
+
+        self.mean_velocity = deque(maxlen=10)
+        self.mean_battery = deque(maxlen=10)
 
         #################
         # Setup the Mission Control Panel
@@ -276,7 +280,12 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         try:
             if self.control_mode.state == ControlModeState.drive:
                 dt = 1
-                self.battery_level = float(np.maximum(self.battery_level - dt / 2, 0.0))
+                prev_battery = self.battery_level
+                new_battery = float(np.maximum(self.battery_level - dt / 2, 0.0))
+                self.mean_battery.append(abs(prev_battery-new_battery)/dt)
+                self.battery_level = new_battery
+                print('mean battery:', np.mean(self.mean_battery)/0.5)
+                print('mean velocity:', np.mean(self.mean_velocity)/0.25)
         except Exception as e:
             traceback.print_exc()
 
@@ -508,6 +517,10 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                     self.rollout_thread.goal = plan[-1]
                     self.rollout_thread.battery_rate = 0.5
                     self.rollout_thread.battery = self.battery_level
+                    if self.mission_phase.state == ControlModeState.phase_mission_planning:
+                        self.rollout_thread.velocity_rate = 1.0
+                    else:
+                        self.rollout_thread.velocity_rate = float(np.mean(self.mean_velocity)/0.25)
                     print('driving to', plan[-1])
                     self.rollout_thread.finished.connect(self.finish_competency_assessment)
                     self.rollout_thread.start()

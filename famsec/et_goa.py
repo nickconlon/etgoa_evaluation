@@ -175,5 +175,5 @@ if __name__ == '__main__':
         mqa = etgoa.get_si(actual_x=act[2], actual_y=act[4], actual_v=act[6], actual_b=act[8], t_now=i)
         print(mqa)
         print(act[0], i)
-        batt = float(np.maximum(batt - dt, 0.0))
+        batt = float(np.maximum(batt - dt/2, 0.0))
 

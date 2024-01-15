@@ -8,7 +8,8 @@ import traceback
 from famsec.outcomes import compute_outcomes
 
 
-def do_rollout(position, orientation, goal, batt_level, batt_rate, known_obstacles, waypoints, max_time, num_iterations):
+def do_rollout(position, orientation, goal, batt_level, batt_rate, vel_rate,
+               known_obstacles, waypoints, max_time, num_iterations):
     """
     TODO obstacle location + radius + perturbation model (or type)
 
@@ -35,7 +36,7 @@ def do_rollout(position, orientation, goal, batt_level, batt_rate, known_obstacl
         'max_time': max_time,
         'batt_level': batt_level,
         'batt_rate': batt_rate,  # units per second
-        'velocity': 1,
+        'vel_rate': vel_rate,  # percent of mean velocity
     }
     if waypoints is not None:
         d['wp_x'] = [float(x) for x in waypoints[:, 0]]
@@ -61,6 +62,7 @@ class RolloutThread(QtCore.QThread):
     goal = None
     battery = None
     battery_rate = None
+    velocity_rate = None
     known_obstacles = {}
     waypoints = []
     num_iterations = 10
@@ -71,7 +73,7 @@ class RolloutThread(QtCore.QThread):
         t1 = time.time()
         try:
             goas = do_rollout(self.pose, self.orientation, self.goal,
-                              self.battery, self.battery_rate,
+                              self.battery, self.battery_rate, self.velocity_rate,
                               self.known_obstacles,
                               self.waypoints, self.max_time, self.num_iterations)
             self.finished.emit(goas)
@@ -86,13 +88,14 @@ def example_rollout():
     orientation = [0, 0, 1, 0]
     goal = [10, 10]
     batt_level = 100
-    batt_rate = 1
+    batt_rate = 0.5
+    vel_rate = 0.5
     max_time = 200
     iterations = 10
     known_obs = {}
     waypoints = np.array([[0, 0], goal])
     do_rollout(pos, orientation, goal,
-               batt_level, batt_rate,
+               batt_level, batt_rate, vel_rate,
                known_obs,
                waypoints, max_time, iterations)
 

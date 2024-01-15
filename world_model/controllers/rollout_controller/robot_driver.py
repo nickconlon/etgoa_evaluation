@@ -166,11 +166,11 @@ def update_machine(_current_state_machine, _current_state, _goal, _next_waypoint
     return _state_machine
 
 
-def run(goal, robot, wheels, gps, compass, known_obstacles, batt_level, batt_rate, waypoints, waypoint_index, run_number, run_prefix, max_time):
+def run(goal, robot, wheels, gps, compass, known_obstacles, batt_level, batt_rate, vel_rate, waypoints, waypoint_index, run_number, run_prefix, max_time):
     velocity_noise = np.random.normal(loc=0.0, scale=0.5)
     battery = batt_level
     battery_noise = np.random.normal(0, 1.0)
-    print('velocity noise: {}\nbattery {}:{}'.format(velocity_noise, batt_level, battery_noise))
+    print('velocity: {}:{}\nbattery {}:{}'.format(vel_rate, velocity_noise, batt_level, battery_noise))
     state_path = '/data/webots/{}{}_state.npy'.format(run_prefix, run_number)
 
     waypoint_counter = waypoint_index
@@ -192,7 +192,7 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, batt_level, batt_rat
         pose = robot.getSelf().getField('translation').getSFVec3f()
         orient = robot.getSelf().getField('rotation').getSFRotation()
         vel = robot.getSelf().getVelocity()
-        battery = np.maximum(battery - 0.064 * batt_rate, 0.0)
+        battery = np.maximum(battery - 0.064 * batt_rate+np.random.normal(0.0, 0.5), 0.0)
         state_object = StateObject()
         state_object.set_state(pose, orient, vel[:2], battery, sample_time, time.time(), goal, waypoint_counter)
         state.append(np.array(state_object.get_state_array(), dtype=object))
@@ -216,6 +216,7 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, batt_level, batt_rat
         # Robot has more driving to do
         elif state_machine == StateMachine.driving:
             speed, arrived = goto(next_waypoint, gps, compass, velocity_noise)
+            speed *= vel_rate  # adjust based on "real" speed
 
             # Sand trap functionality
             sand_pos = get_obstacles(robot, ['SAND'])
