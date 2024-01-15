@@ -127,7 +127,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.rollout_thread = None
             self.et_goa_threshold = settings.et_goa_threshold
         else:
-            self.competency_assessment_frame.hide()
+            labels = [self.label_27, self.label_6, self.label_7, self.label_8, self.label_15, self.label_16]
+            [label.hide() for label in labels]
         self.mqa = [0] * 3  # [x, y, v]
         self.goa = [0] * 5  # []
 

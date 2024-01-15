@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1481</width>
-    <height>698</height>
+    <width>1452</width>
+    <height>687</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -422,9 +422,9 @@
     <widget class="QLabel" name="label_2">
      <property name="geometry">
       <rect>
-       <x>0</x>
+       <x>10</x>
        <y>0</y>
-       <width>381</width>
+       <width>251</width>
        <height>41</height>
       </rect>
      </property>
@@ -439,127 +439,7 @@
       <enum>QFrame::NoFrame</enum>
      </property>
      <property name="text">
-      <string>Robot Competency Assessment</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_6">
-     <property name="geometry">
-      <rect>
-       <x>260</x>
-       <y>50</y>
-       <width>121</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-      </font>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_7">
-     <property name="geometry">
-      <rect>
-       <x>260</x>
-       <y>90</y>
-       <width>121</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-      </font>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_8">
-     <property name="geometry">
-      <rect>
-       <x>260</x>
-       <y>130</y>
-       <width>121</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-      </font>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_15">
-     <property name="geometry">
-      <rect>
-       <x>260</x>
-       <y>170</y>
-       <width>121</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-      </font>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_16">
-     <property name="geometry">
-      <rect>
-       <x>260</x>
-       <y>210</y>
-       <width>121</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-      </font>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
-     <property name="text">
-      <string/>
+      <string>Mission Objectives</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -570,7 +450,7 @@
       <rect>
        <x>10</x>
        <y>160</y>
-       <width>381</width>
+       <width>251</width>
        <height>41</height>
       </rect>
      </property>
@@ -583,7 +463,7 @@
       <enum>QFrame::Box</enum>
      </property>
      <property name="text">
-      <string>Survey complete &lt; 10mins:</string>
+      <string>Survey complete &lt; 10mins</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_23">
@@ -591,7 +471,7 @@
       <rect>
        <x>10</x>
        <y>80</y>
-       <width>381</width>
+       <width>251</width>
        <height>41</height>
       </rect>
      </property>
@@ -604,7 +484,7 @@
       <enum>QFrame::Box</enum>
      </property>
      <property name="text">
-      <string>Battery level &gt; 50%:</string>
+      <string>Battery level &gt; 50%</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_24">
@@ -612,7 +492,7 @@
       <rect>
        <x>10</x>
        <y>120</y>
-       <width>381</width>
+       <width>251</width>
        <height>41</height>
       </rect>
      </property>
@@ -625,7 +505,7 @@
       <enum>QFrame::Box</enum>
      </property>
      <property name="text">
-      <string>All obstacles avoided:</string>
+      <string>All obstacles avoided</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_25">
@@ -633,7 +513,7 @@
       <rect>
        <x>10</x>
        <y>40</y>
-       <width>381</width>
+       <width>251</width>
        <height>41</height>
       </rect>
      </property>
@@ -646,7 +526,7 @@
       <enum>QFrame::Box</enum>
      </property>
      <property name="text">
-      <string>Survey site arrival:</string>
+      <string>Survey site arrival</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_26">
@@ -654,7 +534,7 @@
       <rect>
        <x>10</x>
        <y>200</y>
-       <width>381</width>
+       <width>251</width>
        <height>41</height>
       </rect>
      </property>
@@ -670,17 +550,152 @@
       <string>Survey quality &gt; 90%</string>
      </property>
     </widget>
-    <zorder>label_2</zorder>
-    <zorder>label_17</zorder>
-    <zorder>label_23</zorder>
-    <zorder>label_24</zorder>
-    <zorder>label_25</zorder>
-    <zorder>label_26</zorder>
-    <zorder>label_15</zorder>
-    <zorder>label_6</zorder>
-    <zorder>label_16</zorder>
-    <zorder>label_7</zorder>
-    <zorder>label_8</zorder>
+    <widget class="QLabel" name="label_27">
+     <property name="geometry">
+      <rect>
+       <x>260</x>
+       <y>0</y>
+       <width>131</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="text">
+      <string>Assessment</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_15">
+     <property name="geometry">
+      <rect>
+       <x>260</x>
+       <y>160</y>
+       <width>131</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_16">
+     <property name="geometry">
+      <rect>
+       <x>260</x>
+       <y>200</y>
+       <width>131</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_8">
+     <property name="geometry">
+      <rect>
+       <x>260</x>
+       <y>120</y>
+       <width>131</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_6">
+     <property name="geometry">
+      <rect>
+       <x>260</x>
+       <y>40</y>
+       <width>131</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_7">
+     <property name="geometry">
+      <rect>
+       <x>260</x>
+       <y>80</y>
+       <width>131</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
    </widget>
    <widget class="QFrame" name="frame_5">
     <property name="geometry">
@@ -1216,8 +1231,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1481</width>
-     <height>22</height>
+     <width>1452</width>
+     <height>21</height>
     </rect>
    </property>
   </widget>
