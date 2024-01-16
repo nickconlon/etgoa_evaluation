@@ -20,6 +20,7 @@ class Settings:
         self.anomalies = False
         self.et_goa_threshold = None
         self.et_goa_stds = None
+        self.batt_drain_rate = None
 
     def read(self):
         try:
@@ -47,18 +48,27 @@ class Settings:
                 self.anomalies = settings['anomalies']
                 self.et_goa_threshold = settings['et_goa_threshold']
                 self.et_goa_stds = settings['et_goa_stds']
+                self.batt_drain_rate = settings['batt_drain_rate']
+
         except Exception as e:
             traceback.print_exc()
 
 
-if __name__ == '__main__':
-    # [[x, y], [radius]]
+def create():
+    """
+    Create a settings file
+
+    obstacles:          [[x, y], [radius], impact % change]
+    et_goa_stds:        [min std dev s1, s2, s3]
+    et_goa_threshold:   ET-GOA threshold
+    batt_drain_rate     % per second
+    """
     d = {
         'obstructions': {'o1': [[10, 15], [2], 1],
                          'o2': [[4, -5], [5], 1],
                          'o3': [[12, 21], [2.5], 1]
                          },
-        'hazards': {'h1': [[-2, 5], [2.5], 0.25],  # [[x, y], [radius], [impact % change]]
+        'hazards': {'h1': [[-2, 5], [2.5], 0.25],
                     },
         'power_draws': {'b1': [[-8, 0], [5], 1.5],
                         'b2': [[-12, 5], [5], 1.5]
@@ -72,15 +82,17 @@ if __name__ == '__main__':
         'longitude_center': 105.24432153,
         'anomalies': False,
         'et_goa_threshold': 0.05,
-        'et_goa_stds': [1.5, 1.5, 0.5, 1.5]
+        'et_goa_stds': [1.5, 1.5, 0.5, 1.5],
+        'batt_drain_rate': 0.5  # % per second
     }
 
-    base = '../'
     print(yaml.dump(d))
-    fname = base
-    with open(fname + 'settings.yaml', 'w') as f:
+    with open('../settings.yaml', 'w') as f:
         yaml.dump(d, f, default_flow_style=None, sort_keys=False)
 
-    obs = Settings(fname + 'settings.yaml')
+
+if __name__ == '__main__':
+    create()
+    obs = Settings('../settings.yaml')
     obs.read()
     print(obs)

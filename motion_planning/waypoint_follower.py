@@ -195,7 +195,6 @@ class WaypointFollower:
                 x_haz_err = rx - self.px
                 y_haz_err = ry - self.py
                 dh = math.sqrt((x_haz_err ** 2) + (y_haz_err ** 2))
-                print('hazards', dh, dh <= r)
                 if dh <= r:
                     effect = hazard.data
                     break

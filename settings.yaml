@@ -15,7 +15,7 @@ hazards:
   h1:
   - [-2, 5]
   - [2.5]
-  - 0.05
+  - 0.25
 power_draws:
   b1:
   - [-8, 0]
@@ -35,3 +35,4 @@ longitude_center: 105.24432153
 anomalies: false
 et_goa_threshold: 0.05
 et_goa_stds: [1.5, 1.5, 0.5, 1.5]
+batt_drain_rate: 0.5

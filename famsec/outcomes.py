@@ -130,15 +130,17 @@ def outcome_arrival(rollouts, outcome):
     return arrived
 
 
-def compute_outcomes():
+def compute_outcomes(time_offset=0):
     print('computing outcome')
     data = get_rollouts()
+    for d in data:
+        d[:, 11] += time_offset
     goas = {}
     functions = {
         'arrival': [outcome_arrival, 1, [-0.5, 0.5, 1.5], 2],
         'battery': [outcome_battery, 20, [-0.5, 0.5, 1.5], 2],
         'obstacles': [outcome_obstacles, 1, [-0.5, 0.5, 1.5], 2],
-        'time': [outcome_time, 100, [-0.5, 0.5, 1.5], 2],
+        'time': [outcome_time, 60*10, [-0.5, 0.5, 1.5], 2],
         'quality': [outcome_survey_quality, 1, [-0.5, 0.5, 1.5], 2],
     }
 
@@ -150,7 +152,6 @@ def compute_outcomes():
         outcomes = f(data, o)
         goa = fmc.assess_rollouts(outcomes, bins, zstar)
         goas[k] = goa
-    print(goas)
     return goas
 
 

@@ -9,10 +9,8 @@ from famsec.outcomes import compute_outcomes
 
 
 def do_rollout(position, orientation, goal, batt_level, batt_rate, vel_rate,
-               known_obstacles, waypoints, max_time, num_iterations):
+               known_obstacles, time_offset, waypoints, max_time, num_iterations):
     """
-    TODO obstacle location + radius + perturbation model (or type)
-
     :param batt_rate:           rate of battery drain per second s/t b_t+1 = b_t-rate*dt+noise
     :param batt_level:          battery starting level
     :param num_iterations:      number of roll outs
@@ -51,7 +49,7 @@ def do_rollout(position, orientation, goal, batt_level, batt_rate, vel_rate,
 
     p = Popen(base + 'do_rollouts.sh')
     stdout, stderr = p.communicate()
-    goas = compute_outcomes()
+    goas = compute_outcomes(time_offset=time_offset)
     return goas
 
 
@@ -63,6 +61,7 @@ class RolloutThread(QtCore.QThread):
     battery = None
     battery_rate = None
     velocity_rate = None
+    time_offset = None
     known_obstacles = {}
     waypoints = []
     num_iterations = 10
@@ -74,13 +73,26 @@ class RolloutThread(QtCore.QThread):
         try:
             goas = do_rollout(self.pose, self.orientation, self.goal,
                               self.battery, self.battery_rate, self.velocity_rate,
-                              self.known_obstacles,
+                              self.known_obstacles, self.time_offset,
                               self.waypoints, self.max_time, self.num_iterations)
             self.finished.emit(goas)
         except Exception as e:
             traceback.print_exc()
         t2 = time.time()
-        print('exiting rollout thread. Secs: {:.2f}'.format(t2-t1))
+        print('exiting rollout thread. Secs: {:.2f}'.format(t2 - t1))
+
+    def __str__(self):
+        return ('pose: ' + str(self.pose) + '\n' +
+                'orientation: ' + str(self.orientation) + '\n' +
+                'goal: ' + str(self.goal) + '\n' +
+                'battery: ' + str(self.battery) + '\n' +
+                'battery_rate: ' + str(self.battery_rate) + '\n' +
+                'velocity_rate: ' + str(self.velocity_rate) + '\n' +
+                'time_offset: ' + str(self.time_offset) + '\n' +
+                'known_obstacles: ' + str(self.known_obstacles) + '\n' +
+                'waypoints: ' + str(self.waypoints) + '\n' +
+                'num_iterations: ' + str(self.num_iterations) + '\n' +
+                'max_time: ' + str(self.max_time) + '\n')
 
 
 def example_rollout():
@@ -93,10 +105,11 @@ def example_rollout():
     max_time = 200
     iterations = 10
     known_obs = {}
+    time_offset = 0.0
     waypoints = np.array([[0, 0], goal])
     do_rollout(pos, orientation, goal,
                batt_level, batt_rate, vel_rate,
-               known_obs,
+               known_obs, time_offset,
                waypoints, max_time, iterations)
 
 
