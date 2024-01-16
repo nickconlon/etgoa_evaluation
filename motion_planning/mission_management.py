@@ -41,7 +41,7 @@ class MissionManager:
     def has_plan(self):
         return self.current_plan is not None
 
-    def plan_known_poi(self, robot_x, robot_y, poi_string):
+    def plan_known_poi(self, robot_x, robot_y, poi_string, tofrom=False):
         poi = None
         if poi_string == 'POI A':
             poi = self.poi_a
@@ -56,7 +56,10 @@ class MissionManager:
         else:
             self.delete_plan()
         if poi:
-            self.plan_waypoints(robot_x, robot_y, poi.x, poi.y)
+            if tofrom:
+                self.plan_to_from(robot_x, robot_y, poi.x, poi.y, self.home.x, self.home.y)
+            else:
+                self.plan_waypoints(robot_x, robot_y, poi.x, poi.y)
 
     def plan_waypoints(self, robot_x, robot_y, goal_x, goal_y):
         # RRT goal = [y, x]

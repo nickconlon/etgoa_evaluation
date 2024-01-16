@@ -35,7 +35,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.rollout_path = settings.rollout_path
         self.condition = settings.condition
         fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_primary.csv'
-        self.data_recorder = PrimaryTaskRecorder(self.condition, os.path.join(settings.record_path, fname))
+        self.data_recorder = PrimaryTaskRecorder(self.condition,
+                                                 os.path.join(settings.record_path, fname))
         self.projector = Projector(settings.lat_center, settings.lon_center)
         self.projector.setup()
         self.mission_manager = MissionManager(self.mission_area_img_path, self.projector,
@@ -135,9 +136,10 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.rollout_thread = None
             self.et_goa_threshold = settings.et_goa_threshold
         else:
-            labels = [self.label_27, self.label_6, self.label_7, self.label_8, self.label_15, self.label_16]
+            labels = [self.label_27, self.label_6, self.label_7, self.label_8, self.label_15,
+                      self.label_16]
             [label.hide() for label in labels]
-        self.mqa = [0] * 3  # [x, y, v]
+        self.mqa = [0] * len(settings.et_goa_stds)
         self.goa = [0] * 5  # []
 
         #################
@@ -302,13 +304,13 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                     # Change the battery draw rate %/second based
                     px, py = self.position.x, self.position.y
                     rx, ry = pd.center
-                    x_err, y_err = rx-px, ry-py
+                    x_err, y_err = rx - px, ry - py
                     dh = np.sqrt((x_err ** 2) + (y_err ** 2))
                     if dh <= pd.axis[0]:
                         drain_rate = pd.data
                 prev_battery = self.battery_level
                 new_battery = float(np.maximum(self.battery_level - dt * drain_rate, 0.0))
-                self.mean_battery.append(abs(prev_battery-new_battery)/dt)
+                self.mean_battery.append(abs(prev_battery - new_battery) / dt)
                 self.battery_level = new_battery
         except Exception as e:
             traceback.print_exc()
@@ -343,7 +345,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             secs = self.mission_time % 60
             textm = "{}".format(str(int(mins)).rjust(2, "0"))
             texts = "{}".format(str(int(secs)).rjust(2, "0"))
-            text = '{}:{} | {} MT'.format(textm, texts,  now.strftime("%H:%M:%S"))
+            text = '{}:{} | {} MT'.format(textm, texts, now.strftime("%H:%M:%S"))
             self.time_text.setText(text)
         except Exception as e:
             traceback.print_exc()
@@ -398,15 +400,19 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         :return:
         """
         if self.mission_control:
-            text = self.mission_control.check_strategy(self.power_number, self.gps_frequency, self.battery_number)
+            text = self.mission_control.check_strategy(self.power_number, self.gps_frequency,
+                                                       self.battery_number)
             if text != "":
                 self.robot_battery_slider.setDisabled(True)
                 self.robot_gps_dial.setDisabled(True)
                 self.robot_power_slider.setDisabled(True)
                 self.update_mission_control_text(text, 'green')
                 # delete the old stuff here
-                self.plan_poi_callback()
-                self.start_competency_assessment()
+                #self.plan_poi_callback()
+                if self.condition == self.COND_ETGOA:
+                    self.start_competency_assessment()
+                else:
+                    self.finish_competency_assessment(None)
 
     def update_control_mode_state(self, new_state):
         """
@@ -465,7 +471,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         if self.poi_selected:
             print('Planning route to POI: ', self.poi_selected)
             self.splash_of_color(self.frame_2)
-            self.mission_manager.plan_known_poi(self.position.x, self.position.y, self.poi_selected)
+            self.mission_manager.plan_known_poi(self.position.x, self.position.y, self.poi_selected,
+                                                tofrom=True)
 
     def accept_poi_callback(self):
         """
@@ -553,7 +560,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                         self.rollout_thread.time_offset = 0.0
                     else:
                         # During mission execution, parameter values may have changed
-                        self.rollout_thread.velocity_rate = float(np.mean(self.mean_velocity)/0.25)
+                        self.rollout_thread.velocity_rate = float(
+                            np.mean(self.mean_velocity) / 0.25)
                         self.rollout_thread.battery_rate = float(np.mean(self.mean_battery))
                         self.rollout_thread.time_offset = float(self.mission_time)
                     print(self.rollout_thread)
@@ -570,15 +578,17 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         :return:
         """
         try:
-            labels = [self.label_6, self.label_7, self.label_8, self.label_15, self.label_16]
-            goas = []
-            for gg, label in zip(goa_ret.items(), labels):
-                outcome = gg[1]
-                goas.append(outcome)
-                label.setStyleSheet(
-                    'background-color: {}; color: black'.format(goa.semantic_label_color(outcome)))
-                label.setText("{}".format(goa.semantic_label_text(outcome)))
-            self.goa = goas
+            if goa_ret is not None:
+                labels = [self.label_6, self.label_7, self.label_8, self.label_15, self.label_16]
+                goas = []
+                for gg, label in zip(goa_ret.items(), labels):
+                    outcome = gg[1]
+                    goas.append(outcome)
+                    label.setStyleSheet(
+                        'background-color: {}; color: black'.format(
+                            goa.semantic_label_color(outcome)))
+                    label.setText("{}".format(goa.semantic_label_text(outcome)))
+                self.goa = goas
             if self.condition == self.COND_ETGOA:
                 self.etgoa.preprocess()
             if self.mission_phase.state == ControlModeState.phase_mission_planning:
