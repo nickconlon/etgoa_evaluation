@@ -36,3 +36,4 @@ anomalies: false
 et_goa_threshold: 0.05
 et_goa_stds: [1.5, 1.5, 0.5, 1.5]
 batt_drain_rate: 0.5
+show_surveys: true

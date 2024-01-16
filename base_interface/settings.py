@@ -21,6 +21,7 @@ class Settings:
         self.et_goa_threshold = None
         self.et_goa_stds = None
         self.batt_drain_rate = None
+        self.show_surveys = None
 
     def read(self):
         try:
@@ -49,6 +50,7 @@ class Settings:
                 self.et_goa_threshold = settings['et_goa_threshold']
                 self.et_goa_stds = settings['et_goa_stds']
                 self.batt_drain_rate = settings['batt_drain_rate']
+                self.show_surveys = settings['show_surveys']
 
         except Exception as e:
             traceback.print_exc()
@@ -83,7 +85,8 @@ def create():
         'anomalies': False,
         'et_goa_threshold': 0.05,
         'et_goa_stds': [1.5, 1.5, 0.5, 1.5],
-        'batt_drain_rate': 0.5  # % per second
+        'batt_drain_rate': 0.5,  # % per second
+        'show_settings': False
     }
 
     print(yaml.dump(d))

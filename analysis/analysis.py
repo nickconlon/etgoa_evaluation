@@ -169,30 +169,52 @@ def plot_trust(trust_baseline, trust_planning, trust_execution, save_path):
     plt.show()
 
 
-def plot_mqa_over_time(df):
+def plot_mqa_over_time(data):
     """
-    plot colors for states (planning, execution)
-    :param df:
-    :return:
+    Plot model quality assessment in [0, 1] over time
+    Plot state (planning, assessing, executing) over time
+
+    :param data:    the dataset
     """
-    data = df#df.loc[df['control mode'] == 'Driving'][['mqa', 'timestamp']]
     d_mqa = data['mqa'].to_numpy()
     d_t = data['timestamp'].to_numpy()
+    modes = data['mission mode'].tolist()
+    planning = []
+    executing = []
+    assessing = []
+    for t, mode in enumerate(modes):
+        if mode == 'Execution':
+            executing.append(t)
+        elif mode == 'Assessing':
+            assessing.append(t)
+        elif mode == 'Planning':
+            planning.append(t)
     d_t = d_t[1:]
     d_mqa = d_mqa[1:]
 
-    data_mqa = np.zeros((len(d_mqa), 3))
+    data_mqa = np.zeros((len(d_mqa), 4))
     data_t = np.zeros(len(d_mqa))
 
     i = 0
     for mqa, t in zip(d_mqa, d_t):
         mqas = mqa.split('_')
-        data_mqa[i] = np.array([float(x) for x in mqas])
+        if len(mqas) == 3:
+            data_mqa[i] = np.array([0.0, 0.0, 0.0, 0.0])
+        else:
+            data_mqa[i] = np.array([float(x) for x in mqas])
         data_t[i] = t
         i += 1
-    plt.plot(data_t, data_mqa[:, 0], label='x pos')
-    plt.plot(data_t, data_mqa[:, 1], label='y pos')
-    plt.plot(data_t, data_mqa[:, 2], label='speed')
+    t = np.arange(0, len(data_t))
+
+    plt.plot(t, data_mqa[:, 0], label='x pos')
+    plt.plot(t, data_mqa[:, 1], label='y pos')
+    plt.plot(t, data_mqa[:, 2], label='speed')
+    plt.plot(t, data_mqa[:, 3], label='battery')
+
+    plt.scatter(planning, [1.05] * len(planning), color='green', marker='s', label='Planning')
+    plt.scatter(assessing, [1.05] * len(assessing), color='red', marker='s', label='Assessing')
+    plt.scatter(executing, [1.05] * len(executing), color='blue', marker='s', label='Executing')
+
     plt.ylim([0, 1.1])
     plt.legend()
     plt.show()
@@ -220,15 +242,23 @@ def plot_goa_over_time(df):
             data_goa[i] = np.array([float(x) for x in goas])
             data_t[i] = t
         i += 1
-    plt.plot(data_t, data_goa[:, 0], label='x pos')
-    plt.plot(data_t, data_goa[:, 1], label='y pos')
-    plt.plot(data_t, data_goa[:, 2], label='speed')
+
+    t = np.arange(0, len(data_t))
+    plt.plot(t, data_goa[:, 0], label='x pos')
+    plt.plot(t, data_goa[:, 1], label='y pos')
+    plt.plot(t, data_goa[:, 2], label='speed')
     plt.ylim([0, 1.1])
     plt.legend()
     plt.show()
 
 
+def plot_survey_responses(df):
+    pass
+
+
 if __name__ == '__main__':
-    data = pd.read_csv('../data/recording.csv', )
-    #plot_goa_over_time(data)
-    plot_mqa_over_time(data)
+    run_data = pd.read_csv('../data/20240116_160630_primary.csv')
+    plot_goa_over_time(run_data)
+    plot_mqa_over_time(run_data)
+    survey_data = pd.read_csv('../data/20240116_160630_survey.csv')
+    plot_survey_responses(survey_data)

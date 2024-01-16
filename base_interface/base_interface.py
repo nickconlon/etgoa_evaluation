@@ -2,7 +2,7 @@ import time
 import traceback
 from collections import deque
 
-from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QApplication
 import PyQt5.QtCore as QtCore
 import PyQt5.QtGui as QtGui
 import sys
@@ -14,10 +14,11 @@ from motion_planning.mission_management import MissionManager
 from base_interface.control_modes import ControlModeState
 from mission_control.mission_control import MissionControl
 from base_interface.ui import Ui_MainWindow
-from analysis.data_recorder import PrimaryTaskRecorder
+from analysis.data_recorder import PrimaryTaskRecorder, SurveyRecorder
 from motion_planning.projections import Projector, PointOfInterest, get_heading
 from famsec import goa, rollout, et_goa
 from base_interface.settings import Settings
+from base_interface.survey_popup import startup
 
 
 class BaseInterface(QMainWindow, Ui_MainWindow):
@@ -37,6 +38,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_primary.csv'
         self.data_recorder = PrimaryTaskRecorder(self.condition,
                                                  os.path.join(settings.record_path, fname))
+        fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_survey.csv'
+        self.survey_recorder = SurveyRecorder(os.path.join(settings.record_path, fname))
         self.projector = Projector(settings.lat_center, settings.lon_center)
         self.projector.setup()
         self.mission_manager = MissionManager(self.mission_area_img_path, self.projector,
@@ -144,7 +147,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
         #################
         # Setup the questionnaire prompts
-        self.surveys = {0: False, 1: False, 2: False}
+        self.surveys = {0: False, 1: False, 2: False} if settings.show_surveys else {0: True, 1: True, 2: True}
         self.survey_prompt(0)
 
     def periodic_update(self):
@@ -683,12 +686,14 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             traceback.print_exc()
 
     def survey_prompt(self, survey):
-        if not self.surveys[survey]:
-            self.surveys[survey] = True
-            msg = QMessageBox()
-            msg.setWindowTitle("Questionnaire Request")
-            msg.setText("Please complete questionnaire {} and press OK when done".format(survey))
-            x = msg.exec_()
+        try:
+            if not self.surveys[survey]:
+                self.surveys[survey] = True
+                msg = startup()
+                self.survey_recorder.add_row(msg, datetime.now())
+        except Exception as e:
+            traceback.print_exc()
+
 
     def splash_of_color(self, obj, color='green', timeout=500):
         """

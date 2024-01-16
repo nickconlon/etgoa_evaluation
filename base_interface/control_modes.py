@@ -4,15 +4,14 @@ class ControlModeState:
     planning = 2
     execution = 3
     assessing = 4
-    automatic = 5
-    manual = 6
 
-    phase_mission_planning = 7
-    phase_mission_execution = 8
+    phase_mission_planning = 5
+    phase_mission_execution = 6
+    phase_mission_complete = 7 # TODO implement mode in UI
 
-    go_home = 9
-
-    descriptions = ['Driving', 'Stopped', 'Planning', 'Execution', 'Assessing', 'Automatic', 'Manual']
+    descriptions = ['Driving', 'Stopped',
+                    'Planning', 'Execution', 'Assessing',
+                    'Planning phase', 'Execution Phase', 'Mission Complete']
 
     def __init__(self, mode):
         self.state = mode
