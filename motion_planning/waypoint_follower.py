@@ -14,6 +14,8 @@ from std_msgs.msg import Float32, Float32MultiArray
 import numpy as np
 import threading
 
+from beginner_tutorials.msg import Plan
+
 from base_interface.settings import Settings
 
 
@@ -88,7 +90,7 @@ class WaypointFollower:
             self.pub_vel = rospy.Publisher('/{}/jackal_velocity_controller/cmd_vel'.format(robot),
                                            Twist, queue_size=10)
         self.control_sub = rospy.Subscriber('/{}/control'.format(robot), Float32, self.set_control_callback)
-        self.waypoint_sub = rospy.Subscriber('/{}/waypoints'.format(robot), Float32MultiArray, self.set_waypoints_callback)
+        self.waypoint_sub = rospy.Subscriber('/{}/plan'.format(robot), Plan, self.set_waypoints_callback)
         self.wp_thread = None
         self.drive = False
 
@@ -98,10 +100,8 @@ class WaypointFollower:
 
     def set_waypoints_callback(self, msg):
         print('waypoints', msg)
-        d = np.array(msg.data)
-        half = int(len(d) / 2)
-        xs = list(d[:half])
-        ys = list(d[half:])
+        xs = list(msg.xs)
+        ys = list(msg.ys)
         self.set_waypoints(xs, ys)
 
     def set_waypoints(self, xs, ys):

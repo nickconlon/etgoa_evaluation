@@ -17,7 +17,7 @@ from sensor_msgs.msg import NavSatFix
 from base_interface.base_interface import BaseInterface
 from base_interface.control_modes import ControlModeState
 from motion_planning.waypoint_follower import extract_msg
-
+from beginner_tutorials.msg import Plan
 
 class InterfaceImpl(BaseInterface):
     def __init__(self, settings_path):
@@ -39,7 +39,7 @@ class InterfaceImpl(BaseInterface):
                                             queue_size=10)
         self.waypoint_speed_pub = rospy.Publisher('/{}/control'.format('tars'), Float32,
                                                   queue_size=10)
-        self.waypoint_plan_pub = rospy.Publisher('/{}/waypoints'.format('tars'), Float32MultiArray,
+        self.waypoint_plan_pub = rospy.Publisher('/{}/plan'.format('tars'), Plan,
                                                  queue_size=10)
 
         self.ui_connected = True
@@ -61,9 +61,12 @@ class InterfaceImpl(BaseInterface):
                 py = plan[:, 1]
                 flat_plan = list(px) + list(py)
                 print('setting plan to', flat_plan)
-                msg = Float32MultiArray()
-                msg.data = flat_plan
+                msg = Plan()
+                msg.xs = list(px)
+                msg.ys = list(py)
+                msg.active = []
                 self.waypoint_plan_pub.publish(msg)
+                print(msg)
                 # publish Float32MutliArray message to load the waypoint follower
             pass
         except Exception as e:
