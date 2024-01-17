@@ -22,12 +22,43 @@ class MissionManager:
         self.zero = pois[5]
         self.location = self.ASPEN
         self.current_plan = None
+        self.all_obstacles = {}
+        self.active_obstacles = set()
         self.visualize = False
         self.mission_area_image = np.asarray(Image.open(mission_area_image_path))
         self.mission_area_bounds = np.array([[area_miny, area_maxy], [area_minx, area_maxx]])
         self.obstructions = obstructions
         self.hazards = hazards
         self.power_draws = power_draws
+        self.setup_obstacles(obstructions)
+        self.setup_obstacles(power_draws)
+        self.setup_obstacles(hazards)
+        self.activate_obstacles([o.id for o in hazards])
+
+    def setup_obstacles(self, obstacles):
+        for o in obstacles:
+            if o.id not in self.all_obstacles:
+                print('adding ', o.id)
+                self.all_obstacles[o.id] = o
+            else:
+                print('found duplicate obstacle ', o.id)
+
+    def activate_obstacles(self, ob_ids):
+        print('activating obstacles', ob_ids)
+        for ob_id in ob_ids:
+            if ob_id in self.all_obstacles:
+                self.active_obstacles.add(ob_id)
+            else:
+                print('Cannot find obstacle to activate ', ob_id)
+
+    def deactivate_obstacles(self, ob_ids):
+        print('deactivating obstacles', ob_ids)
+        for ob_id in ob_ids:
+            if ob_id in self.active_obstacles:
+                self.active_obstacles.remove(ob_id)
+            else:
+                print('Cannot find obstacle to deactivate ', ob_id)
+
 
     def update_plan(self, new_plan):
         self.current_plan = new_plan

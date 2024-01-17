@@ -57,17 +57,12 @@ class InterfaceImpl(BaseInterface):
         try:
             if self.mission_manager.has_plan():
                 plan = self.mission_manager.current_plan
-                px = plan[:, 0]
-                py = plan[:, 1]
-                flat_plan = list(px) + list(py)
-                print('setting plan to', flat_plan)
+                actives = self.mission_manager.active_obstacles
                 msg = Plan()
-                msg.xs = list(px)
-                msg.ys = list(py)
-                msg.active = []
+                msg.xs = list(plan[:, 0])
+                msg.ys = list(plan[:, 1])
+                msg.active = list(actives)
                 self.waypoint_plan_pub.publish(msg)
-                print(msg)
-                # publish Float32MutliArray message to load the waypoint follower
             pass
         except Exception as e:
             traceback.print_exc()

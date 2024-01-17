@@ -53,9 +53,11 @@ class WaypointFollower:
     CASE = 'case'
 
     def __init__(self, area, robot, settings):
-        self.settings = Settings(settings)
-        self.settings.read()
-        print(self.settings.hazards)
+        settings = Settings(settings)
+        settings.read()
+        self.all_obstacles = {}
+        self.active_obstacles = set()
+        self.setup_obstacles(settings.hazards)
         self.xs = []
         self.ys = []
         self.x_dest = None
@@ -94,6 +96,14 @@ class WaypointFollower:
         self.wp_thread = None
         self.drive = False
 
+    def setup_obstacles(self, obstacles):
+        for o in obstacles:
+            if o.id not in self.all_obstacles:
+                self.all_obstacles[o.id] = o
+            else:
+                print('found duplicate obstacle ', o.id)
+
+
     def set_control_callback(self, msg):
         print('control', msg)
         self.set_control(msg.data)
@@ -102,7 +112,13 @@ class WaypointFollower:
         print('waypoints', msg)
         xs = list(msg.xs)
         ys = list(msg.ys)
+        active_obstacles = list(msg.active)
         self.set_waypoints(xs, ys)
+        self.set_obstacles(active_obstacles)
+
+    def set_obstacles(self, ob_ids):
+        print('setting active obstacles: ', ob_ids)
+        self.active_obstacles = set(ob_ids)
 
     def set_waypoints(self, xs, ys):
         self.xs = xs
@@ -188,15 +204,11 @@ class WaypointFollower:
 
     def check_hazards(self):
         effect = 1.0
-        for hazard in self.settings.hazards:
-            if self.px is not None and self.py is not None:
-                rx, ry = hazard.center
-                r = hazard.axis[0]
-                x_haz_err = rx - self.px
-                y_haz_err = ry - self.py
-                dh = math.sqrt((x_haz_err ** 2) + (y_haz_err ** 2))
-                if dh <= r:
-                    effect = hazard.data
+        for o in self.active_obstacles:
+            if self.px is not None and self.py is not None and o in self.all_obstacles:
+                obs = self.all_obstacles[o]
+                if obs.distance(self.px, self.py) <= obs.axis[0]:
+                    effect = obs.data
                     break
         return effect
 

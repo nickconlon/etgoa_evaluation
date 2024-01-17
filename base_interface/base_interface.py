@@ -419,20 +419,14 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.robot_gps_dial.setDisabled(True)
                 self.robot_power_slider.setDisabled(True)
                 self.update_mission_control_text(text, 'green')
-                # delete the old stuff here
-                # TODO add distance function to Obstacle class -> Obstacle.dist(rx, ry) -> float
-                # TODO each obstacle name is unique int id
-                # TODO add is_visible field to Obstacle class -> map only shows visible obstacles
-                # publish list[int] of active obstacles -> mission manager keep track of this
-                to_remove = []
-                for o in self.mission_manager.power_draws:
-                    pass
-                for o in self.mission_manager.hazards:
-                    pass
-                for o in self.mission_manager.obstructions:
-                    pass
-                # remove obstacle from mission manager
-                # send cancel request to waypoint planner
+
+                # if the anomaly resolution was successful, deactivate the obstacle
+                addressed_anomalies = []
+                for ob_id, o in self.mission_manager.all_obstacles.items():
+                    if o.distance(self.position.x, self.position.y) <= o.axis[0]:
+                        addressed_anomalies.append(o.id)
+                self.mission_manager.deactivate_obstacles(addressed_anomalies)
+
                 if self.condition == self.COND_ETGOA:
                     self.start_competency_assessment()
                 else:

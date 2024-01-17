@@ -33,6 +33,12 @@ class Obstacle:
         self.buffer = buffer
         self.data = data
 
+    def distance(self, x, y):
+        """
+        Distance to the center of the Obstacle
+        """
+        return np.linalg.norm(np.asarray([x, y])-np.asarray(self.center))
+
     def __str__(self):
         return 'Obstacle ID: {}\nCenter: ({},{})\nAxis: {}\n'.format(self.id, *self.center, self.axis)
 
