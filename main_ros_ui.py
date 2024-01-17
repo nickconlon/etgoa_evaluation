@@ -17,7 +17,7 @@ from sensor_msgs.msg import NavSatFix
 from base_interface.base_interface import BaseInterface
 from base_interface.control_modes import ControlModeState
 from motion_planning.waypoint_follower import extract_msg
-from beginner_tutorials.msg import Plan
+from etgoa_evaluation.msg import Plan
 
 class InterfaceImpl(BaseInterface):
     def __init__(self, settings_path):

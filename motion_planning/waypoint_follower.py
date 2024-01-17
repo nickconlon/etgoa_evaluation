@@ -14,7 +14,7 @@ from std_msgs.msg import Float32, Float32MultiArray
 import numpy as np
 import threading
 
-from beginner_tutorials.msg import Plan
+from etgoa_evaluation.msg import Plan
 
 from base_interface.settings import Settings
 
