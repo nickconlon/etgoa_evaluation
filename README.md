@@ -21,26 +21,30 @@ ROS: noetic
 Webots: R2023a
 
 ### Usage
+Build with ROS:
+```commandline
+catkin build 
+```
+
 Start some ROS environment (I use the base Jackal): 
 ```commandline
-$ roslaunch jackal_gazebo empty_world.launch
+roslaunch jackal_gazebo empty_world.launch
 ```
 
 Start the waypoint follower:
 ```commandline
-$ python3 ./motion_planning/main_waypoint_follower.py
+python3 ./motion_planning/main_waypoint_follower.py
 ```
 
 Adjust any settings and chose the experimental condition: Telemetry only (TELEM), per-mission
 Generalized Outcome Assessment (GOA), or pre-mission GOA plus the ET-GOA algorithm (ET-GOA).
 ```commandline
-$ vi settings.yaml
+vim settings.yaml
 ```
 
 Start the user interface:
 ```commandline
-$ vi settings.yaml
-$ python3 ./main_ros_ui.py
+python3 ./main_ros_ui.py
 ```
 
 The interface should be started. Telemetry should be flowing. Select a POI with the dropdown, plan, 
@@ -51,5 +55,5 @@ along the planned waypoints to the POI.
 ### Building
 rebuild the GUI with the pyqt5 Designer then use this command:
 ```commandline
-$ pyuic5 -x ui.ui -o ui.py
+pyuic5 -x ui.ui -o ui.py
 ```
