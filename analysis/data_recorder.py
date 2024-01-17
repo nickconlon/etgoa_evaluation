@@ -33,12 +33,12 @@ class ConcurrentTaskRecorder(DataRecorderBase):
 
 class SurveyRecorder(DataRecorderBase):
     def __init__(self, path):
-        header = ["Q {}".format(x+1) for x in range(14)] + ['time stamp']
+        header = ["Q{}".format(x+1) for x in range(14)] + ['score'] + ['time stamp']
         DataRecorderBase.__init__(self, path, header)
         self.write_header()
 
-    def add_row(self, responses, timestamp):
-        row = [*responses, timestamp]
+    def add_row(self, responses, total, timestamp):
+        row = [*responses, total, timestamp]
         self.record(row)
 
 

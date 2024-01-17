@@ -1,6 +1,8 @@
 import traceback
 from PyQt5 import QtWidgets
 import time
+import numpy as np
+from PyQt5.QtWidgets import QMessageBox
 
 from base_interface.survey import Ui_Trust_Survey
 
@@ -39,27 +41,46 @@ class Popup(QtWidgets.QDialog, Ui_Trust_Survey):
         self.done(0)
 
 
-def startup():
+def run_survey_popup_online():
     responses = []
+    score = -1
     try:
         prompts = ['Dependable', 'Reliable', 'Unresponsive', 'Predictable',
                    'Act consistently', 'Malfunction', 'Require frequent maintenance', 'Have errors',
                    'Provide feedback', 'Meet the needs of the mission/task',
                    'Provide appropriate information', 'Communicate with people',
                    'Perform exactly as instructed', 'Follow directions']
-        sections = ['What % of the time will this robot be...'] * 4 + [
-            'What % of the time will this robot...'] * 10
+
+        reverse_codes = ['Unresponsive', 'Malfunction', 'Require frequent maintenance', 'Have errors']
+
+        sections = (['What % of the time will this robot be...'] * 4
+                    + ['What % of the time will this robot...'] * 10)
         responses = []
         for num, (p, s) in enumerate(zip(prompts, sections)):
             ui = Popup(p, s, num+1, 14)
             ui.exec_()
             resp = ui.save()
             resp = resp.replace('radio_', '')
+            if p in reverse_codes:
+                resp = 100 - int(resp)
+            else:
+                resp = int(resp)
             responses.append(resp)
+        score = np.sum(responses)/14
     except Exception as e:
         traceback.print_exc()
-    return responses
+    return responses, score
 
+
+def run_survey_popup_offline(survey_number):
+    msgBox = QMessageBox()
+    msgBox.setIcon(QMessageBox.Information)
+    msgBox.setText("Please complete questionnaire {}.\n\nPress Okay when done".format(survey_number))
+    msgBox.setWindowTitle("Questionnaire prompt")
+    msgBox.setStandardButtons(QMessageBox.Ok)
+    returnValue = msgBox.exec()
+    if returnValue == QMessageBox.Ok:
+        print('OK clicked')
 
 if __name__ == "__main__":
     import sys

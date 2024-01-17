@@ -1,8 +1,11 @@
+import os.path
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import glob
 
-
+'''
 def make_plots(df, save_path=None):
     """
     Note this is just generating fake data to get the plots right
@@ -124,6 +127,8 @@ def plot_usability(usability, save_path):
     plt.show()
 
 
+
+
 def plot_trust(trust_baseline, trust_planning, trust_execution, save_path):
     fig = plt.Figure(figsize=(8, 5))
 
@@ -167,98 +172,135 @@ def plot_trust(trust_baseline, trust_planning, trust_execution, save_path):
     if save_path is not None:
         plt.savefig(save_path)
     plt.show()
+'''
 
 
-def plot_mqa_over_time(data):
-    """
-    Plot model quality assessment in [0, 1] over time
-    Plot state (planning, assessing, executing) over time
+def plot_mqa_over_time(conditions, base='../data/'):
+    for condition in conditions:
+        paths = glob.glob(os.path.join(base, '*_primary_{}.csv'.format(condition)))
+        for p in paths:
+            df = pd.read_csv(p)
+            d_mqa = df['mqa'].to_numpy()
+            d_t = df['timestamp'].to_numpy()
+            modes = df['mission mode'].tolist()
+            planning = []
+            executing = []
+            assessing = []
+            for t, mode in enumerate(modes):
+                if mode == 'Execution':
+                    executing.append(t)
+                elif mode == 'Assessing':
+                    assessing.append(t)
+                elif mode == 'Planning':
+                    planning.append(t)
+            d_t = d_t[1:]
+            d_mqa = d_mqa[1:]
 
-    :param data:    the dataset
-    """
-    d_mqa = data['mqa'].to_numpy()
-    d_t = data['timestamp'].to_numpy()
-    modes = data['mission mode'].tolist()
-    planning = []
-    executing = []
-    assessing = []
-    for t, mode in enumerate(modes):
-        if mode == 'Execution':
-            executing.append(t)
-        elif mode == 'Assessing':
-            assessing.append(t)
-        elif mode == 'Planning':
-            planning.append(t)
-    d_t = d_t[1:]
-    d_mqa = d_mqa[1:]
+            data_mqa = np.zeros((len(d_mqa), 4))
+            data_t = np.zeros(len(d_mqa))
 
-    data_mqa = np.zeros((len(d_mqa), 4))
-    data_t = np.zeros(len(d_mqa))
+            i = 0
+            for mqa, t in zip(d_mqa, d_t):
+                mqas = mqa.split('_')
+                if len(mqas) == 3:
+                    data_mqa[i] = np.array([0.0, 0.0, 0.0, 0.0])
+                else:
+                    data_mqa[i] = np.array([float(x) for x in mqas])
+                data_t[i] = t
+                i += 1
+            t = np.arange(0, len(data_t))
 
-    i = 0
-    for mqa, t in zip(d_mqa, d_t):
-        mqas = mqa.split('_')
-        if len(mqas) == 3:
-            data_mqa[i] = np.array([0.0, 0.0, 0.0, 0.0])
-        else:
-            data_mqa[i] = np.array([float(x) for x in mqas])
-        data_t[i] = t
-        i += 1
-    t = np.arange(0, len(data_t))
+            plt.plot(t, data_mqa[:, 0], label='x pos')
+            plt.plot(t, data_mqa[:, 1], label='y pos')
+            plt.plot(t, data_mqa[:, 2], label='speed')
+            plt.plot(t, data_mqa[:, 3], label='battery')
 
-    plt.plot(t, data_mqa[:, 0], label='x pos')
-    plt.plot(t, data_mqa[:, 1], label='y pos')
-    plt.plot(t, data_mqa[:, 2], label='speed')
-    plt.plot(t, data_mqa[:, 3], label='battery')
+            plt.scatter(planning, [1.05] * len(planning), color='green', marker='s', label='Planning')
+            plt.scatter(assessing, [1.05] * len(assessing), color='red', marker='s', label='Assessing')
+            plt.scatter(executing, [1.05] * len(executing), color='blue', marker='s', label='Executing')
 
-    plt.scatter(planning, [1.05] * len(planning), color='green', marker='s', label='Planning')
-    plt.scatter(assessing, [1.05] * len(assessing), color='red', marker='s', label='Assessing')
-    plt.scatter(executing, [1.05] * len(executing), color='blue', marker='s', label='Executing')
+            plt.ylim([0, 1.1])
+            plt.legend()
+            plt.title('MQA over time for {}'.format(condition))
+            plt.show()
 
-    plt.ylim([0, 1.1])
-    plt.legend()
+
+def plot_goa_over_time(conditions, base='../data/'):
+
+    for condition in conditions:
+        paths = glob.glob(os.path.join(base, '*_primary_{}.csv'.format(condition)))
+        for p in paths:
+            df = pd.read_csv(p)
+            d_goa = df['goa'].to_numpy()
+            d_t = df['timestamp'].to_numpy()
+
+            data_goa = np.zeros((len(d_goa), 5))
+            data_t = np.zeros(len(d_goa))
+
+            i = 0
+            for goa, t in zip(d_goa, d_t):
+                if type(goa) is not str:
+                    data_goa[i] = np.array([0, 0, 0, 0, 0])
+                    data_t[i] = t
+                else:
+                    goas = goa.split('_')
+                    data_goa[i] = np.array([float(x) for x in goas])
+                    data_t[i] = t
+                i += 1
+
+            t = np.arange(0, len(data_t))
+            plt.plot(t, data_goa[:, 0], label='x pos')
+            plt.plot(t, data_goa[:, 1], label='y pos')
+            plt.plot(t, data_goa[:, 2], label='speed')
+            plt.ylim([0, 1.1])
+            plt.legend()
+            plt.title('GOA over time for {}'.format(condition))
+            plt.show()
+
+
+def plot_trust_survey_responses(conditions, base='../data/'):
+    for condition in conditions:
+        paths = glob.glob(os.path.join(base, '*_survey_{}.csv'.format(condition)))
+        pre_planning = []
+        post_planning = []
+        post_execution = []
+        for p in paths:
+            df = pd.read_csv(p)
+            results = df['score'].to_numpy()
+            pre_planning.append(results[0])
+            post_planning.append(results[1])
+            post_execution.append(results[2])
+
+        plt.boxplot([pre_planning, post_planning, post_execution],
+                    labels=['pre planning', 'post planing', 'post execution'])
+        plt.ylim([0, 100])
+        plt.title('Trust for {}'.format(condition))
+        plt.show()
+
+
+def plot_secondary_performance(conditions, base='../data/'):
+    data = []
+    for condition in conditions:
+        paths = glob.glob(os.path.join(base, '*_secondary_{}.csv'.format(condition)))
+        c_data = []
+        for p in paths:
+            df = pd.read_csv(p)
+            correct = df['correct'].to_numpy(dtype=int)
+            times = df['decision time'].to_numpy()
+            [c_data.append(c) for c in correct]
+        data.append(c_data)
+
+    plt.boxplot(data,
+                labels=conditions)
+    plt.ylim([0, 10])
+    plt.title('Secondary task performance')
     plt.show()
-
-
-def plot_goa_over_time(df):
-    """
-
-    :param df:
-    :return:
-    """
-    d_goa = df['goa'].to_numpy()
-    d_t = df['timestamp'].to_numpy()
-
-    data_goa = np.zeros((len(d_goa), 5))
-    data_t = np.zeros(len(d_goa))
-
-    i = 0
-    for goa, t in zip(d_goa, d_t):
-        if type(goa) is not str:
-            data_goa[i] = np.array([0, 0, 0, 0, 0])
-            data_t[i] = t
-        else:
-            goas = goa.split('_')
-            data_goa[i] = np.array([float(x) for x in goas])
-            data_t[i] = t
-        i += 1
-
-    t = np.arange(0, len(data_t))
-    plt.plot(t, data_goa[:, 0], label='x pos')
-    plt.plot(t, data_goa[:, 1], label='y pos')
-    plt.plot(t, data_goa[:, 2], label='speed')
-    plt.ylim([0, 1.1])
-    plt.legend()
-    plt.show()
-
-
-def plot_survey_responses(df):
-    pass
 
 
 if __name__ == '__main__':
-    run_data = pd.read_csv('../data/20240116_160630_primary.csv')
-    plot_goa_over_time(run_data)
-    plot_mqa_over_time(run_data)
-    survey_data = pd.read_csv('../data/20240116_160630_survey.csv')
-    plot_survey_responses(survey_data)
+    experimental_conditions = ['TELEM', 'GOA', 'ET-GOA']
+    plot_secondary_performance(experimental_conditions)
+    plot_goa_over_time(experimental_conditions)
+    plot_mqa_over_time(experimental_conditions)
+    plot_trust_survey_responses(experimental_conditions)
+

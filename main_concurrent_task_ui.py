@@ -27,7 +27,7 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
         settings.read()
         self.map = MarsMap('./imgs/mars_map_cropped.png')
         self.set_legend('./imgs/legend.png')
-        fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_secondary.csv'
+        fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_secondary_{}.csv'.format(settings.condition)
         self.recorder = ConcurrentTaskRecorder(os.path.join(settings.record_path, fname))
         self.request_time = None
         self.mineral_of_interest = None

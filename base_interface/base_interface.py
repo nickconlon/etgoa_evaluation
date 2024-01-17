@@ -18,7 +18,7 @@ from analysis.data_recorder import PrimaryTaskRecorder, SurveyRecorder
 from motion_planning.projections import Projector, PointOfInterest, get_heading
 from famsec import goa, rollout, et_goa
 from base_interface.settings import Settings
-from base_interface.survey_popup import startup
+from base_interface.survey_popup import run_survey_popup_online, run_survey_popup_offline
 
 
 class BaseInterface(QMainWindow, Ui_MainWindow):
@@ -35,10 +35,12 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.mission_area_img_path = settings.map_path
         self.rollout_path = settings.rollout_path
         self.condition = settings.condition
-        fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_primary.csv'
+        fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_primary_{}.csv'.format(
+            settings.condition)
         self.data_recorder = PrimaryTaskRecorder(self.condition,
                                                  os.path.join(settings.record_path, fname))
-        fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_survey.csv'
+        fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_trust_survey_{}.csv'.format(
+            settings.condition)
         self.survey_recorder = SurveyRecorder(os.path.join(settings.record_path, fname))
         self.projector = Projector(settings.lat_center, settings.lon_center)
         self.projector.setup()
@@ -46,6 +48,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                                               settings.obstructions,
                                               settings.hazards,
                                               settings.power_draws)
+        self.obstructions = settings.obstructions
+        self.hazards = settings.hazards
         self.power_draws = settings.power_draws
         self.batt_drain_rate = settings.batt_drain_rate
 
@@ -147,8 +151,10 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
         #################
         # Setup the questionnaire prompts
-        self.surveys = {0: False, 1: False, 2: False} if settings.show_surveys else {0: True, 1: True, 2: True}
-        self.survey_prompt(0)
+        self.surveys = {1: False, 2: False, 3: False} if settings.show_surveys else {1: True,
+                                                                                     2: True,
+                                                                                     3: True}
+        self.survey_prompt(1)
 
     def periodic_update(self):
         """
@@ -187,6 +193,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
     def navigation_complete(self):
         self.update_control_mode_state(ControlModeState.stopped)
         self.update_mission_mode_state(ControlModeState.planning)
+        if self.mission_phase.state == ControlModeState.phase_mission_execution:
+            self.mission_phase.state = ControlModeState.phase_mission_complete
+            self.survey_prompt(3)
 
     def update_map(self):
         """
@@ -411,7 +420,19 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.robot_power_slider.setDisabled(True)
                 self.update_mission_control_text(text, 'green')
                 # delete the old stuff here
-                #self.plan_poi_callback()
+                # TODO add distance function to Obstacle class -> Obstacle.dist(rx, ry) -> float
+                # TODO each obstacle name is unique int id
+                # TODO add is_visible field to Obstacle class -> map only shows visible obstacles
+                # publish list[int] of active obstacles -> mission manager keep track of this
+                to_remove = []
+                for o in self.mission_manager.power_draws:
+                    pass
+                for o in self.mission_manager.hazards:
+                    pass
+                for o in self.mission_manager.obstructions:
+                    pass
+                # remove obstacle from mission manager
+                # send cancel request to waypoint planner
                 if self.condition == self.COND_ETGOA:
                     self.start_competency_assessment()
                 else:
@@ -488,7 +509,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 print('Accepted POI: ', self.poi_selected)
                 self.poi_accepted = self.poi_selected
                 self.accept_poi_button.setStyleSheet('background-color: green')
-                self.survey_prompt(1)
+                self.survey_prompt(2)
                 if self.mission_phase.state == ControlModeState.phase_mission_planning:
                     self.time_start = datetime.now()  # reset time for execution phase
                 self.mission_phase.state = ControlModeState.phase_mission_execution
@@ -647,8 +668,21 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         :return:
         """
         try:
+            if self.mission_phase.state == ControlModeState.phase_mission_complete:
+                # disable everything when mission complete
+                self.drive_mode_button.setDisabled(True)
+                self.request_mission_control_help_button.setDisabled(True)
+                self.mission_control_update_text.setDisabled(True)
+                self.poi_selection.setDisabled(True)
+                self.plan_poi_button.setDisabled(True)
+                self.accept_poi_button.setDisabled(True)
+                self.robot_battery_slider.setDisabled(True)
+                self.robot_gps_dial.setDisabled(True)
+                self.robot_power_slider.setDisabled(True)
+                return 0
+
             # Mission Planning phase
-            if self.mission_phase.state == ControlModeState.phase_mission_planning:
+            elif self.mission_phase.state == ControlModeState.phase_mission_planning:
                 self.drive_mode_button.setDisabled(True)
                 self.request_mission_control_help_button.setDisabled(True)
                 self.mission_control_update_text.setDisabled(True)
@@ -689,11 +723,11 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         try:
             if not self.surveys[survey]:
                 self.surveys[survey] = True
-                msg = startup()
-                self.survey_recorder.add_row(msg, datetime.now())
+                # run_survey_popup_offline(survey)
+                responses, score = run_survey_popup_online()
+                # self.survey_recorder.add_row(responses, score, datetime.now())
         except Exception as e:
             traceback.print_exc()
-
 
     def splash_of_color(self, obj, color='green', timeout=500):
         """
