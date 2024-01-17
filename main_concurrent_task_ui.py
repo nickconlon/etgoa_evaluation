@@ -100,18 +100,18 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
                 self.make_timer(3000)
                 return 0
 
-            lat = self.latitude_input.toPlainText().strip()
-            lon = self.longitude_input.toPlainText().strip()
+            lat = self.latitude_input.text().strip()
+            lon = self.longitude_input.text().strip()
 
             try:
-                lat = int(lat)
-                lon = int(lon)
+                lat = int(float(lat))
+                lon = int(float(lon))
                 correct = self.check_response(lat, lon)
                 self.splash_of_color(self.frame)
                 dt = time.time() - self.request_time
                 self.recorder.add_row(time.time(), correct, dt, self.mineral_of_interest)
-                self.latitude_input.setPlainText("")
-                self.longitude_input.setPlainText("")
+                self.latitude_input.setText("")
+                self.longitude_input.setText("")
                 self.mineral_of_interest = None
                 self.request_time = None
                 self.request_new_identification(False)
