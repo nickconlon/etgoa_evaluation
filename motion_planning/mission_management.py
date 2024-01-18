@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle, Circle
 from PIL import Image
 
 from motion_planning import rrt
@@ -10,7 +11,8 @@ class MissionManager:
     OUTDOOR = 'outdoor'
 
     def __init__(self, mission_area_image_path, projector, obstructions, hazards, power_draws):
-        area_miny, area_maxy, area_minx, area_maxx = -50, 50, -50, 50
+        area_miny, area_maxy, area_minx, area_maxx = -20, 40, -20, 20
+        self.display_bounds = [-50, 50, -50, 50]  # minx, maxx, miny, maxy
         self.projector = projector
 
         pois = self.projector.get_pois()
@@ -26,7 +28,7 @@ class MissionManager:
         self.active_obstacles = set()
         self.visualize = False
         self.mission_area_image = np.asarray(Image.open(mission_area_image_path))
-        self.mission_area_bounds = np.array([[area_miny, area_maxy], [area_minx, area_maxx]])
+        self.mission_area_bounds = np.array([[area_minx, area_maxx], [area_miny, area_maxy]])
         self.obstructions = obstructions
         self.hazards = hazards
         self.power_draws = power_draws
@@ -66,7 +68,6 @@ class MissionManager:
             if ob_id in self.all_obstacles:
                 active.append(self.all_obstacles[ob_id])
         return active
-
 
     def update_plan(self, new_plan):
         self.current_plan = new_plan
@@ -138,16 +139,25 @@ class MissionManager:
 
     def get_overlay_image_aspen(self, robot_x, robot_y, path_color='black'):
         fig, ax = plt.subplots(frameon=False)
-        ax.set_xlim([-50, 50])
-        ax.set_ylim([-50, 50])
+        img = plt.imread('./imgs/display_area.png')
+        ax.imshow(img, extent=self.display_bounds)
+        mission_area = [self.mission_area_bounds[0][0], self.mission_area_bounds[1][0],
+                        self.mission_area_bounds[0][1]-self.mission_area_bounds[0][0],
+                        self.mission_area_bounds[1][1]-self.mission_area_bounds[1][0]]
+        patch = Rectangle((mission_area[0], mission_area[1]), mission_area[2], mission_area[3], facecolor='none', edgecolor='black', linewidth=5)
+        ax.add_patch(patch)
+        patch = Rectangle((mission_area[0], mission_area[1]), mission_area[2], mission_area[3], facecolor='none', edgecolor='red', linestyle='--', linewidth=2)
+        ax.add_patch(patch)
+        ax.set_xlim(self.display_bounds[:2])
+        ax.set_ylim(self.display_bounds[2:])
 
         # plot the POIs
         for poi in [self.poi_a, self.poi_b, self.poi_c, self.poi_d]:
-            ax.scatter([poi.x], [poi.y], c='green', s=200)
-            ax.text(poi.x + 2, poi.y - 1, poi.name, size='large')
+            ax.add_patch(Circle((poi.x, poi.y), radius=2.5, facecolor='green', edgecolor='black'))
+            ax.annotate(poi.name, (poi.x, poi.y), size='large', va='center', ha='center')
 
         ax.scatter([self.home.x], [self.home.y], c='gold', s=200, marker='*')
-        ax.text(self.home.x + 2, self.home.y - 1, self.home.name, size='large')
+        ax.annotate(self.home.name, (self.home.x+4, self.home.y), size='large', va='center', ha='center')
 
         # plot the obstacles
         for o in self.obstructions:
@@ -178,7 +188,7 @@ class MissionManager:
         # plot the robot
         ax.scatter([robot_x], [robot_y], c='blue', s=100)
 
-        plt.axis('equal')
+        ax.set_aspect('equal', 'box')
         plt.grid()
         plt.tight_layout()
         canvas = plt.gca().figure.canvas
@@ -246,7 +256,7 @@ if __name__ == '__main__':
     projector = Projector(lat_center, lon_center)
     projector.setup()
     obs = [rrt.Obstacle(rrt.Obstacle.circle, (-5, 5), [2], 'ob')]
-    m = MissionManager('../imgs/mission_area.png', projector, obs)
+    m = MissionManager('../imgs/mission_area.png', projector, obs, [], [])
     # m.plan_waypoints(0, 0, 0, 20)
     m.plan_to_from(0, 0, -20, 20, 0, 0)
     img = m.get_overlay_image_aspen(0, 0)
