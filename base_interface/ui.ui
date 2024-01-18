@@ -940,7 +940,7 @@
       <string>Request Help</string>
      </property>
     </widget>
-    <widget class="QPlainTextEdit" name="mission_control_update_text">
+    <widget class="QTextBrowser" name="mission_control_update_text">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -948,11 +948,6 @@
        <width>381</width>
        <height>131</height>
       </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-      </font>
      </property>
     </widget>
    </widget>
