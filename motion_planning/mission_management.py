@@ -34,6 +34,7 @@ class MissionManager:
         self.setup_obstacles(power_draws)
         self.setup_obstacles(hazards)
         self.activate_obstacles([o.id for o in hazards])
+        self.activate_obstacles([o.id for o in power_draws])
 
     def setup_obstacles(self, obstacles):
         for o in obstacles:
@@ -58,6 +59,13 @@ class MissionManager:
                 self.active_obstacles.remove(ob_id)
             else:
                 print('Cannot find obstacle to deactivate ', ob_id)
+
+    def get_active_obstacles(self):
+        active = []
+        for ob_id in self.active_obstacles:
+            if ob_id in self.all_obstacles:
+                active.append(self.all_obstacles[ob_id])
+        return active
 
 
     def update_plan(self, new_plan):

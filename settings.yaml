@@ -13,7 +13,7 @@ obstructions:
   - 1
 hazards:
   h1:
-  - [-2, 5]
+  - [-5, -15]
   - [2.5]
   - 0.25
 power_draws:

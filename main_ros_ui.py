@@ -8,11 +8,11 @@ import qdarktheme
 import rospy
 from geometry_msgs.msg import Twist  # Twist messages
 from geometry_msgs.msg import PoseStamped, Vector3Stamped
-from nav_msgs.msg import Odometry  # oOdometry messages
-from tf.transformations import euler_from_quaternion  # Quaternion conversions
 from gazebo_msgs.msg import ModelStates
 from std_msgs.msg import String, Float32, Float32MultiArray
-from sensor_msgs.msg import NavSatFix
+#from nav_msgs.msg import Odometry  # odometry messages
+#from tf.transformations import euler_from_quaternion  # Quaternion conversions
+#from sensor_msgs.msg import NavSatFix
 
 from base_interface.base_interface import BaseInterface
 from base_interface.control_modes import ControlModeState
@@ -57,7 +57,7 @@ class InterfaceImpl(BaseInterface):
         try:
             if self.mission_manager.has_plan():
                 plan = self.mission_manager.current_plan
-                actives = self.mission_manager.active_obstacles
+                actives = [a for a in self.mission_manager.active_obstacles if 'h' in a]
                 msg = Plan()
                 msg.xs = list(plan[:, 0])
                 msg.ys = list(plan[:, 1])

@@ -209,6 +209,7 @@ class WaypointFollower:
                 obs = self.all_obstacles[o]
                 if obs.distance(self.px, self.py) <= obs.axis[0]:
                     effect = obs.data
+                    print('slowing down!')
                     break
         return effect
 

@@ -48,8 +48,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                                               settings.obstructions,
                                               settings.hazards,
                                               settings.power_draws)
-        self.obstructions = settings.obstructions
-        self.hazards = settings.hazards
         self.power_draws = settings.power_draws
         self.batt_drain_rate = settings.batt_drain_rate
 
@@ -312,14 +310,12 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             if self.control_mode.state == ControlModeState.drive:
                 dt = self.update_rate
                 drain_rate = self.batt_drain_rate
-                for pd in self.power_draws:
-                    # Change the battery draw rate %/second based
-                    px, py = self.position.x, self.position.y
-                    rx, ry = pd.center
-                    x_err, y_err = rx - px, ry - py
-                    dh = np.sqrt((x_err ** 2) + (y_err ** 2))
-                    if dh <= pd.axis[0]:
-                        drain_rate = pd.data
+                for o in self.mission_manager.get_active_obstacles():
+                    if 'b' in o.id:
+                        dh = o.distance(self.position.x, self.position.y)
+                        if dh <= o.axis[0]:
+                            drain_rate = o.data
+                            print('draining battery!')
                 prev_battery = self.battery_level
                 new_battery = float(np.maximum(self.battery_level - dt * drain_rate, 0.0))
                 self.mean_battery.append(abs(prev_battery - new_battery) / dt)
