@@ -1,6 +1,6 @@
-# ET-GOA Evaluation
+# Robot Competency Assessment User Study
 
-This project is for a human subject study evaluation of a competency aware robot system.
+This project is for an eventual human subject study evaluation of a competency aware robot system.
 
 We use the Generalized Outcome Assessment (GOA) and Model Quality Assessment (MQA) factors from
 Factorized Machine Self-Confidence (FaMSeC) and the Event-Triggered Generalized Outcome
