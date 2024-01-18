@@ -153,6 +153,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                                                                                      2: True,
                                                                                      3: True}
         self.survey_prompt(1)
+        # TODO may read this in from settings instead - 1 settings file per "mission"
+        # TODO update the states so we don't mess up the button activity for this text box
+        self.update_mission_control_text(self.mission_control.send_mission(), color='green')
 
     def periodic_update(self):
         """
@@ -675,7 +678,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             elif self.mission_phase.state == ControlModeState.phase_mission_planning:
                 self.drive_mode_button.setDisabled(True)
                 self.request_mission_control_help_button.setDisabled(True)
-                self.mission_control_update_text.setDisabled(True)
+                #self.mission_control_update_text.setDisabled(True)
                 self.poi_selection.setEnabled(True)
                 self.plan_poi_button.setEnabled(True)
                 if self.mission_manager.has_plan() and self.mission_mode.state is not ControlModeState.assessing:
@@ -697,7 +700,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             if self.mission_mode.state == ControlModeState.assessing or self.mission_mode.state == ControlModeState.planning:
                 self.drive_mode_button.setDisabled(True)
                 self.request_mission_control_help_button.setDisabled(True)
-                self.mission_control_update_text.setDisabled(True)
+                #self.mission_control_update_text.setDisabled(True)
             elif self.mission_mode.state == ControlModeState.execution:
                 self.drive_mode_button.setEnabled(True)
                 self.request_mission_control_help_button.setEnabled(True)

@@ -141,12 +141,12 @@ class MissionManager:
         fig, ax = plt.subplots(frameon=False)
         img = plt.imread('./imgs/display_area.png')
         ax.imshow(img, extent=self.display_bounds)
-        mission_area = [self.mission_area_bounds[0][0], self.mission_area_bounds[1][0],
-                        self.mission_area_bounds[0][1]-self.mission_area_bounds[0][0],
-                        self.mission_area_bounds[1][1]-self.mission_area_bounds[1][0]]
-        patch = Rectangle((mission_area[0], mission_area[1]), mission_area[2], mission_area[3], facecolor='none', edgecolor='black', linewidth=5)
+        mission_area_corner = (self.mission_area_bounds[0][0], self.mission_area_bounds[1][0])
+        mission_area_width = self.mission_area_bounds[0][1]-self.mission_area_bounds[0][0]
+        mission_area_height = self.mission_area_bounds[1][1]-self.mission_area_bounds[1][0]
+        patch = Rectangle(mission_area_corner, mission_area_width, mission_area_height, facecolor='none', edgecolor='black', linewidth=5)
         ax.add_patch(patch)
-        patch = Rectangle((mission_area[0], mission_area[1]), mission_area[2], mission_area[3], facecolor='none', edgecolor='red', linestyle='--', linewidth=2)
+        patch = Rectangle(mission_area_corner, mission_area_width, mission_area_height, facecolor='none', edgecolor='red', linestyle='--', linewidth=2)
         ax.add_patch(patch)
         ax.set_xlim(self.display_bounds[:2])
         ax.set_ylim(self.display_bounds[2:])

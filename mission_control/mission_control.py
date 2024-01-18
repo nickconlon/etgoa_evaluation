@@ -7,6 +7,7 @@ class MissionControl:
     BATTERY = 'battery'
     OBSTACLE = 'obstacle'
     EVERYTHING = 'everything'
+    POIs = ['A', 'B', 'C', 'D']
 
     def __init__(self, base_gps, base_power, base_battery, gps_max, power_max, battery_max):
         self.help_responses = {
@@ -22,6 +23,11 @@ class MissionControl:
         self.battery = base_battery
         self.power = base_power
         self.gps = base_gps
+
+    def send_mission(self):
+        pois = np.random.choice(a=self.POIs, size=3, replace=False)
+        text = 'Please have the robot explore either POI {} or POI {} or POI {}'.format(*pois)
+        return text
 
     def get_response(self, issue):
         if self.current_issue == self.GPS:
