@@ -24,6 +24,9 @@ class MissionManager:
         self.zero = pois[5]
         self.location = self.ASPEN
         self.current_plan = None
+        self.current_goal = None
+        self.captured_goal = False
+        self.captured_home = False
         self.all_obstacles = {}
         self.active_obstacles = set()
         self.visualize = False
@@ -74,6 +77,7 @@ class MissionManager:
 
     def delete_plan(self):
         self.current_plan = None
+        self.current_goal = None
 
     def get_plan(self):
         return self.current_plan
@@ -100,6 +104,9 @@ class MissionManager:
                 self.plan_to_from(robot_x, robot_y, poi.x, poi.y, self.home.x, self.home.y)
             else:
                 self.plan_waypoints(robot_x, robot_y, poi.x, poi.y)
+        self.current_goal = poi
+        self.captured_goal = False
+        self.captured_home = False
 
     def plan_waypoints(self, robot_x, robot_y, goal_x, goal_y):
         # RRT goal = [y, x]
@@ -128,19 +135,22 @@ class MissionManager:
         plan_to = rrt.plan_rrt_webots(robot, goal, obstacles, bounds,
                                       visualize_route=self.visualize,
                                       filename='')
-        plan_to = np.vstack((np.array([robot_x, robot_y]), plan_to))
-
         # from goal (x, y) to home (x, y)
         plan_from = rrt.plan_rrt_webots(goal, home, obstacles, bounds,
                                         visualize_route=self.visualize,
                                         filename='')
-        plan = np.vstack((plan_to, plan_from))
-        self.update_plan(plan)
+
+        if len(plan_to) == 0 or len(plan_from) == 0:
+            print('Planning failed')
+        else:
+            plan_to = np.vstack((np.array([robot_x, robot_y]), plan_to))
+            plan = np.vstack((plan_to, plan_from))
+
+            self.update_plan(plan)
 
     def get_overlay_image_aspen(self, robot_x, robot_y, path_color='black'):
         fig, ax = plt.subplots(frameon=False, figsize=(6, 6))
-        img = plt.imread('./imgs/display_area.png')
-        ax.imshow(img, extent=self.display_bounds)
+        ax.imshow(self.mission_area_image, extent=self.display_bounds)
         mission_area_corner = (self.mission_area_bounds[0][0], self.mission_area_bounds[1][0])
         mission_area_width = self.mission_area_bounds[0][1]-self.mission_area_bounds[0][0]
         mission_area_height = self.mission_area_bounds[1][1]-self.mission_area_bounds[1][0]
@@ -186,7 +196,8 @@ class MissionManager:
             ax.scatter(pixel_plan[:, 0], pixel_plan[:, 1], c=path_color, s=10)
 
         # plot the robot
-        ax.scatter([robot_x], [robot_y], c='blue', s=100)
+        c = plt.Circle((robot_x, robot_y), radius=1, edgecolor='blue', facecolor='blue')
+        ax.add_patch(c)
 
         plt.grid()
         ax.axis('square')
@@ -235,12 +246,23 @@ class MissionManager:
         # if [rx, ry]-[px, py] < d -> remove [px, py] from plan
         # if plan empty -> delete plan
         if self.has_plan():
-            d = np.linalg.norm(np.array([robot_x, robot_y]) - self.current_plan[0])
-            if d <= 0.1:
+            dp = np.linalg.norm(np.asarray([robot_x, robot_y])-np.asarray([self.current_goal.x, self.current_goal.y]))
+            if dp <= 2:
+                print("Captured Home")
+                self.captured_goal = True
+
+            dw = np.linalg.norm(np.array([robot_x, robot_y]) - self.current_plan[0])
+            if dw <= 0.1:
                 self.current_plan = np.delete(self.current_plan, [0], axis=0)
-                print('removing waypoint complete')
+                print('removing completed waypoint')
+
                 if len(self.current_plan) == 0:
                     self.delete_plan()
+                    dh = np.linalg.norm(np.asarray([robot_x, robot_y]) - np.asarray([self.home.x, self.home.y]))
+                    if dh <= 2:
+                        print("Captured Home")
+                        self.captured_home = True
+
         if self.has_plan():
             complete = False
         else:
@@ -255,9 +277,8 @@ if __name__ == '__main__':
     projector = Projector(lat_center, lon_center)
     projector.setup()
     obs = [rrt.Obstacle(rrt.Obstacle.circle, (-5, 5), [2], 'ob')]
-    m = MissionManager('../imgs/mission_area.png', projector, obs, [], [])
-    # m.plan_waypoints(0, 0, 0, 20)
-    m.plan_to_from(0, 0, -20, 20, 0, 0)
+    m = MissionManager('../imgs/display_area.png', projector, obs, [], [])
+    m.plan_to_from(0, 0, -10, 20, 0, 0)
     img = m.get_overlay_image_aspen(0, 0)
-    plt.imshow(img)
-    plt.show()
+    img = Image.fromarray(img)
+    img.show()

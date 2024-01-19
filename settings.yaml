@@ -26,10 +26,10 @@ power_draws:
   - [5]
   - 1.5
 record_path: ./data
-map_path: ./imgs/mission_area.png
+map_path: ./imgs/display_area.png
 logo_path: ./imgs/logo.png
 rollout_path: /data/webots/rollout{}_state.npy
-condition: ET-GOA
+condition: GOA
 latitude_center: 40.01045433
 longitude_center: 105.24432153
 anomalies: false

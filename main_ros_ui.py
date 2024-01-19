@@ -73,6 +73,8 @@ class InterfaceImpl(BaseInterface):
         :return:
         """
         try:
+            self.robot_connected = self.mission_time
+            self.gps_connected = self.mission_time
             pose, angle = extract_msg(msg)
             self.position.x = pose[0]
             self.position.y = pose[1]

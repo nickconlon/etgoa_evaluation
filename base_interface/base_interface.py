@@ -60,11 +60,11 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         #################
         # Setup the System Connections
         print('Setting up connections')
-        self.robot_connected = False
-        self.gps_connected = False
-        self.sensor1_connected = False
-        self.sensor2_connected = False
-        self.ui_connected = False
+        self.robot_connected = -100
+        self.gps_connected = -100
+        self.sensor1_connected = -100
+        self.sensor2_connected = -100
+        self.ui_connected = -100
 
         #################
         # Setup the robot state
@@ -208,15 +208,14 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.mission_phase.state = ControlModeState.phase_mission_complete
                 self.update_assessment_mission_complete()
                 self.survey_prompt(3)
-                self.survey_prompt(4)
         except Exception as e:
             traceback.print_exc()
 
     def update_assessment_mission_complete(self):
         try:
             achieve, fail = 'Achieved', 'Failed to Achieve'
-            self.objective_1_assmt.setText(achieve) if True else self.objective_3_assmt.setText(fail)
-            self.objective_2_assmt.setText(achieve) if True else self.objective_2_assmt.setText(fail)
+            self.objective_1_assmt.setText(achieve) if self.mission_manager.captured_goal else self.objective_3_assmt.setText(fail)
+            self.objective_2_assmt.setText(achieve) if self.mission_manager.captured_home else self.objective_2_assmt.setText(fail)
             self.objective_3_assmt.setText(achieve) if self.battery_level > 50 else self.objective_3_assmt.setText(fail)
             self.objective_4_assmt.setText(achieve) if True else self.objective_4_assmt.setText(fail)
             self.objective_5_assmt.setText(achieve) if self.mission_time < 10 * 60 else self.objective_5_assmt.setText(
@@ -248,14 +247,15 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         :return:
         """
         try:
+
             self.robot_connected_indicator.setStyleSheet(
-                'background-color: {}'.format('green' if self.robot_connected else 'red'))
+                'background-color: {}'.format('green' if abs(self.robot_connected-self.mission_time)<2 else 'red'))
             self.gps_connected_indicator.setStyleSheet(
-                'background-color: {}'.format('green' if self.gps_connected else 'red'))
+                'background-color: {}'.format('green' if abs(self.gps_connected-self.mission_time) < 2 else 'red'))
             self.sensor1_connected_indicator.setStyleSheet(
-                'background-color: {}'.format('green' if self.sensor1_connected else 'red'))
+                'background-color: {}'.format('green' if abs(self.sensor1_connected-self.mission_time) < 2 else 'red'))
             self.sensor2_connected_indicator.setStyleSheet(
-                'background-color: {}'.format('green' if self.sensor2_connected else 'red'))
+                'background-color: {}'.format('green' if abs(self.sensor2_connected-self.mission_time) < 2 else 'red'))
             self.ui_connected_indicator.setStyleSheet(
                 'background-color: {}'.format('green' if self.ui_connected else 'red'))
         except Exception as e:
@@ -500,7 +500,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.poi_selected = self.poi_selection.currentText()
                 print('Selected POI: ', self.poi_selected)
                 self.accept_poi_button.setStyleSheet('background-color: light grey')
-                self.update_mission_control_text("")
+                #self.update_mission_control_text("")
         except Exception as e:
             traceback.print_exc()
 
@@ -512,10 +512,14 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         """
 
         if self.poi_selected:
+            self.mission_manager.delete_plan()
             print('Planning route to POI: ', self.poi_selected)
-            self.splash_of_color(self.frame_2)
             self.mission_manager.plan_known_poi(self.position.x, self.position.y, self.poi_selected,
                                                 tofrom=True)
+            if self.mission_manager.get_plan() is None:
+                self.splash_of_color(self.frame_2, color='red')
+            else:
+                self.splash_of_color(self.frame_2, color='green')
 
     def accept_poi_callback(self):
         """
@@ -525,6 +529,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         """
         try:
             if self.poi_selected:
+                self.update_mission_control_text("")
                 print('Accepted POI: ', self.poi_selected)
                 self.poi_accepted = self.poi_selected
                 self.accept_poi_button.setStyleSheet('background-color: green')
@@ -558,16 +563,23 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         :return:
         """
         print('requesting help')
-        self.robot_battery_slider.setEnabled(True)
-        self.robot_gps_dial.setEnabled(True)
-        self.robot_power_slider.setEnabled(True)
+
         self.accept_poi_button.setStyleSheet('background-color: light grey')
-        text = self.mission_control.get_response(self.mission_control.BATTERY)
-        self.update_mission_control_text(text, 'red')
-        self.update_mission_mode_state(ControlModeState.planning)
-        print('stopping waypoint follower')
+        anomaly = False
+        for ob_id, o in self.mission_manager.all_obstacles.items():
+            if o.distance(self.position.x, self.position.y) <= o.axis[0]:
+                anomaly = True
+
+        if anomaly:
+            self.robot_battery_slider.setEnabled(True)
+            self.robot_gps_dial.setEnabled(True)
+            self.robot_power_slider.setEnabled(True)
+            self.update_mission_control_text(self.mission_control.get_response(True), 'red')
+            self.update_mission_mode_state(ControlModeState.planning)
+        else:
+            self.update_mission_control_text(self.mission_control.get_response(False), 'green')
         self.stop_mode_button.click()
-        time.sleep(0.1)
+        time.sleep(0.1) # just in case some asynch messes up the periodic button activation and this click
 
     def start_competency_assessment(self):
         """
@@ -622,7 +634,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         """
         try:
             if goa_ret is not None:
-                labels = [self.label_6, self.label_7, self.label_8, self.label_15, self.label_16]
+                labels = [self.objective_1_assmt, self.objective_2_assmt, self.objective_3_assmt,
+                          self.objective_4_assmt, self.objective_5_assmt]
                 goas = []
                 for gg, label in zip(goa_ret.items(), labels):
                     outcome = gg[1]
