@@ -30,11 +30,11 @@ class InterfaceImpl(BaseInterface):
         self.position.x = 1
         self.heading = 337
         self.velocity = 0.5
-        self.battery_remaining = 90
+        self.battery_level = 90
 
     def test_competency_assessment(self):
         outcomes = np.random.random(size=5)
-        labels = [self.label_6, self.label_7, self.label_8, self.label_15, self.label_16]
+        labels = [self.objective_1_assmt, self.objective_2_assmt, self.objective_3_assmt, self.objective_4_assmt, self.objective_5_assmt]
         for outcome, label in zip(outcomes, labels):
             label.setStyleSheet('background-color: {}; color: black'.format(goa.semantic_label_color(outcome)))
             label.setText("{}".format(goa.semantic_label_text(outcome)))

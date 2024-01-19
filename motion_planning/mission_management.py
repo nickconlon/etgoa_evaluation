@@ -138,7 +138,7 @@ class MissionManager:
         self.update_plan(plan)
 
     def get_overlay_image_aspen(self, robot_x, robot_y, path_color='black'):
-        fig, ax = plt.subplots(frameon=False)
+        fig, ax = plt.subplots(frameon=False, figsize=(6, 6))
         img = plt.imread('./imgs/display_area.png')
         ax.imshow(img, extent=self.display_bounds)
         mission_area_corner = (self.mission_area_bounds[0][0], self.mission_area_bounds[1][0])
@@ -188,9 +188,8 @@ class MissionManager:
         # plot the robot
         ax.scatter([robot_x], [robot_y], c='blue', s=100)
 
-        ax.set_aspect('equal', 'box')
         plt.grid()
-        plt.tight_layout()
+        ax.axis('square')
         canvas = plt.gca().figure.canvas
         canvas.draw()
         data = np.frombuffer(canvas.tostring_rgb(), dtype='uint8')

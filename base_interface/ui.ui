@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1452</width>
-    <height>687</height>
+    <width>1659</width>
+    <height>799</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -149,7 +149,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Autonomous control | Driving to POI A</string>
+      <string>--</string>
      </property>
     </widget>
     <widget class="QLabel" name="time_text">
@@ -167,7 +167,7 @@
       </font>
      </property>
      <property name="text">
-      <string>10:31 into mission | 15:30 PM</string>
+      <string>10:31 | 15:30 PM</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_13">
@@ -206,7 +206,7 @@
       </font>
      </property>
      <property name="text">
-      <string>0.5 m/s</string>
+      <string>0.0 m/s</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_18">
@@ -269,7 +269,7 @@
       </font>
      </property>
      <property name="text">
-      <string>95% | 25 minutes remaining</string>
+      <string>100%</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_29">
@@ -308,7 +308,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Mission Execution</string>
+      <string>--</string>
      </property>
     </widget>
     <widget class="QWidget" name="verticalLayoutWidget">
@@ -365,8 +365,8 @@
      <rect>
       <x>530</x>
       <y>20</y>
-      <width>491</width>
-      <height>421</height>
+      <width>500</width>
+      <height>481</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -380,8 +380,8 @@
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>471</width>
-       <height>401</height>
+       <width>481</width>
+       <height>461</height>
       </rect>
      </property>
      <property name="mouseTracking">
@@ -407,7 +407,7 @@
    <widget class="QFrame" name="competency_assessment_frame">
     <property name="geometry">
      <rect>
-      <x>1030</x>
+      <x>1040</x>
       <y>20</y>
       <width>401</width>
       <height>251</height>
@@ -445,7 +445,7 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QLabel" name="label_17">
+    <widget class="QLabel" name="objective_4_text">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -463,10 +463,10 @@
       <enum>QFrame::Box</enum>
      </property>
      <property name="text">
-      <string>Survey complete &lt; 10mins</string>
+      <string>All obstacles avoided</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_23">
+    <widget class="QLabel" name="objective_2_text">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -484,10 +484,10 @@
       <enum>QFrame::Box</enum>
      </property>
      <property name="text">
-      <string>Battery level &gt; 50%</string>
+      <string>Drive POI -&gt; Home</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_24">
+    <widget class="QLabel" name="objective_3_text">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -505,10 +505,10 @@
       <enum>QFrame::Box</enum>
      </property>
      <property name="text">
-      <string>All obstacles avoided</string>
+      <string>Battery level always &gt; X%</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_25">
+    <widget class="QLabel" name="objective_1_text">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -526,10 +526,10 @@
       <enum>QFrame::Box</enum>
      </property>
      <property name="text">
-      <string>Survey site arrival</string>
+      <string>Drive Home -&gt; POI</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_26">
+    <widget class="QLabel" name="objective_5_text">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -547,7 +547,7 @@
       <enum>QFrame::Box</enum>
      </property>
      <property name="text">
-      <string>Survey quality &gt; 90%</string>
+      <string>Mission complete &lt; X mins</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_27">
@@ -576,7 +576,7 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QLabel" name="label_15">
+    <widget class="QLabel" name="objective_4_assmt">
      <property name="geometry">
       <rect>
        <x>260</x>
@@ -600,7 +600,7 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QLabel" name="label_16">
+    <widget class="QLabel" name="objective_5_assmt">
      <property name="geometry">
       <rect>
        <x>260</x>
@@ -624,7 +624,7 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QLabel" name="label_8">
+    <widget class="QLabel" name="objective_3_assmt">
      <property name="geometry">
       <rect>
        <x>260</x>
@@ -648,7 +648,7 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QLabel" name="label_6">
+    <widget class="QLabel" name="objective_1_assmt">
      <property name="geometry">
       <rect>
        <x>260</x>
@@ -672,7 +672,7 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QLabel" name="label_7">
+    <widget class="QLabel" name="objective_2_assmt">
      <property name="geometry">
       <rect>
        <x>260</x>
@@ -887,7 +887,7 @@
    <widget class="QFrame" name="frame_6">
     <property name="geometry">
      <rect>
-      <x>1030</x>
+      <x>1040</x>
       <y>280</y>
       <width>401</width>
       <height>211</height>
@@ -955,8 +955,8 @@
     <property name="geometry">
      <rect>
       <x>530</x>
-      <y>450</y>
-      <width>491</width>
+      <y>510</y>
+      <width>501</width>
       <height>191</height>
      </rect>
     </property>
@@ -971,7 +971,7 @@
       <rect>
        <x>360</x>
        <y>100</y>
-       <width>111</width>
+       <width>121</width>
        <height>61</height>
       </rect>
      </property>
@@ -984,7 +984,7 @@
       <rect>
        <x>360</x>
        <y>60</y>
-       <width>111</width>
+       <width>121</width>
        <height>31</height>
       </rect>
      </property>
@@ -994,7 +994,7 @@
       <rect>
        <x>20</x>
        <y>62</y>
-       <width>111</width>
+       <width>121</width>
        <height>31</height>
       </rect>
      </property>
@@ -1004,7 +1004,7 @@
       <rect>
        <x>20</x>
        <y>110</y>
-       <width>111</width>
+       <width>121</width>
        <height>41</height>
       </rect>
      </property>
@@ -1020,7 +1020,7 @@
       <rect>
        <x>20</x>
        <y>0</y>
-       <width>111</width>
+       <width>121</width>
        <height>51</height>
       </rect>
      </property>
@@ -1060,7 +1060,7 @@
       <rect>
        <x>190</x>
        <y>60</y>
-       <width>111</width>
+       <width>121</width>
        <height>31</height>
       </rect>
      </property>
@@ -1070,7 +1070,7 @@
       <rect>
        <x>200</x>
        <y>0</y>
-       <width>101</width>
+       <width>111</width>
        <height>51</height>
       </rect>
      </property>
@@ -1094,7 +1094,7 @@
       <rect>
        <x>360</x>
        <y>0</y>
-       <width>111</width>
+       <width>121</width>
        <height>51</height>
       </rect>
      </property>
@@ -1226,7 +1226,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1452</width>
+     <width>1659</width>
      <height>21</height>
     </rect>
    </property>

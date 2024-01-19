@@ -136,7 +136,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.robot_power_slider.setDisabled(True)
         self.poi_selection.addItems(["Select POI", *["POI {}".format(x) for x in self.mission_control.mission_pois]])
 
-
         #################
         # Setup the Competency Assessment Panel
         self.etgoa = et_goa.et_goa(min_stds=settings.et_goa_stds)
@@ -145,10 +144,13 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.etgoa.set_pred_paths([self.rollout_path.format(i) for i in range(10)])
             self.rollout_thread = None
             self.et_goa_threshold = settings.et_goa_threshold
+            self.objective_3_text.setText(self.objective_3_text.text().replace('X', '50'))
+            self.objective_5_text.setText(self.objective_5_text.text().replace('X', '10'))
         else:
-            labels = [self.label_27, self.label_6, self.label_7, self.label_8, self.label_15,
-                      self.label_16]
-            [label.hide() for label in labels]
+            pass
+            # labels = [self.label_27, self.label_6, self.label_7, self.label_8, self.label_15,
+            #          self.label_16]
+            # [label.hide() for label in labels]
         self.mqa = [0] * len(settings.et_goa_stds)
         self.goa = [0] * 5  # []
 
@@ -197,15 +199,28 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             traceback.print_exc()
 
     def navigation_complete(self):
-        self.update_control_mode_state(ControlModeState.stopped)
-        self.update_mission_mode_state(ControlModeState.planning)
-        if self.mission_phase.state == ControlModeState.phase_mission_execution:
-            self.mission_phase.state = ControlModeState.phase_mission_complete
-            self.survey_prompt(3)
-            self.survey_prompt(4)
+        try:
+            self.update_control_mode_state(ControlModeState.stopped)
+            self.update_mission_mode_state(ControlModeState.planning)
+            if self.mission_phase.state == ControlModeState.phase_mission_execution:
+                self.mission_phase.state = ControlModeState.phase_mission_complete
+                self.update_assessment_mission_complete()
+                self.survey_prompt(3)
+                self.survey_prompt(4)
+        except Exception as e:
+            traceback.print_exc()
 
     def update_assessment_mission_complete(self):
-        pass
+        try:
+            achieve, fail = 'Achieved', 'Failed to Achieve'
+            self.objective_1_assmt.setText(achieve) if True else self.objective_3_assmt.setText(fail)
+            self.objective_2_assmt.setText(achieve) if True else self.objective_2_assmt.setText(fail)
+            self.objective_3_assmt.setText(achieve) if self.battery_level > 50 else self.objective_3_assmt.setText(fail)
+            self.objective_4_assmt.setText(achieve) if True else self.objective_4_assmt.setText(fail)
+            self.objective_5_assmt.setText(achieve) if self.mission_time < 10 * 60 else self.objective_5_assmt.setText(
+                fail)
+        except Exception as e:
+            traceback.print_exc()
 
     def update_map(self):
         """
@@ -565,8 +580,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                     self.mission_mode.state = ControlModeState.assessing
                     self.splash_of_color(self.competency_assessment_frame, color='light grey',
                                          timeout=0)
-                    labels = [self.label_6, self.label_7, self.label_8, self.label_15,
-                              self.label_16]
+                    labels = [self.objective_1_assmt, self.objective_2_assmt, self.objective_3_assmt,
+                              self.objective_4_assmt, self.objective_5_assmt]
                     for label in labels:
                         label.setStyleSheet('background-color: {}; color: black'.format('green'))
                         label.setText("{}".format('Computing...'))
@@ -687,7 +702,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             elif self.mission_phase.state == ControlModeState.phase_mission_planning:
                 self.drive_mode_button.setDisabled(True)
                 self.request_mission_control_help_button.setDisabled(True)
-                #self.mission_control_update_text.setDisabled(True)
+                # self.mission_control_update_text.setDisabled(True)
                 self.poi_selection.setEnabled(True)
                 self.plan_poi_button.setEnabled(True)
                 if self.mission_manager.has_plan() and self.mission_mode.state is not ControlModeState.assessing:
@@ -709,7 +724,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             if self.mission_mode.state == ControlModeState.assessing or self.mission_mode.state == ControlModeState.planning:
                 self.drive_mode_button.setDisabled(True)
                 self.request_mission_control_help_button.setDisabled(True)
-                #self.mission_control_update_text.setDisabled(True)
+                # self.mission_control_update_text.setDisabled(True)
             elif self.mission_mode.state == ControlModeState.execution:
                 self.drive_mode_button.setEnabled(True)
                 self.request_mission_control_help_button.setEnabled(True)
