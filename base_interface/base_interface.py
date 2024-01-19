@@ -48,8 +48,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                                               settings.obstructions,
                                               settings.hazards,
                                               settings.power_draws)
-        self.power_draws = settings.power_draws
-        self.batt_drain_rate = settings.batt_drain_rate
+        self.batt_drain_rate = settings.batt_drain_anomaly
 
         self.mission_time = 0.0
         self.update_rate = 0.5  # seconds
@@ -85,7 +84,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         # Setup the Telemetry Panel
         print('Setting up telemetry')
         self.battery_level = 100
-        self.battery_number = 0
+        self.battery_number = 1
         self.update_control_mode_state(self.control_mode.state)
         self.update_mission_mode_state(self.mission_mode.state)
         self.power_number = 50
@@ -109,6 +108,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                                               self.power_number,
                                               self.battery_level,
                                               100, 100, 5)
+        self.mission_control.set_mission_pois(settings.available_pois)
         self.request_mission_control_help_button.clicked.connect(
             self.request_mission_control_help_callback)
         self.request_mission_control_help_button.clicked.connect(
@@ -126,11 +126,16 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.robot_battery_slider.valueChanged.connect(self.update_robot_battery_callback)
         self.robot_gps_dial.valueChanged.connect(self.update_robot_gps_frequency_callback)
         self.robot_power_slider.setValue(self.power_number)
+        self.num_backup_batteries = settings.num_backup_batteries
+        self.robot_battery_slider.setMaximum(self.num_backup_batteries)
+        self.robot_battery_slider.setMinimum(1)
         self.robot_battery_slider.setValue(self.battery_number)
         self.robot_gps_dial.setValue(self.gps_frequency)
         self.robot_battery_slider.setDisabled(True)
         self.robot_gps_dial.setDisabled(True)
         self.robot_power_slider.setDisabled(True)
+        self.poi_selection.addItems(["Select POI", *["POI {}".format(x) for x in self.mission_control.mission_pois]])
+
 
         #################
         # Setup the Competency Assessment Panel
@@ -197,6 +202,10 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         if self.mission_phase.state == ControlModeState.phase_mission_execution:
             self.mission_phase.state = ControlModeState.phase_mission_complete
             self.survey_prompt(3)
+            self.survey_prompt(4)
+
+    def update_assessment_mission_complete(self):
+        pass
 
     def update_map(self):
         """

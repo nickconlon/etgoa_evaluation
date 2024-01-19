@@ -29,11 +29,14 @@ record_path: ./data
 map_path: ./imgs/mission_area.png
 logo_path: ./imgs/logo.png
 rollout_path: /data/webots/rollout{}_state.npy
-condition: TELEM
+condition: ET-GOA
 latitude_center: 40.01045433
 longitude_center: 105.24432153
 anomalies: false
 et_goa_threshold: 0.05
 et_goa_stds: [1.5, 1.5, 0.5, 1.5]
-batt_drain_rate: 0.5
+batt_drain_anomaly: 0.5
+num_backup_batteries: 10
+speed_anomaly: 0.25
+available_pois: [A, B, C, D]
 show_surveys: false

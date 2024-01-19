@@ -23,10 +23,15 @@ class MissionControl:
         self.battery = base_battery
         self.power = base_power
         self.gps = base_gps
+        self.mission_pois = []
+
+    def set_mission_pois(self, pois):
+        self.mission_pois = []
+        for p in pois:
+            self.mission_pois.append(p)
 
     def send_mission(self):
-        pois = np.random.choice(a=self.POIs, size=3, replace=False)
-        text = 'Please have the robot explore either POI {} or POI {} or POI {}'.format(*pois)
+        text = 'Please choose a POI for the robot explore.\n\nAvailable POIs for this mission: '+', '.join(self.mission_pois)
         return text
 
     def get_response(self, issue):

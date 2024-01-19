@@ -20,7 +20,10 @@ class Settings:
         self.anomalies = False
         self.et_goa_threshold = None
         self.et_goa_stds = None
-        self.batt_drain_rate = None
+        self.batt_drain_anomaly = None
+        self.num_backup_batteries = None
+        self.speed_anomaly = None
+        self.available_pois = None
         self.show_surveys = None
 
     def read(self):
@@ -49,7 +52,10 @@ class Settings:
                 self.anomalies = settings['anomalies']
                 self.et_goa_threshold = settings['et_goa_threshold']
                 self.et_goa_stds = settings['et_goa_stds']
-                self.batt_drain_rate = settings['batt_drain_rate']
+                self.batt_drain_anomaly = settings['batt_drain_anomaly']
+                self.num_backup_batteries = settings['num_backup_batteries']
+                self.speed_anomaly = settings['speed_anomaly']
+                self.available_pois = settings['available_pois']
                 self.show_surveys = settings['show_surveys']
 
         except Exception as e:
@@ -70,7 +76,7 @@ def create():
                          'o2': [[4, -5], [5], 1],
                          'o3': [[12, 21], [2.5], 1]
                          },
-        'hazards': {'h1': [[-2, 5], [2.5], 0.25],
+        'hazards': {'h1': [[-5, -15], [2.5], 0.25],
                     },
         'power_draws': {'b1': [[-8, 0], [5], 1.5],
                         'b2': [[-12, 5], [5], 1.5]
@@ -85,8 +91,12 @@ def create():
         'anomalies': False,
         'et_goa_threshold': 0.05,
         'et_goa_stds': [1.5, 1.5, 0.5, 1.5],
-        'batt_drain_rate': 0.5,  # % per second
-        'show_settings': False
+        'batt_drain_anomaly': 0.5,  # % change in battery drain rate
+        'num_backup_batteries': 5,
+        'speed_anomaly': 0.25,  # % change in speed
+        'available_pois': ['A', 'B', 'C', 'D'],
+        'show_surveys': False,
+
     }
 
     print(yaml.dump(d))
