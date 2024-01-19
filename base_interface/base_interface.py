@@ -18,7 +18,8 @@ from analysis.data_recorder import PrimaryTaskRecorder, SurveyRecorder
 from motion_planning.projections import Projector, PointOfInterest, get_heading
 from famsec import goa, rollout, et_goa
 from base_interface.settings import Settings
-from base_interface.survey_popup import run_survey_popup_online, run_survey_popup_offline
+from surveys.trust_survey_popup import run_survey_popup_online as trust_survey
+from surveys.usability_survey_popup import run_survey_popup_online as usability_survey
 
 
 class BaseInterface(QMainWindow, Ui_MainWindow):
@@ -35,13 +36,15 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.mission_area_img_path = settings.map_path
         self.rollout_path = settings.rollout_path
         self.condition = settings.condition
-        fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_primary_{}.csv'.format(
+
+        data_fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_primary_{}.csv'.format(settings.condition)
+        self.data_recorder = PrimaryTaskRecorder(self.condition, os.path.join(settings.record_path, data_fname))
+        trust_fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_trust_survey_{}.csv'.format(settings.condition)
+        usability_fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_usability_survey_{}.csv'.format(
             settings.condition)
-        self.data_recorder = PrimaryTaskRecorder(self.condition,
-                                                 os.path.join(settings.record_path, fname))
-        fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_trust_survey_{}.csv'.format(
-            settings.condition)
-        self.survey_recorder = SurveyRecorder(os.path.join(settings.record_path, fname))
+        self.survey_recorder = SurveyRecorder(os.path.join(settings.record_path, trust_fname),
+                                              os.path.join(settings.record_path, usability_fname))
+
         self.projector = Projector(settings.lat_center, settings.lon_center)
         self.projector.setup()
         self.mission_manager = MissionManager(self.mission_area_img_path, self.projector,
@@ -156,12 +159,11 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
         #################
         # Setup the questionnaire prompts
-        self.surveys = {1: False, 2: False, 3: False} if settings.show_surveys else {1: True,
-                                                                                     2: True,
-                                                                                     3: True}
+        self.surveys = {1: False, 2: False, 3: False, 4: False} if settings.show_surveys else {1: True,
+                                                                                               2: True,
+                                                                                               3: True,
+                                                                                               4: True}
         self.survey_prompt(1)
-        # TODO may read this in from settings instead - 1 settings file per "mission"
-        # TODO update the states so we don't mess up the button activity for this text box
         self.update_mission_control_text(self.mission_control.send_mission(), color='green')
 
     def periodic_update(self):
@@ -740,9 +742,12 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         try:
             if not self.surveys[survey]:
                 self.surveys[survey] = True
-                # run_survey_popup_offline(survey)
-                responses, score = run_survey_popup_online()
-                # self.survey_recorder.add_row(responses, score, datetime.now())
+                if survey in [1, 2, 3]:
+                    responses, score = trust_survey()
+                    self.survey_recorder.record_trust(responses, score, datetime.now())
+                elif survey in [4]:
+                    responses, score = usability_survey()
+                    self.survey_recorder.record_usability(responses, score, datetime.now())
         except Exception as e:
             traceback.print_exc()
 

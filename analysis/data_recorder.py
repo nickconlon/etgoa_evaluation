@@ -31,15 +31,24 @@ class ConcurrentTaskRecorder(DataRecorderBase):
         self.record(row)
 
 
-class SurveyRecorder(DataRecorderBase):
-    def __init__(self, path):
+class SurveyRecorder:
+    def __init__(self, trust_path, usability_path):
         header = ["Q{}".format(x+1) for x in range(14)] + ['score'] + ['time stamp']
-        DataRecorderBase.__init__(self, path, header)
-        self.write_header()
+        self.trust_recorder = DataRecorderBase(trust_path, header)
+        self.trust_recorder.write_header()
 
-    def add_row(self, responses, total, timestamp):
-        row = [*responses, total, timestamp]
-        self.record(row)
+        header = ["Q{}".format(x + 1) for x in range(10)] + ['score'] + ['time stamp']
+        self.usability_recorder = DataRecorderBase(usability_path, header)
+        self.usability_recorder.write_header()
+
+    def record_trust(self, responses, score, timestamp):
+        row = [*responses, score, timestamp]
+        self.trust_recorder.record(row)
+
+    def record_usability(self, responses, score, timestamp):
+        row = [*responses, score, timestamp]
+        self.usability_recorder.record(row)
+
 
 
 class PrimaryTaskRecorder(DataRecorderBase):

@@ -4,7 +4,7 @@ import time
 import numpy as np
 from PyQt5.QtWidgets import QMessageBox
 
-from base_interface.survey import Ui_Trust_Survey
+from surveys.trust_survey import Ui_Trust_Survey
 
 
 class Popup(QtWidgets.QDialog, Ui_Trust_Survey):
@@ -87,7 +87,7 @@ if __name__ == "__main__":
 
     app = QtWidgets.QApplication(sys.argv)
     Trust_Survey = QtWidgets.QDialog()
-    ui = Popup()
+    ui = Popup(prompt="prompt", number=1, section="section", total=1)
     # ui.setupUi(Trust_Survey)
     ui.show()
     sys.exit(app.exec_())
