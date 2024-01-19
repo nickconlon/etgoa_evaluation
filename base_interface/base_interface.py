@@ -212,8 +212,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
     def update_assessment_mission_complete(self):
         try:
             achieve, fail = 'Achieved', 'Failed to Achieve'
-            self.objective_1_assmt.setText(achieve) if True else self.objective_3_assmt.setText(fail)
-            self.objective_2_assmt.setText(achieve) if True else self.objective_2_assmt.setText(fail)
+            self.objective_1_assmt.setText(achieve) if self.mission_manager.captured_goal else self.objective_3_assmt.setText(fail)
+            self.objective_2_assmt.setText(achieve) if self.mission_manager.captured_home else self.objective_2_assmt.setText(fail)
             self.objective_3_assmt.setText(achieve) if self.battery_level > 50 else self.objective_3_assmt.setText(fail)
             self.objective_4_assmt.setText(achieve) if True else self.objective_4_assmt.setText(fail)
             self.objective_5_assmt.setText(achieve) if self.mission_time < 10 * 60 else self.objective_5_assmt.setText(
@@ -510,10 +510,14 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         """
 
         if self.poi_selected:
+            self.mission_manager.delete_plan()
             print('Planning route to POI: ', self.poi_selected)
-            self.splash_of_color(self.frame_2)
             self.mission_manager.plan_known_poi(self.position.x, self.position.y, self.poi_selected,
                                                 tofrom=True)
+            if self.mission_manager.get_plan() is None:
+                self.splash_of_color(self.frame_2, color='red')
+            else:
+                self.splash_of_color(self.frame_2, color='green')
 
     def accept_poi_callback(self):
         """

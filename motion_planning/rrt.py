@@ -330,7 +330,9 @@ class RRT:
         @param delta_q: Maximum distance allowed between vertices.
         @returns List of RRT* graph nodes.
         """
-
+        if not self._valid(start_point) or not self._valid(goal_point):
+            print('invalid start or goal')
+            return []
         q_start = Node(start_point)
         node_list = [q_start]
 
@@ -415,7 +417,6 @@ class RRT:
 def plan_rrt_webots(start, goal, obstacles, bounds, visualize_route=False, filename='./plot.png'):
     iterations = 5000
     planner = RRT(bounds, 'holonomic')
-
     for ob in obstacles:
         planner.add_obstacle(ob)
 
