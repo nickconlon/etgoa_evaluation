@@ -150,8 +150,7 @@ class MissionManager:
 
     def get_overlay_image_aspen(self, robot_x, robot_y, path_color='black'):
         fig, ax = plt.subplots(frameon=False, figsize=(6, 6))
-        img = plt.imread('./imgs/display_area.png')
-        ax.imshow(img, extent=self.display_bounds)
+        ax.imshow(self.mission_area_image, extent=self.display_bounds)
         mission_area_corner = (self.mission_area_bounds[0][0], self.mission_area_bounds[1][0])
         mission_area_width = self.mission_area_bounds[0][1]-self.mission_area_bounds[0][0]
         mission_area_height = self.mission_area_bounds[1][1]-self.mission_area_bounds[1][0]
@@ -197,7 +196,8 @@ class MissionManager:
             ax.scatter(pixel_plan[:, 0], pixel_plan[:, 1], c=path_color, s=10)
 
         # plot the robot
-        ax.scatter([robot_x], [robot_y], c='blue', s=100)
+        c = plt.Circle((robot_x, robot_y), radius=1, edgecolor='blue', facecolor='blue')
+        ax.add_patch(c)
 
         plt.grid()
         ax.axis('square')
@@ -277,8 +277,8 @@ if __name__ == '__main__':
     projector = Projector(lat_center, lon_center)
     projector.setup()
     obs = [rrt.Obstacle(rrt.Obstacle.circle, (-5, 5), [2], 'ob')]
-    m = MissionManager('../imgs/mission_area.png', projector, obs, [], [])
-    m.plan_to_from(0, 0, -20, 20, 0, 0)
+    m = MissionManager('../imgs/display_area.png', projector, obs, [], [])
+    m.plan_to_from(0, 0, -10, 20, 0, 0)
     img = m.get_overlay_image_aspen(0, 0)
     img = Image.fromarray(img)
     img.show()
