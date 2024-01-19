@@ -13,7 +13,7 @@ def do_rollout(position, orientation, goal, batt_level, batt_rate, vel_rate,
     """
     :param batt_rate:           rate of battery drain per second s/t b_t+1 = b_t-rate*dt+noise
     :param batt_level:          battery starting level
-    :param num_iterations:      number of roll outs
+    :param num_iterations:      number of rollouts
     :param max_time:            max time for a single rollout
     :param position:            array [x, y]
     :param orientation:         array [x, y, z, w]

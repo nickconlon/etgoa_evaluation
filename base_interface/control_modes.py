@@ -4,7 +4,7 @@ class ControlModeState:
     planning = 2
     execution = 3
     assessing = 4
-
+    debugging = 8
     phase_mission_planning = 5
     phase_mission_execution = 6
     phase_mission_complete = 7 # TODO implement mode in UI

@@ -109,7 +109,7 @@ def outcome_survey_quality(rollouts, outcome):
     return quality
 
 
-def outcome_arrival(rollouts, outcome):
+def outcome_poi_arrival(rollouts, outcome):
     """
     arrival: if the robot arrived at the goal location
     GOA = |robot-goal| < outcome
@@ -120,15 +120,34 @@ def outcome_arrival(rollouts, outcome):
     """
     arrived = []
     for rollout in rollouts:
-        goal = rollout[-1, gx:gy + 1]
+        goal = [2.286757010644174, -17.808005333287724]
         pos = rollout[-1, px:py + 1]
         d = np.linalg.norm(pos - goal)
-        if d < 1.0:
+        if d < 2.0:
             arrived.append(1)
         else:
             arrived.append(0)
     return arrived
 
+def outcome_home_arrival(rollouts, outcome):
+    """
+    arrival: if the robot arrived at the home location
+    GOA = |robot-home| < outcome
+
+    :param outcome:
+    :param rollouts:
+    :return:
+    """
+    arrived = []
+    for rollout in rollouts:
+        goal = rollout[-1, gx:gy + 1]
+        pos = rollout[-1, px:py + 1]
+        d = np.linalg.norm(pos - goal)
+        if d < 2.0:
+            arrived.append(1)
+        else:
+            arrived.append(0)
+    return arrived
 
 def compute_outcomes(time_offset=0):
     print('computing outcome')
@@ -137,11 +156,11 @@ def compute_outcomes(time_offset=0):
         d[:, 11] += time_offset
     goas = {}
     functions = {
-        'arrival': [outcome_arrival, 1, [-0.5, 0.5, 1.5], 2],
+        'poi_arrival': [outcome_poi_arrival, 1, [-0.5, 0.5, 1.5], 2],
+        'home_arrival': [outcome_home_arrival, 1, [-0.5, 0.5, 1.5], 2],
         'battery': [outcome_battery, 20, [-0.5, 0.5, 1.5], 2],
         'obstacles': [outcome_obstacles, 1, [-0.5, 0.5, 1.5], 2],
         'time': [outcome_time, 60*10, [-0.5, 0.5, 1.5], 2],
-        'quality': [outcome_survey_quality, 1, [-0.5, 0.5, 1.5], 2],
     }
 
     for k, v in functions.items():
