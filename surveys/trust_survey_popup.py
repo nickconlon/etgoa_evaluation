@@ -86,8 +86,5 @@ if __name__ == "__main__":
     import sys
 
     app = QtWidgets.QApplication(sys.argv)
-    Trust_Survey = QtWidgets.QDialog()
-    ui = Popup(prompt="prompt", number=1, section="section", total=1)
-    # ui.setupUi(Trust_Survey)
-    ui.show()
+    resp, score = run_survey_popup_online()
     sys.exit(app.exec_())

@@ -95,7 +95,7 @@ def create():
         'num_backup_batteries': 5,
         'speed_anomaly': 0.25,  # % change in speed
         'available_pois': ['A', 'B', 'C', 'D'],
-        'show_surveys': False,
+        'show_surveys':  [False, False, False, False] #baseline trust, post planning trust, post execution trust, usability
 
     }
 

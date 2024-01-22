@@ -244,14 +244,16 @@ def plot_goa_over_time(conditions, base='../data/'):
                     data_t[i] = t
                 else:
                     goas = goa.split('_')
-                    data_goa[i] = np.array([float(x) for x in goas])
+                    data_goa[i] = np.array([float(x) for x in goas]) + [0.01, 0.02, 0.03, 0.04, 0.05]
                     data_t[i] = t
                 i += 1
 
             t = np.arange(0, len(data_t))
-            plt.plot(t, data_goa[:, 0], label='x pos')
-            plt.plot(t, data_goa[:, 1], label='y pos')
-            plt.plot(t, data_goa[:, 2], label='speed')
+            plt.plot(t, data_goa[:, 0], label='arrive POI')
+            plt.plot(t, data_goa[:, 1], label='arrive Home')
+            plt.plot(t, data_goa[:, 2], label='Battery')
+            plt.plot(t, data_goa[:, 3], label='Obstacles avoided')
+            plt.plot(t, data_goa[:, 4], label='Mission time')
             plt.ylim([0, 1.1])
             plt.legend()
             plt.title('GOA over time for {}'.format(condition))
@@ -260,7 +262,7 @@ def plot_goa_over_time(conditions, base='../data/'):
 
 def plot_trust_survey_responses(conditions, base='../data/'):
     for condition in conditions:
-        paths = glob.glob(os.path.join(base, '*_survey_{}.csv'.format(condition)))
+        paths = glob.glob(os.path.join(base, '*_trust_survey_{}.csv'.format(condition)))
         pre_planning = []
         post_planning = []
         post_execution = []
@@ -297,10 +299,27 @@ def plot_secondary_performance(conditions, base='../data/'):
     plt.show()
 
 
+def plot_usability_scores(conditions, base='../data/'):
+    usability = []
+    labels = ['C1', 'C2', 'C3']
+    for idx, condition in enumerate(conditions):
+        paths = glob.glob(os.path.join(base, '*_usability_survey_{}.csv'.format(condition)))
+        data = []
+        for p in paths:
+            df = pd.read_csv(p)
+            results = df['score'].to_numpy()
+            data.append(results[0])
+        usability.append(data)
+    plt.boxplot(usability, labels=labels[0:len(usability)])
+    plt.ylim([0, 100])
+    plt.title('Usability')
+    plt.show()
+
 if __name__ == '__main__':
     experimental_conditions = ['TELEM', 'GOA', 'ET-GOA']
-    plot_secondary_performance(experimental_conditions)
-    plot_goa_over_time(experimental_conditions)
-    plot_mqa_over_time(experimental_conditions)
+    #plot_secondary_performance(experimental_conditions)
+    #plot_goa_over_time(experimental_conditions)
+    #plot_mqa_over_time(experimental_conditions)
     plot_trust_survey_responses(experimental_conditions)
+    plot_usability_scores(experimental_conditions)
 

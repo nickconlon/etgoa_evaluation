@@ -39,4 +39,4 @@ batt_drain_anomaly: 0.5
 num_backup_batteries: 10
 speed_anomaly: 0.25
 available_pois: [A, B, C, D]
-show_surveys: false
+show_surveys: [true, true, true, true] #baseline trust, post planning trust, post execution trust, usability
