@@ -21,13 +21,14 @@ class InterfaceImpl(BaseInterface):
         self.sensor1_connected = True
         self.sensor2_connected = True
 
-        self.pupdated = QtCore.QTimer()
-        self.pupdated.timeout.connect(self.test_position_change)
-        self.pupdated.setInterval(500)
-        self.pupdated.start()
+        self.pos_updated = QtCore.QTimer()
+        #self.pos_updated.timeout.connect(self.test_position_change)
+        self.pos_updated.setInterval(500)
+        self.pos_updated.start()
 
     def test_position_update(self):
-        self.position.x = 1
+        self.position.x = 2
+        self.position.y = -15
         self.heading = 337
         self.velocity = 0.5
         self.battery_level = 90

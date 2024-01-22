@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Circle
+from matplotlib.lines import Line2D
 from PIL import Image
 
 from motion_planning import rrt
@@ -12,7 +13,7 @@ class MissionManager:
 
     def __init__(self, mission_area_image_path, projector, obstructions, hazards, power_draws):
         area_miny, area_maxy, area_minx, area_maxx = -20, 40, -20, 20
-        self.display_bounds = [-50, 50, -50, 50]  # minx, maxx, miny, maxy
+        self.display_bounds = [-30, 45, -30, 45]  # minx, maxx, miny, maxy
         self.projector = projector
 
         pois = self.projector.get_pois()
@@ -199,6 +200,13 @@ class MissionManager:
         c = plt.Circle((robot_x, robot_y), radius=1, edgecolor='blue', facecolor='blue')
         ax.add_patch(c)
 
+        plt.ylabel('y (m)')
+        plt.xlabel('x (m)')
+        line1 = Line2D([], [], color="white", marker='o', markerfacecolor="blue")
+        line2 = Line2D([], [], color="white", marker='o', markersize=10, markerfacecolor="blue", alpha=0.5)
+        line3 = Line2D([], [], color="white", marker='o', markersize=10, markerfacecolor="red", alpha=0.5)
+        line4 = Line2D([], [], color="white", marker='o', markersize=10, markerfacecolor="orange", alpha=0.5)
+        plt.legend((line1, line2, line3, line4), ('Robot position', 'Battery draws', 'Blocked areas', 'Hazardous areas'), numpoints=1, loc=1)
         plt.grid()
         ax.axis('square')
         canvas = plt.gca().figure.canvas

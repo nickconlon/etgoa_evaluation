@@ -299,9 +299,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         :return:
         """
         try:
-            self.latitude_label.setText('x: {:.10f}'.format(self.position.x))
-            self.longitude_label.setText('y: {:.10f}'.format(self.position.y))
-            self.altitude_label.setText('z:  {:.10f}'.format(self.position.z))
+            self.latitude_label.setText('x: {:.2f} m'.format(self.position.x))
+            self.longitude_label.setText('y: {:.2f} m'.format(self.position.y))
+            self.altitude_label.setText('z:  {:.2f} m'.format(self.position.z))
         except Exception as e:
             traceback.print_exc()
 
@@ -359,7 +359,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         :return:
         """
         try:
-            text = '{:.2f}%'.format(self.battery_level)
+            text = '{:.2f} %'.format(self.battery_level)
             self.battery_text.setText(text)
         except Exception as e:
             traceback.print_exc()
@@ -784,6 +784,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    MainWindow = BaseInterface()
+    MainWindow = BaseInterface('../settings.yaml')
     MainWindow.show()
     app.exec_()

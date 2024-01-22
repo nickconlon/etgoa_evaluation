@@ -92,7 +92,7 @@
       <enum>QFrame::Box</enum>
      </property>
      <property name="text">
-      <string>State:</string>
+      <string>Robot State:</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_5">
@@ -137,9 +137,9 @@
     <widget class="QLabel" name="state_text">
      <property name="geometry">
       <rect>
-       <x>106</x>
+       <x>146</x>
        <y>275</y>
-       <width>231</width>
+       <width>191</width>
        <height>31</height>
       </rect>
      </property>
@@ -290,15 +290,15 @@
       <enum>QFrame::Box</enum>
      </property>
      <property name="text">
-      <string>Mode:</string>
+      <string>Mission Phase:</string>
      </property>
     </widget>
     <widget class="QLabel" name="mode_text">
      <property name="geometry">
       <rect>
-       <x>106</x>
+       <x>146</x>
        <y>315</y>
-       <width>231</width>
+       <width>191</width>
        <height>31</height>
       </rect>
      </property>
@@ -484,7 +484,7 @@
       <enum>QFrame::Box</enum>
      </property>
      <property name="text">
-      <string>Drive POI -&gt; Home</string>
+      <string>Drive from POI to Home</string>
      </property>
     </widget>
     <widget class="QLabel" name="objective_3_text">
@@ -505,7 +505,7 @@
       <enum>QFrame::Box</enum>
      </property>
      <property name="text">
-      <string>Battery level always &gt; X%</string>
+      <string>Battery level always &gt; X %</string>
      </property>
     </widget>
     <widget class="QLabel" name="objective_1_text">
@@ -526,7 +526,7 @@
       <enum>QFrame::Box</enum>
      </property>
      <property name="text">
-      <string>Drive Home -&gt; POI</string>
+      <string>Drive from Home to POI</string>
      </property>
     </widget>
     <widget class="QLabel" name="objective_5_text">
@@ -890,7 +890,7 @@
       <x>1040</x>
       <y>280</y>
       <width>401</width>
-      <height>211</height>
+      <height>231</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -946,7 +946,7 @@
        <x>10</x>
        <y>70</y>
        <width>381</width>
-       <height>131</height>
+       <height>151</height>
       </rect>
      </property>
     </widget>
@@ -957,7 +957,7 @@
       <x>530</x>
       <y>510</y>
       <width>501</width>
-      <height>191</height>
+      <height>171</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -993,7 +993,7 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>62</y>
+       <y>60</y>
        <width>121</width>
        <height>31</height>
       </rect>
@@ -1003,7 +1003,7 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>110</y>
+       <y>120</y>
        <width>121</width>
        <height>41</height>
       </rect>
@@ -1019,14 +1019,14 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>0</y>
+       <y>30</y>
        <width>121</width>
-       <height>51</height>
+       <height>31</height>
       </rect>
      </property>
      <property name="font">
       <font>
-       <pointsize>14</pointsize>
+       <pointsize>10</pointsize>
       </font>
      </property>
      <property name="text">
@@ -1068,15 +1068,15 @@
     <widget class="QLabel" name="label_31">
      <property name="geometry">
       <rect>
-       <x>200</x>
-       <y>0</y>
-       <width>111</width>
-       <height>51</height>
+       <x>190</x>
+       <y>30</y>
+       <width>121</width>
+       <height>31</height>
       </rect>
      </property>
      <property name="font">
       <font>
-       <pointsize>14</pointsize>
+       <pointsize>10</pointsize>
       </font>
      </property>
      <property name="text">
@@ -1093,14 +1093,14 @@
      <property name="geometry">
       <rect>
        <x>360</x>
-       <y>0</y>
+       <y>30</y>
        <width>121</width>
-       <height>51</height>
+       <height>31</height>
       </rect>
      </property>
      <property name="font">
       <font>
-       <pointsize>14</pointsize>
+       <pointsize>10</pointsize>
       </font>
      </property>
      <property name="text">
@@ -1113,6 +1113,29 @@
       <bool>true</bool>
      </property>
     </widget>
+    <widget class="QLabel" name="label_24">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>501</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Robot Adjustment</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
    </widget>
    <widget class="QFrame" name="frame_9">
     <property name="geometry">
@@ -1120,7 +1143,7 @@
       <x>170</x>
       <y>390</y>
       <width>351</width>
-      <height>101</height>
+      <height>121</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -1133,7 +1156,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>60</y>
+       <y>80</y>
        <width>161</width>
        <height>31</height>
       </rect>
@@ -1153,7 +1176,7 @@
      <property name="geometry">
       <rect>
        <x>180</x>
-       <y>60</y>
+       <y>80</y>
        <width>161</width>
        <height>31</height>
       </rect>
@@ -1173,7 +1196,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>10</y>
+       <y>40</y>
        <width>91</width>
        <height>31</height>
       </rect>
@@ -1183,7 +1206,7 @@
      <property name="geometry">
       <rect>
        <x>230</x>
-       <y>10</y>
+       <y>40</y>
        <width>111</width>
        <height>31</height>
       </rect>
@@ -1203,7 +1226,7 @@
      <property name="geometry">
       <rect>
        <x>110</x>
-       <y>10</y>
+       <y>40</y>
        <width>111</width>
        <height>31</height>
       </rect>
@@ -1217,6 +1240,29 @@
      </property>
      <property name="text">
       <string>Plan POI</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_23">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>351</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Robot Planning and Control</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </widget>
