@@ -33,13 +33,15 @@ class ConcurrentTaskRecorder(DataRecorderBase):
 
 class SurveyRecorder:
     def __init__(self, trust_path, usability_path):
-        header = ["Q{}".format(x+1) for x in range(14)] + ['score'] + ['time stamp']
-        self.trust_recorder = DataRecorderBase(trust_path, header)
-        self.trust_recorder.write_header()
+        if trust_path is not None:
+            header = ["Q{}".format(x+1) for x in range(14)] + ['score'] + ['time stamp']
+            self.trust_recorder = DataRecorderBase(trust_path, header)
+            self.trust_recorder.write_header()
 
-        header = ["Q{}".format(x + 1) for x in range(10)] + ['score'] + ['time stamp']
-        self.usability_recorder = DataRecorderBase(usability_path, header)
-        self.usability_recorder.write_header()
+        if usability_path is not None:
+            header = ["Q{}".format(x + 1) for x in range(10)] + ['score'] + ['time stamp']
+            self.usability_recorder = DataRecorderBase(usability_path, header)
+            self.usability_recorder.write_header()
 
     def record_trust(self, responses, score, timestamp):
         row = [*responses, score, timestamp]

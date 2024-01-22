@@ -54,6 +54,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.batt_drain_rate = settings.batt_drain_anomaly
 
         self.mission_time = 0.0
+        self.t0 = datetime.now()
         self.update_rate = 0.5  # seconds
         self.poi_accepted_workaround = False
 
@@ -95,7 +96,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.velocity = 0.0
         self.heading = 0.0
         self.position = PointOfInterest()
-        self.time_start = datetime.now()
+        self.time_start = self.t0
         self.telemetry_updater = QtCore.QTimer()
         self.telemetry_updater.timeout.connect(self.periodic_update)
         self.telemetry_updater.setInterval(int(self.update_rate * 1000))
@@ -149,20 +150,13 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.et_goa_threshold = settings.et_goa_threshold
             self.objective_3_text.setText(self.objective_3_text.text().replace('X', '50'))
             self.objective_5_text.setText(self.objective_5_text.text().replace('X', '10'))
-        else:
-            pass
-            # labels = [self.label_27, self.label_6, self.label_7, self.label_8, self.label_15,
-            #          self.label_16]
-            # [label.hide() for label in labels]
         self.mqa = [0] * len(settings.et_goa_stds)
         self.goa = [0] * 5  # []
 
         #################
         # Setup the questionnaire prompts
-        self.surveys = {1: False, 2: False, 3: False, 4: False} if settings.show_surveys else {1: True,
-                                                                                               2: True,
-                                                                                               3: True,
-                                                                                               4: True}
+        self.surveys = {x+1: y for (x,y) in zip(np.arange(len(settings.show_surveys)), settings.show_surveys)}
+        print(self.surveys)
         self.survey_prompt(1)
         self.update_mission_control_text(self.mission_control.send_mission(), color='green')
 
@@ -173,32 +167,61 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         :return:
         """
         try:
-            self.activate_buttons()
-            self.update_mission_time()
-            self.update_battery_level()
-            self.update_connections()
+            if self.mission_phase.state is not ControlModeState.phase_mission_complete and self.mission_phase.state is not ControlModeState.phase_mission_done:
+                self.update_mission_time()
+                self.update_battery_level()
+                self.update_connections()
+                self.update_control_mode_text()
+                self.update_mission_mode_text()
+                self.update_battery_text()
+                self.update_velocity_text()
+                self.update_heading_text()
+                self.update_position_text()
 
-            self.update_control_mode_text()
-            self.update_mission_mode_text()
+
+                self.data_recorder.add_row(self.position.x, self.position.y, self.position.z,
+                                           self.heading, self.velocity,
+                                           self.control_mode, self.mission_mode,
+                                           self.battery_number, self.battery_level,
+                                           self.power_number, self.gps_frequency,
+                                           'N/A', 'N/A',
+                                           "_".join(["{:.2f}".format(x) for x in self.goa]),
+                                           "_".join(["{:.2f}".format(x) for x in self.mqa]),
+                                           datetime.now())
+                self.update_map()
+                self.update_et_goa()
+                # TODO
+                #self.check_execution_phase_limit()
+                #self.check_planning_phase_limit()
+
+            if self.mission_phase.state == ControlModeState.phase_mission_complete:
+                self.update_assessment_mission_complete()
+                self.survey_prompt(3)
+                time.sleep(1)
+                self.survey_prompt(4)
+                self.mission_phase.state = ControlModeState.phase_mission_done
+
+            # always update these
             self.update_time_text()
-            self.update_battery_text()
-            self.update_velocity_text()
-            self.update_heading_text()
-            self.update_position_text()
+            self.activate_buttons()
 
-            self.data_recorder.add_row(self.position.x, self.position.y, self.position.z,
-                                       self.heading, self.velocity,
-                                       self.control_mode, self.mission_mode,
-                                       self.battery_number, self.battery_level,
-                                       self.power_number, self.gps_frequency,
-                                       'N/A', 'N/A',
-                                       "_".join(["{:.2f}".format(x) for x in self.goa]),
-                                       "_".join(["{:.2f}".format(x) for x in self.mqa]),
-                                       self.mission_time)
-            self.update_map()
-            self.update_et_goa()
         except Exception as e:
             traceback.print_exc()
+
+    def check_planning_phase_limit(self):
+        if self.mission_phase.state == ControlModeState.phase_mission_planning:
+            if self.mission_time > 10:
+                pass
+            
+                # qdialog "PLanning time has run out, please make a decision"
+
+    def check_execution_phase_limit(self):
+        if self.mission_phase.state == ControlModeState.phase_mission_execution:
+            if self.mission_time > 60 * 1:
+                print('Mission time exceeded')
+                self.stop_mode_button.click()
+                self.mission_phase.state = ControlModeState.phase_mission_complete
+
 
     def navigation_complete(self):
         try:
@@ -206,20 +229,28 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.update_mission_mode_state(ControlModeState.planning)
             if self.mission_phase.state == ControlModeState.phase_mission_execution:
                 self.mission_phase.state = ControlModeState.phase_mission_complete
-                self.update_assessment_mission_complete()
-                self.survey_prompt(3)
         except Exception as e:
             traceback.print_exc()
 
     def update_assessment_mission_complete(self):
         try:
             achieve, fail = 'Achieved', 'Failed to Achieve'
-            self.objective_1_assmt.setText(achieve) if self.mission_manager.captured_goal else self.objective_3_assmt.setText(fail)
+            self.objective_1_assmt.setText(achieve) if self.mission_manager.captured_goal else self.objective_1_assmt.setText(fail)
+            self.objective_1_assmt.setStyleSheet('background-color: {}; color: black'.format('green' if self.mission_manager.captured_goal else 'red'))
+
             self.objective_2_assmt.setText(achieve) if self.mission_manager.captured_home else self.objective_2_assmt.setText(fail)
+            self.objective_2_assmt.setStyleSheet('background-color: {}; color: black'.format('green' if self.mission_manager.captured_home else 'red'))
+
             self.objective_3_assmt.setText(achieve) if self.battery_level > 50 else self.objective_3_assmt.setText(fail)
+            self.objective_3_assmt.setStyleSheet('background-color: {}; color: black'.format('green' if self.battery_level > 50 else 'red'))
+
+            # TODO assess obstacle hits?
             self.objective_4_assmt.setText(achieve) if True else self.objective_4_assmt.setText(fail)
-            self.objective_5_assmt.setText(achieve) if self.mission_time < 10 * 60 else self.objective_5_assmt.setText(
-                fail)
+            self.objective_4_assmt.setStyleSheet('background-color: {}; color: black'.format('green' if True else 'red'))
+
+            self.objective_5_assmt.setText(achieve) if self.mission_time < 10 * 60 else self.objective_5_assmt.setText(fail)
+            self.objective_5_assmt.setStyleSheet('background-color: {}; color: black'.format('green' if self.mission_time < 10 * 60 else 'red'))
+
         except Exception as e:
             traceback.print_exc()
 
@@ -280,7 +311,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         :return:
         """
         try:
-            text = '{}'.format(self.mission_mode)
+            text = '{}'.format(self.mission_phase)
             self.mode_text.setText(text)
             if self.mission_mode.state == ControlModeState.planning:
                 self.drive_mode_button.setDisabled(True)
@@ -500,7 +531,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.poi_selected = self.poi_selection.currentText()
                 print('Selected POI: ', self.poi_selected)
                 self.accept_poi_button.setStyleSheet('background-color: light grey')
-                #self.update_mission_control_text("")
         except Exception as e:
             traceback.print_exc()
 
@@ -717,13 +747,15 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             elif self.mission_phase.state == ControlModeState.phase_mission_planning:
                 self.drive_mode_button.setDisabled(True)
                 self.request_mission_control_help_button.setDisabled(True)
-                # self.mission_control_update_text.setDisabled(True)
                 self.poi_selection.setEnabled(True)
                 self.plan_poi_button.setEnabled(True)
                 if self.mission_manager.has_plan() and self.mission_mode.state is not ControlModeState.assessing:
                     self.accept_poi_button.setEnabled(True)
                 else:
                     self.accept_poi_button.setDisabled(True)
+                if self.mission_mode.state == ControlModeState.assessing:
+                    self.poi_selection.setDisabled(True)
+                    self.plan_poi_button.setDisabled(True)
 
             # Mission execution
             elif self.mission_phase.state == ControlModeState.phase_mission_execution:
