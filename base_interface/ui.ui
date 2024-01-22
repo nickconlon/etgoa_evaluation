@@ -1018,9 +1018,9 @@
     <widget class="QLabel" name="label_30">
      <property name="geometry">
       <rect>
-       <x>20</x>
+       <x>10</x>
        <y>30</y>
-       <width>121</width>
+       <width>141</width>
        <height>31</height>
       </rect>
      </property>
@@ -1030,7 +1030,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Backup Battery</string>
+      <string>Backup battery number</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -1080,7 +1080,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Robot Power</string>
+      <string>Robot power level</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
