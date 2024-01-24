@@ -36,18 +36,17 @@ roslaunch jackal_gazebo empty_world.launch
 
 Start the waypoint follower:
 ```commandline
-python3 ./motion_planning/main_waypoint_follower.py
+python3 main_waypoint_follower.py
 ```
 
-Adjust any settings and chose the experimental condition: Telemetry only (TELEM), per-mission
-Generalized Outcome Assessment (GOA), or pre-mission GOA plus the ET-GOA algorithm (ET-GOA).
+Adjust any settings for this episode:
 ```commandline
 vim settings.yaml
 ```
 
 Start the user interface:
 ```commandline
-python3 ./main_ros_ui.py
+python3 main_ros_ui.py
 ```
 
 The interface should be started. Telemetry should be flowing. Select a POI with the dropdown, plan, 
@@ -56,7 +55,7 @@ along the planned waypoints to the POI.
 
 
 ### Building
-rebuild the GUI with the pyqt5 Designer then use this command:
+Rebuild the GUI with the pyqt5 Designer then use this command:
 ```commandline
 pyuic5 -x ui.ui -o ui.py
 ```
