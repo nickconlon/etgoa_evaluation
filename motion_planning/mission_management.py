@@ -256,7 +256,6 @@ class MissionManager:
         if self.has_plan():
             dp = np.linalg.norm(np.asarray([robot_x, robot_y])-np.asarray([self.current_goal.x, self.current_goal.y]))
             if dp <= 2:
-                print("Captured poi")
                 self.captured_goal = True
 
             dw = np.linalg.norm(np.array([robot_x, robot_y]) - self.current_plan[0])
@@ -269,7 +268,6 @@ class MissionManager:
                     self.delete_plan()
                     dh = np.linalg.norm(np.asarray([robot_x, robot_y]) - np.asarray([self.home.x, self.home.y]))
                     if dh <= 2:
-                        print("Captured Home")
                         self.captured_home = True
 
         if self.has_plan():

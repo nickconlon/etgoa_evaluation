@@ -633,7 +633,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                     self.splash_of_color(self.competency_assessment_frame, timeout=0)
                     self.rollout_thread = rollout.RolloutThread()
                     self.rollout_thread.pose = [self.position.x, self.position.y, self.position.z]
-                    self.rollout_thread.orientation = [0, 0, np.deg2rad(self.heading), 0]
+                    self.rollout_thread.orientation = [0, 0, np.deg2rad(self.heading), 0] # TODO this is probably 90 degrees off thanks to our North=0 convention
                     self.rollout_thread.waypoints = plan
                     self.rollout_thread.known_obstacles = {}
                     self.rollout_thread.goal = plan[-1]

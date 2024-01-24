@@ -41,13 +41,14 @@ def do_rollout(position, orientation, goal, batt_level, batt_rate, vel_rate,
         d['wp_y'] = [float(x) for x in waypoints[:, 1]]
 
     # TODO fix mess of hard coded paths
-    base = '/home/cohrint-skynet/Code/etgoa_evaluation/world_model/'
-    print(yaml.dump(d))
-    fname = base + 'controllers/rollout_controller/'
-    with open(fname + 'settings.yaml', 'w') as f:
-        yaml.dump(d, f, default_flow_style=None, sort_keys=False)
+    settings_fname = '/data/webots/settings.yaml'
 
-    p = Popen(base + 'do_rollouts.sh')
+    with open(settings_fname, 'w') as f:
+        yaml.dump(d, f, default_flow_style=None, sort_keys=False)
+    cmd = ['webots',
+           '/home/cohrint-skynet/catkin_ws/src/etgoa_evaluation/world_model/worlds/rollout_simulation.wbt',
+           '--minimize', '--batch', '--mode=fast', '--stdout']
+    p = Popen(cmd)
     stdout, stderr = p.communicate()
     goas = compute_outcomes(time_offset=time_offset)
     return goas
@@ -65,7 +66,7 @@ class RolloutThread(QtCore.QThread):
     known_obstacles = {}
     waypoints = []
     num_iterations = 10
-    max_time = 200  # seconds
+    max_time = 60 * 10  # seconds
 
     def run(self):
         print('starting rollout thread')
