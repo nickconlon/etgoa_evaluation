@@ -97,6 +97,21 @@ def equirectangular_projection(latitude, longitude, lat_center, lon_center):
     x = (longitude - lon_center) * equator_circumference * np.cos(np.deg2rad(latitude)) / 360
     return x, y
 
+def to_orientation_rhr(heading_north_degrees):
+    """
+    convert heading in degrees from North to rhr
+    """
+    a = 360+90-heading_north_degrees
+    a = a % 360
+    return a
+
+def to_heading_north(heading_rhr_radians):
+    """
+    convert rhr orientation to heading from north
+    """
+    a = 360+90-np.rad2deg(heading_rhr_radians)
+    a = a % 360
+    return a
 
 def get_heading(heading):
     if 0 <= heading < 22.5:

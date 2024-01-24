@@ -9,7 +9,8 @@ from famsec.outcomes import compute_outcomes
 
 
 def do_rollout(position, orientation, goal, batt_level, batt_rate, vel_rate,
-               known_obstacles, time_offset, waypoints, max_time, num_iterations):
+               known_obstacles, time_offset, waypoints, max_time, num_iterations,
+               wm_settings_path, wp_executable_path):
     """
     :param batt_rate:           rate of battery drain per second s/t b_t+1 = b_t-rate*dt+noise
     :param batt_level:          battery starting level
@@ -41,12 +42,12 @@ def do_rollout(position, orientation, goal, batt_level, batt_rate, vel_rate,
         d['wp_y'] = [float(x) for x in waypoints[:, 1]]
 
     # TODO fix mess of hard coded paths
-    settings_fname = '/data/webots/settings.yaml'
+    settings_fname = wm_settings_path #'/data/webots/settings.yaml'
 
     with open(settings_fname, 'w') as f:
         yaml.dump(d, f, default_flow_style=None, sort_keys=False)
     cmd = ['webots',
-           '/home/cohrint-skynet/catkin_ws/src/etgoa_evaluation/world_model/worlds/rollout_simulation.wbt',
+           wp_executable_path, #'/home/cohrint-skynet/catkin_ws/src/etgoa_evaluation/world_model/worlds/rollout_simulation.wbt',
            '--minimize', '--batch', '--mode=fast', '--stdout']
     p = Popen(cmd)
     stdout, stderr = p.communicate()
@@ -67,6 +68,8 @@ class RolloutThread(QtCore.QThread):
     waypoints = []
     num_iterations = 10
     max_time = 60 * 10  # seconds
+    wm_settings_path = '/data/webots/settings.yaml'
+    wm_executable_path = '/home/cohrint-skynet/catkin_ws/src/etgoa_evaluation/world_model/worlds/rollout_simulation.wbt'
 
     def run(self):
         print('starting rollout thread')
@@ -75,7 +78,8 @@ class RolloutThread(QtCore.QThread):
             goas = do_rollout(self.pose, self.orientation, self.goal,
                               self.battery, self.battery_rate, self.velocity_rate,
                               self.known_obstacles, self.time_offset,
-                              self.waypoints, self.max_time, self.num_iterations)
+                              self.waypoints, self.max_time, self.num_iterations,
+                              self.wm_settings_path, self.wm_executable_path)
             self.finished.emit(goas)
         except Exception as e:
             traceback.print_exc()
