@@ -169,13 +169,10 @@ def update_machine(_current_state_machine, _current_state, _goal, _next_waypoint
 def run(goal, robot, wheels, gps, compass, known_obstacles, batt_level, batt_rate, vel_rate, waypoints, waypoint_index, run_number, run_prefix, max_time):
     velocity_noise = np.random.normal(loc=0.0, scale=0.5)
     battery = batt_level
-    battery_noise = np.random.normal(0, 1.0)
-    print('velocity: {}:{}\nbattery {}:{}'.format(vel_rate, velocity_noise, batt_level, battery_noise))
     state_path = '/data/webots/{}{}_state.npy'.format(run_prefix, run_number)
 
     waypoint_counter = waypoint_index
     next_waypoint = waypoints[waypoint_counter]
-    print("going to ", next_waypoint)
 
     state = []
     t0 = robot.getTime()
@@ -211,13 +208,12 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, batt_level, batt_rat
                 next_waypoint = []
             else:
                 next_waypoint = waypoints[waypoint_counter]
-            print("going to ", next_waypoint)
 
         # Robot has more driving to do
         elif state_machine == StateMachine.driving:
             speed, arrived = goto(next_waypoint, gps, compass, velocity_noise)
             speed *= vel_rate  # adjust based on "real" speed
-
+            '''
             # Sand trap functionality
             sand_pos = get_obstacles(robot, ['SAND'])
             if len(sand_pos) == 1:
@@ -226,7 +222,7 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, batt_level, batt_rat
                 robot_pos = robot.getSelf().getField('translation').getSFVec3f()
                 if sand_pos[1] - offset < robot_pos[1] < sand_pos[1] + offset:
                     speed *= np.random.normal(loc=0.3, scale=0.5, size=4)
-
+            '''
             for i, wheel in enumerate(wheels):
                 wheel.setVelocity(speed[i])
 
@@ -235,23 +231,7 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, batt_level, batt_rat
             speed = pioneer.stop()
             for i, wheel in enumerate(wheels):
                 wheel.setVelocity(speed[i])
-
-            print('Pose ', robot.getSelf().getField('translation').getSFVec3f())
-            print('Rot', robot.getSelf().getField('rotation').getSFRotation())
-            print('Batt', battery)
-            print('Time', robot.getTime() - t0)
             np.save(state_path, state)
-            d = {
-                'start_position': [float(x) for x in pose],
-                'start_orientation': [float(x) for x in orient],
-                'goal_position': [float(x) for x in goal],
-                'waypoint_index': waypoint_counter,
-                'num_iterations': 10,
-                'publish': False,
-                'prefix': 'rollout'
-            }
-            with open('/data/webots/rollout_state.yaml', 'w') as f:
-                yaml.dump(d, f, default_flow_style=None, sort_keys=False)
             break
 
 

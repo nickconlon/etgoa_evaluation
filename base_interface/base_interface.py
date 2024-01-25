@@ -15,7 +15,7 @@ from base_interface.control_modes import ControlModeState
 from mission_control.mission_control import MissionControl
 from base_interface.ui import Ui_MainWindow
 from analysis.data_recorder import PrimaryTaskRecorder, SurveyRecorder
-from motion_planning.projections import Projector, PointOfInterest, get_heading
+from motion_planning.projections import Projector, PointOfInterest, get_heading, to_orientation_rhr
 from famsec import goa, rollout, et_goa
 from base_interface.settings import Settings
 from surveys.trust_survey_popup import run_survey_popup_online as trust_survey
@@ -633,7 +633,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                     self.splash_of_color(self.competency_assessment_frame, timeout=0)
                     self.rollout_thread = rollout.RolloutThread()
                     self.rollout_thread.pose = [self.position.x, self.position.y, self.position.z]
-                    self.rollout_thread.orientation = [0, 0, np.deg2rad(self.heading), 0]
+                    self.rollout_thread.orientation = [0, 0, 1, np.deg2rad(to_orientation_rhr(self.heading))]
                     self.rollout_thread.waypoints = plan
                     self.rollout_thread.known_obstacles = {}
                     self.rollout_thread.goal = plan[-1]

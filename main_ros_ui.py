@@ -17,6 +17,7 @@ from std_msgs.msg import String, Float32, Float32MultiArray
 from base_interface.base_interface import BaseInterface
 from base_interface.control_modes import ControlModeState
 from motion_planning.waypoint_follower import extract_msg
+from motion_planning.projections import to_heading_north
 from etgoa_evaluation.msg import Plan
 
 
@@ -79,8 +80,7 @@ class InterfaceImpl(BaseInterface):
             self.position.x = pose[0]
             self.position.y = pose[1]
             self.position.z = pose[2]
-            a = 360 + 90 - np.rad2deg(angle[-1])
-            self.heading = a % 360
+            self.heading = to_heading_north(angle[-1])
         except Exception as e:
             traceback.print_exc()
 
