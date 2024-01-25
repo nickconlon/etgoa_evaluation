@@ -202,11 +202,23 @@ class MissionManager:
 
         plt.ylabel('y (m)')
         plt.xlabel('x (m)')
-        line1 = Line2D([], [], color="white", marker='o', markerfacecolor="blue")
-        line2 = Line2D([], [], color="white", marker='o', markersize=10, markerfacecolor="blue", alpha=0.5)
-        line3 = Line2D([], [], color="white", marker='o', markersize=10, markerfacecolor="red", alpha=0.5)
-        line4 = Line2D([], [], color="white", marker='o', markersize=10, markerfacecolor="orange", alpha=0.5)
-        plt.legend((line1, line2, line3, line4), ('Robot position', 'Battery draws', 'Blocked areas', 'Hazardous areas'), numpoints=1, loc=1)
+        lines = [Line2D([], [], color="white", marker='o', markerfacecolor="blue")]
+        descriptions = ['Robot Position']
+
+        if len(self.power_draws) > 0:
+            line2 = Line2D([], [], color="white", marker='o', markersize=10, markerfacecolor="blue", alpha=0.5)
+            lines.append(line2)
+            descriptions.append('Battery draws')
+        if len(self.obstructions) > 0:
+            line3 = Line2D([], [], color="white", marker='o', markersize=10, markerfacecolor="red", alpha=0.5)
+            lines.append(line3)
+            descriptions.append('Blocked areas')
+        if len(self.hazards) > 0:
+            line4 = Line2D([], [], color="white", marker='o', markersize=10, markerfacecolor="orange", alpha=0.5)
+            lines.append(line4)
+            descriptions.append('Hazardous areas')
+
+        plt.legend(lines, descriptions, numpoints=1, loc=1)
         plt.grid()
         ax.axis('square')
         canvas = plt.gca().figure.canvas
