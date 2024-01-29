@@ -139,7 +139,7 @@ class WaypointFollower:
         print('exiting control')
 
     def calculate_heading(self, data):
-        if self.max_speed > 0 and self.x_dest and self.y_dest:
+        if self.max_speed > 0 and self.x_dest is not None and self.y_dest is not None:
 
             """
             PD control for waypoint following
@@ -224,7 +224,7 @@ class WaypointFollower:
             self.dist_err = 1.0
             self.x_dest = _x
             self.y_dest = _y
-
+            print("Going to ({}, {})".format(_x, _y))
             # Go to waypoint
             while self.dist_err > 0.1 and abs(t0 - time.time()) < t_max and self.drive:
                 if self.pose_cmd_vel is not None and self.rot_cmd_vel is not None:

@@ -14,7 +14,7 @@ from motion_planning.mission_management import MissionManager
 from base_interface.control_modes import ControlModeState
 from base_interface.ui_mdrs import Ui_MainWindow
 from analysis.data_recorder import PrimaryTaskRecorder, SurveyRecorder
-from motion_planning.projections import Projector, PointOfInterest, get_heading
+from motion_planning.projections import Projector, PointOfInterest, get_heading, to_orientation_rhr
 from famsec import goa, rollout, et_goa
 from base_interface.settings import Settings
 
@@ -45,6 +45,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.projector = Projector(settings.lat_center, settings.lon_center)
         self.projector.setup()
         self.mission_manager = MissionManager(self.mission_area_img_path, self.projector,
+                                              settings.pois,
                                               settings.obstructions,
                                               settings.hazards,
                                               settings.power_draws)
@@ -109,7 +110,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.automatic_drive_mode_button.setDisabled(True)
         self.stop_mode_button.clicked.connect(
             lambda: self.update_control_mode_state(ControlModeState.stopped))
-        self.poi_selection.addItems(["Select POI", *["POI {}".format(x) for x in ['A', 'B', 'C', 'D']]])
+        self.poi_selection.addItems(["Select POI", *["POI {}".format(x.name) for x in settings.pois]])
+
 
         #################
         # Setup the Competency Assessment Panel
@@ -125,7 +127,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.goa = [0] * 5  # []
 
         self.update_ff_camera()
-
+        self.manual_drive_mode_button.clicked.connect(self.manual_mode_callback)
     def periodic_update(self):
         """
         Updater for most periodic updates on the UI
@@ -190,7 +192,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.update_control_mode_state(ControlModeState.stopped)
             self.update_mission_mode_state(ControlModeState.planning)
             if self.mission_phase.state == ControlModeState.phase_mission_execution:
-                self.mission_phase.state = ControlModeState.phase_mission_complete
+                self.mission_phase.state = ControlModeState.phase_mission_planning
         except Exception as e:
             traceback.print_exc()
 
@@ -233,7 +235,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             complete = self.mission_manager.update_progress(self.position.x, self.position.y)
             if complete:
                 self.navigation_complete()
-            img = self.mission_manager.get_overlay_image(self.position.x, self.position.y)
+            img = self.mission_manager.get_overlay_image(self.position.x, self.position.y, to_orientation_rhr(self.heading)+180+90)
             height, width, channel = img.shape
             bytesPerLine = 3 * width
             qImg = QtGui.QImage(img, width, height, bytesPerLine, QtGui.QImage.Format_RGB888)
@@ -404,6 +406,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         :return:
         """
         try:
+            # Can make the whole control mode change much simpler here
             self.control_mode.state = new_state
             if self.control_mode.state == ControlModeState.stopped:
                 self.stop_mode_button.setStyleSheet('background-color: green')
@@ -452,7 +455,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         if self.poi_selected:
             self.mission_manager.delete_plan()
             print('Planning route to POI: ', self.poi_selected)
-            self.mission_manager.plan_known_poi(self.position.x, self.position.y, self.poi_selected,
+            self.mission_manager.plan_known_poi(self.position.x, self.position.y, self.poi_selected.replace('POI ', ''),
                                                 tofrom=True)
             if self.mission_manager.get_plan() is None:
                 self.splash_of_color(self.frame_2, color='red')
@@ -512,8 +515,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                     else:
                         # During mission execution, parameter values may have changed
                         self.rollout_thread.velocity_rate = float(
-                            np.mean(self.mean_velocity) / 0.25)
-                        self.rollout_thread.battery_rate = float(np.mean(self.mean_battery))
+                            np.mean(np.asarray(self.mean_velocity)) / 0.25)
+                        self.rollout_thread.battery_rate = float(np.mean(np.asarray(self.mean_battery)))
                         self.rollout_thread.time_offset = float(self.mission_time)
                     print(self.rollout_thread)
                     self.rollout_thread.finished.connect(self.finish_competency_assessment)
@@ -573,9 +576,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 if np.min(self.mqa) <= self.et_goa_threshold:
                     self.stop_mode_button.click()
                     print('Should trigger a stop + reassessment with:')
-                    print('    speed: {:.2f}'.format(np.mean(self.mean_velocity)))
+                    print('    speed: {:.2f}'.format(np.mean(np.asarray(self.mean_velocity))))
                     print('    battery level: {:.2f}'.format(self.battery_level))
-                    print('    battery rate: {:.2f}'.format(np.mean(self.mean_battery)))
+                    print('    battery rate: {:.2f}'.format(np.mean(np.asarray(self.mean_battery))))
                     print('    position: ({:.2f}, {:.2f})'.format(self.position.x, self.position.y))
                     print('    heading: {:.2f}'.format(self.heading))
                     self.start_competency_assessment()
@@ -586,6 +589,22 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.mqa = [0] * 3
         except Exception as e:
             traceback.print_exc()
+
+    def manual_mode_callback(self):
+        self.stop_mode_button.click()
+        self.mission_mode.state = ControlModeState.manual
+        self.mission_manager.delete_plan()
+
+    def autonomous_mode_callback(self):
+        """
+        planning
+        executing_manual
+        executing_autonomous
+        executing_replanning
+
+        """
+        pass
+
 
     def activate_buttons(self):
         """

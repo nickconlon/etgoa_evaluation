@@ -1,31 +1,27 @@
 import numpy as np
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Circle
 from matplotlib.lines import Line2D
 from PIL import Image
 
 from motion_planning import rrt
+from motion_planning.projections import PointOfInterest
 
 
 class MissionManager:
     ASPEN = 'aspen'
     OUTDOOR = 'outdoor'
 
-    def __init__(self, mission_area_image_path, projector, obstructions, hazards, power_draws):
+    def __init__(self, mission_area_image_path, projector, pois, obstructions, hazards, power_draws):
         area_miny, area_maxy, area_minx, area_maxx = -20, 40, -20, 20
         self.display_bounds = [-30, 45, -30, 45]  # minx, maxx, miny, maxy
         self.projector = projector
-
-        pois = self.projector.get_pois()
-        self.poi_a = pois[0]
-        self.poi_b = pois[1]
-        self.poi_c = pois[2]
-        self.poi_d = pois[3]
-        self.home = pois[4]
-        self.zero = pois[5]
+        self.pois = {poi.name: poi for poi in pois}
         self.location = self.ASPEN
         self.current_plan = None
-        self.current_goal = None
+        self.ordered_goals = None
+        self.all_goals = None
         self.captured_goal = False
         self.captured_home = False
         self.all_obstacles = {}
@@ -87,7 +83,13 @@ class MissionManager:
         return self.current_plan is not None
 
     def plan_known_poi(self, robot_x, robot_y, poi_string, tofrom=False):
+        print('PPLANNING T', poi_string)
         poi = None
+        if poi_string in self.pois:
+            poi = self.pois[poi_string]
+        else:
+            self.delete_plan()
+        '''   
         if poi_string == 'POI A':
             poi = self.poi_a
         elif poi_string == 'POI B':
@@ -96,15 +98,20 @@ class MissionManager:
             poi = self.poi_c
         elif poi_string == 'POI D':
             poi = self.poi_d
-        elif poi_string == 'HOME':
+        elif poi_string == 'POI HOME':
             poi = self.home
-        else:
-            self.delete_plan()
+        '''
+
         if poi:
-            if tofrom:
-                self.plan_to_from(robot_x, robot_y, poi.x, poi.y, self.home.x, self.home.y)
+            if tofrom and poi_string != 'HOME':
+                home = self.pois['H']
+                self.plan_to_from(robot_x, robot_y, poi.x, poi.y, home.x, home.y)
+                self.ordered_goals = [poi, home]
             else:
                 self.plan_waypoints(robot_x, robot_y, poi.x, poi.y)
+                self.ordered_goals = [poi.name]
+        print('going to', self.ordered_goals)
+
         self.current_goal = poi
         self.captured_goal = False
         self.captured_home = False
@@ -149,7 +156,7 @@ class MissionManager:
 
             self.update_plan(plan)
 
-    def get_overlay_image_aspen(self, robot_x, robot_y, path_color='black'):
+    def get_overlay_image_aspen(self, robot_x, robot_y, robot_h, path_color='black'):
         fig, ax = plt.subplots(frameon=False, figsize=(6, 6))
         ax.imshow(self.mission_area_image, extent=self.display_bounds)
         mission_area_corner = (self.mission_area_bounds[0][0], self.mission_area_bounds[1][0])
@@ -163,12 +170,13 @@ class MissionManager:
         ax.set_ylim(self.display_bounds[2:])
 
         # plot the POIs
-        for poi in [self.poi_a, self.poi_b, self.poi_c, self.poi_d]:
-            ax.add_patch(Circle((poi.x, poi.y), radius=2.5, facecolor='green', edgecolor='black'))
-            ax.annotate(poi.name, (poi.x, poi.y), size='large', va='center', ha='center')
-
-        ax.scatter([self.home.x], [self.home.y], c='gold', s=200, marker='*')
-        ax.annotate(self.home.name, (self.home.x+4, self.home.y), size='large', va='center', ha='center')
+        for id, poi in self.pois.items():
+            if id.upper() == 'H' or id.upper() == 'HOME':
+                ax.scatter([poi.x], [poi.y], c='gold', s=200, marker='*')
+                ax.annotate(poi.name, (poi.x + 4, poi.y), size='large', va='center', ha='center')
+            else:
+                ax.add_patch(Circle((poi.x, poi.y), radius=2, facecolor='green', edgecolor='black'))
+                ax.annotate(poi.name, (poi.x, poi.y), size='large', va='center', ha='center')
 
         # plot the obstacles
         for o in self.obstructions:
@@ -197,12 +205,15 @@ class MissionManager:
             ax.scatter(pixel_plan[:, 0], pixel_plan[:, 1], c=path_color, s=10)
 
         # plot the robot
-        c = plt.Circle((robot_x, robot_y), radius=1, edgecolor='blue', facecolor='blue')
-        ax.add_patch(c)
+        arrow = u'$\u2191$'
+        rotated_marker = mpl.markers.MarkerStyle(marker=arrow)
+        rotated_marker._transform = rotated_marker.get_transform().rotate_deg(robot_h)
+        plt.scatter([robot_x], [robot_y], marker=rotated_marker, s=600, facecolors='b', edgecolors='b', zorder=20)
 
         plt.ylabel('y (m)')
         plt.xlabel('x (m)')
-        lines = [Line2D([], [], color="white", marker='o', markerfacecolor="blue")]
+
+        lines = [Line2D([], [], color="white", marker=u'$\u2191$', markersize=10, markeredgecolor='b', markerfacecolor="blue")]
         descriptions = ['Robot Position']
 
         if len(self.power_draws) > 0:
@@ -219,7 +230,7 @@ class MissionManager:
             descriptions.append('Hazardous areas')
 
         plt.legend(lines, descriptions, numpoints=1, loc=1)
-        plt.grid()
+        #plt.grid()
         ax.axis('square')
         canvas = plt.gca().figure.canvas
         canvas.draw()
@@ -256,17 +267,20 @@ class MissionManager:
         plt.close(fig)
         return img
 
-    def get_overlay_image(self, robot_x, robot_y, path_color='black'):
+    def get_overlay_image(self, robot_x, robot_y, robot_h, path_color='black'):
         if self.location == self.ASPEN:
-            return self.get_overlay_image_aspen(robot_x, robot_y, path_color)
+            return self.get_overlay_image_aspen(robot_x, robot_y, robot_h, path_color)
         elif self.location == self.OUTDOOR:
             return self.get_overlay_image_outdoor(robot_x, robot_y, path_color)
 
     def update_progress(self, robot_x, robot_y):
         # if [rx, ry]-[px, py] < d -> remove [px, py] from plan
         # if plan empty -> delete plan
+        # TODO fix this with new POI structure
+        '''
         if self.has_plan():
-            dp = np.linalg.norm(np.asarray([robot_x, robot_y])-np.asarray([self.current_goal.x, self.current_goal.y]))
+            current_goal = self.ordered_goals[0]
+            dp = np.linalg.norm(np.asarray([robot_x, robot_y])-np.asarray([current_goal.x, current_goal.y]))
             if dp <= 2:
                 self.captured_goal = True
 
@@ -281,6 +295,29 @@ class MissionManager:
                     dh = np.linalg.norm(np.asarray([robot_x, robot_y]) - np.asarray([self.home.x, self.home.y]))
                     if dh <= 2:
                         self.captured_home = True
+        '''
+        if self.has_plan():
+
+            dw = np.linalg.norm(np.array([robot_x, robot_y]) - self.current_plan[0])
+            if dw <= 0.1:
+                self.current_plan = np.delete(self.current_plan, [0], axis=0)
+                print('removing completed waypoint')
+
+            if len(self.current_plan) == 0:
+                print('removing completed plan')
+                self.delete_plan()
+
+            if len(self.ordered_goals) > 0:
+                current_goal = self.ordered_goals[0]
+                dp = np.linalg.norm(np.asarray([robot_x, robot_y]) - np.asarray([current_goal.x, current_goal.y]))
+                if dp <= 2:
+                    self.ordered_goals.remove(current_goal)
+                    if 'H' in current_goal.name:
+                        self.captured_home = True
+                        print('captured home')
+                    else:
+                        self.captured_goal = True
+                        print('captured goal')
 
         if self.has_plan():
             complete = False
@@ -296,8 +333,9 @@ if __name__ == '__main__':
     projector = Projector(lat_center, lon_center)
     projector.setup()
     obs = [rrt.Obstacle(rrt.Obstacle.circle, (-5, 5), [2], 'ob')]
-    m = MissionManager('../imgs/display_area.png', projector, obs, [], [])
-    m.plan_to_from(0, 0, -10, 20, 0, 0)
-    img = m.get_overlay_image_aspen(0, 0)
+    pois = [PointOfInterest(10, 10, name='H'), PointOfInterest(-2, -10, name='A')]
+    m = MissionManager('../imgs/display_area.png', projector, pois, obs, [], [])
+    m.plan_to_from(0, 0, pois[0].x, pois[0].y, pois[1].x, pois[1].y)
+    img = m.get_overlay_image_aspen(0, 0, 45)
     img = Image.fromarray(img)
     img.show()

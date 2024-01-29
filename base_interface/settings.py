@@ -2,11 +2,12 @@ import traceback
 
 import yaml
 from motion_planning.rrt import Obstacle
-
+from motion_planning.projections import PointOfInterest
 
 class Settings:
     def __init__(self, settings_fname):
         self.fname = settings_fname
+        self.pois = []
         self.obstructions = []
         self.hazards = []
         self.power_draws = []
@@ -30,6 +31,11 @@ class Settings:
         try:
             with open(self.fname, 'r') as file:
                 settings = yaml.safe_load(file)
+
+                for id, poi in settings['pois'].items():
+                    p = PointOfInterest(poi[0][0], poi[0][1], name=id)
+                    self.pois.append(p)
+
                 for id, obs in settings['obstructions'].items():
                     ob = Obstacle(Obstacle.circle, obs[0], obs[1], id, data=obs[2])
                     self.obstructions.append(ob)
@@ -72,6 +78,12 @@ def create():
     batt_drain_rate     % per second
     """
     d = {
+        'pois':{'A': [[8.0, -0.5], [1], 1],
+                'B': [[-3.0, 33.0], [1], 1],
+                'C': [[-9.0, 13.0], [1], 1],
+                'D': [[-16.0, -16.0], [1], 1],
+                'H': [[2.0, -18.0], [1], 1]
+                },
         'obstructions': {'o1': [[10, 15], [2], 1],
                          'o2': [[4, -5], [5], 1],
                          'o3': [[12, 21], [2.5], 1]
@@ -82,20 +94,20 @@ def create():
                         'b2': [[-12, 5], [5], 1.5]
                         },
         'record_path': './data',
-        'map_path': './imgs/mission_area.png',
+        'map_path': './imgs/display_area.png',
         'logo_path': './imgs/logo.png',
         'rollout_path': '/data/webots/rollout{}_state.npy',
-        'condition': 'ET-GOA',  # TELEM, GOA, ET-GA
+        'condition': 'TELEM',  # TELEM, GOA, ET-GA
         'latitude_center': 40.01045433,
         'longitude_center': 105.24432153,
         'anomalies': False,
         'et_goa_threshold': 0.05,
         'et_goa_stds': [1.5, 1.5, 0.5, 1.5],
-        'batt_drain_anomaly': 0.5,  # % change in battery drain rate
-        'num_backup_batteries': 5,
+        'batt_drain_anomaly': 0.05,  # % change in battery drain rate
+        'num_backup_batteries': 10,
         'speed_anomaly': 0.25,  # % change in speed
         'available_pois': ['A', 'B', 'C', 'D'],
-        'show_surveys':  [False, False, False, False] #baseline trust, post planning trust, post execution trust, usability
+        'show_surveys':  [True, True, True, True] #baseline trust, post planning trust, post execution trust, usability
 
     }
 

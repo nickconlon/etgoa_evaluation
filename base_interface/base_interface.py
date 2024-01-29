@@ -48,6 +48,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.projector = Projector(settings.lat_center, settings.lon_center)
         self.projector.setup()
         self.mission_manager = MissionManager(self.mission_area_img_path, self.projector,
+                                              settings.pois,
                                               settings.obstructions,
                                               settings.hazards,
                                               settings.power_draws)
@@ -139,6 +140,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.robot_gps_dial.setDisabled(True)
         self.robot_power_slider.setDisabled(True)
         self.poi_selection.addItems(["Select POI", *["POI {}".format(x) for x in self.mission_control.mission_pois]])
+        self.poi_selection.addItem('POI H')
 
         #################
         # Setup the Competency Assessment Panel
@@ -263,7 +265,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             complete = self.mission_manager.update_progress(self.position.x, self.position.y)
             if complete:
                 self.navigation_complete()
-            img = self.mission_manager.get_overlay_image(self.position.x, self.position.y)
+            img = self.mission_manager.get_overlay_image(self.position.x, self.position.y, to_orientation_rhr(self.heading)+180+90)
             height, width, channel = img.shape
             bytesPerLine = 3 * width
             qImg = QtGui.QImage(img, width, height, bytesPerLine, QtGui.QImage.Format_RGB888)
@@ -544,7 +546,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         if self.poi_selected:
             self.mission_manager.delete_plan()
             print('Planning route to POI: ', self.poi_selected)
-            self.mission_manager.plan_known_poi(self.position.x, self.position.y, self.poi_selected,
+            self.mission_manager.plan_known_poi(self.position.x, self.position.y, self.poi_selected.replace('POI ', ''),
                                                 tofrom=True)
             if self.mission_manager.get_plan() is None:
                 self.splash_of_color(self.frame_2, color='red')
@@ -646,8 +648,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                     else:
                         # During mission execution, parameter values may have changed
                         self.rollout_thread.velocity_rate = float(
-                            np.mean(self.mean_velocity) / 0.25)
-                        self.rollout_thread.battery_rate = float(np.mean(self.mean_battery))
+                            np.mean(np.asarray(self.mean_velocity)) / 0.25)
+                        self.rollout_thread.battery_rate = float(np.mean(np.asarray(self.mean_battery)))
                         self.rollout_thread.time_offset = float(self.mission_time)
                     print(self.rollout_thread)
                     self.rollout_thread.finished.connect(self.finish_competency_assessment)
@@ -707,9 +709,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 if np.min(self.mqa) <= self.et_goa_threshold:
                     self.stop_mode_button.click()
                     print('Should trigger a stop + reassessment with:')
-                    print('    speed: {:.2f}'.format(np.mean(self.mean_velocity)))
+                    print('    speed: {:.2f}'.format(np.mean(np.asarray(self.mean_velocity))))
                     print('    battery level: {:.2f}'.format(self.battery_level))
-                    print('    battery rate: {:.2f}'.format(np.mean(self.mean_battery)))
+                    print('    battery rate: {:.2f}'.format(np.mean(np.asarray(self.mean_battery))))
                     print('    position: ({:.2f}, {:.2f})'.format(self.position.x, self.position.y))
                     print('    heading: {:.2f}'.format(self.heading))
                     self.start_competency_assessment()
