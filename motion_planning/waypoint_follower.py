@@ -6,7 +6,7 @@ import argparse
 import rospy  # Ros library
 import math  # Math library
 from geometry_msgs.msg import Twist  # Twist messages
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseStamped, Vector3Stamped
 from nav_msgs.msg import Odometry  # oOdometry messages
 from tf.transformations import euler_from_quaternion  # Quaternion conversions
 from gazebo_msgs.msg import ModelStates
@@ -19,7 +19,23 @@ from etgoa_evaluation.msg import Plan
 from base_interface.settings import Settings
 
 
-def extract_msg(data):
+def extract_velocity_msg(data):
+    """
+    Extract the same fields from different messages
+    """
+    if type(data) == Odometry:
+        v = data.twist.twist.linear
+        v = np.linalg.norm(np.array([v.x, v.y, v.z]))
+        pass
+    elif type(data) == Vector3Stamped:
+        v = data.vector
+        v = np.linalg.norm(np.array([v.x, v.y, v.z]))
+    else:
+        v = 0
+        print('Unknown message type ', type(data))
+    return v
+
+def extract_pose_msg(data):
     """
     Extract the same fields from different messages
     """
@@ -41,6 +57,7 @@ def extract_msg(data):
         angle = euler_from_quaternion(orientation_q)
     else:
         pose, angle = [], []
+        print('Unknown message type ', type(data))
     return pose, angle
 
 
@@ -52,9 +69,11 @@ class WaypointFollower:
     KIPP = 'kipp'
     CASE = 'case'
 
-    def __init__(self, area, robot, settings):
+    def __init__(self, settings):
         settings = Settings(settings)
         settings.read()
+        self.area = settings.area
+        self.robot = settings.robot_name
         self.all_obstacles = {}
         self.active_obstacles = set()
         self.setup_obstacles(settings.hazards)
@@ -75,24 +94,24 @@ class WaypointFollower:
         rospy.init_node('go_to_waypoint', anonymous=True)
         # Set sleep rate
         self.sleep_rate = rospy.Rate(10)
-
-        if area == self.ASPEN:
-            self.pose_sub = rospy.Subscriber('/{}/vrpn_client_node/cohrint_tars/pose'.format(robot),
+        if self.area == self.ASPEN:
+            # For inside the ASPEN lab w/ VICON and our named robots
+            self.pose_sub = rospy.Subscriber('/{}/vrpn_client_node/cohrint_{}/pose'.format(self.robot, self.robot),
                                              PoseStamped, self.calculate_heading)
-            self.pub_vel = rospy.Publisher('/{}/jackal_velocity_controller/cmd_vel'.format(robot),
+            self.pub_vel = rospy.Publisher('/{}/jackal_velocity_controller/cmd_vel'.format(self.robot),
                                            Twist, queue_size=10)
-        elif area == self.GAZEBO:
-            self.pose_sub = rospy.Subscriber('/gazebo/model_states', ModelStates,
-                                             self.calculate_heading)
-            # Initialize command velocity publisher
-            self.pub_vel = rospy.Publisher('/jackal_velocity_controller/cmd_vel', Twist,
-                                           queue_size=10)
-        elif area == self.OUTDOOR:
-            self.pose_sub = None  # TODO
-            self.pub_vel = rospy.Publisher('/{}/jackal_velocity_controller/cmd_vel'.format(robot),
+        elif self.area == self.GAZEBO:
+            # For in Gazebo sim w/ unnamed robots
+            self.pose_sub = rospy.Subscriber('/gazebo/model_states', ModelStates, self.calculate_heading)
+            self.pub_vel = rospy.Publisher('/jackal_velocity_controller/cmd_vel', Twist,  queue_size=10)
+        elif self.area == self.OUTDOOR:
+            # For outside w/ GPS and our named robots. TODO GPS integration
+            self.pose_sub = None
+            self.pub_vel = rospy.Publisher('/{}/jackal_velocity_controller/cmd_vel'.format(self.robot),
                                            Twist, queue_size=10)
-        self.control_sub = rospy.Subscriber('/{}/control'.format(robot), Float32, self.set_control_callback)
-        self.waypoint_sub = rospy.Subscriber('/{}/plan'.format(robot), Plan, self.set_waypoints_callback)
+
+        self.control_sub = rospy.Subscriber('/{}/control'.format(self.robot), Float32, self.set_control_callback)
+        self.waypoint_sub = rospy.Subscriber('/{}/plan'.format(self.robot), Plan, self.set_waypoints_callback)
         self.wp_thread = None
         self.drive = False
 
@@ -144,7 +163,7 @@ class WaypointFollower:
             """
             PD control for waypoint following
             """
-            pose, angle = extract_msg(data)
+            pose, angle = extract_pose_msg(data)
             (x_pose, y_pose, z_pose) = pose[0], pose[1], pose[2]
             (y_rot, x_rot, z_rot) = angle[0], angle[1], angle[2]
             # Calculate x and y errors
@@ -253,7 +272,7 @@ if __name__ == '__main__':
 
         mission_area = WaypointFollower.GAZEBO
         robot = WaypointFollower.TARS
-        wp = WaypointFollower(area=mission_area, robot=robot, settings=args.settings)
+        wp = WaypointFollower(settings=args.settings)
         wp.set_control(0.0)
         print('waiting for plan')
         rospy.spin()

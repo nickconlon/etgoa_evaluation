@@ -32,6 +32,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         settings = Settings(settings_path)
         settings.read()
+        self.area = settings.area
+        self.robot = settings.robot_name
         self.cohrint_logo_img_path = settings.logo_path
         self.mission_area_img_path = settings.map_path
         self.rollout_path = settings.rollout_path

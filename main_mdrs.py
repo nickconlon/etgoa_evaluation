@@ -15,13 +15,13 @@ from geometry_msgs.msg import Twist  # Twist messages
 from geometry_msgs.msg import PoseStamped, Vector3Stamped
 from gazebo_msgs.msg import ModelStates
 from std_msgs.msg import String, Float32, Float32MultiArray
-# from nav_msgs.msg import Odometry  # odometry messages
+from nav_msgs.msg import Odometry  # odometry messages
 # from tf.transformations import euler_from_quaternion  # Quaternion conversions
 # from sensor_msgs.msg import NavSatFix
 
 from base_interface.mdrs_base_interface import BaseInterface
 from base_interface.control_modes import ControlModeState
-from motion_planning.waypoint_follower import extract_msg
+from motion_planning.waypoint_follower import extract_pose_msg, extract_velocity_msg
 from motion_planning.projections import to_heading_north
 from etgoa_evaluation.msg import Plan
 
@@ -32,25 +32,36 @@ class InterfaceImpl(BaseInterface):
         rospy.init_node('user_interface', anonymous=True)
         self.img = None
         self.bridge = CvBridge()
-
         self.accept_poi_button.clicked.connect(self.ros_send_waypoint_plan)
         self.stop_mode_button.clicked.connect(lambda: self.ros_control_waypoint_follower(0.0))
         self.automatic_drive_mode_button.clicked.connect(lambda: self.ros_control_waypoint_follower(0.25))
-
-        self.position_sub = rospy.Subscriber('/gazebo/model_states', ModelStates,
+        if self.area == 'aspen':
+            self.pose_sub = rospy.Subscriber('/{}/vrpn_client_node/cohrint_{}/pose'.format(self.robot, self.robot), PoseStamped,
                                              self.ros_position_callback)
-        self.velocity_sub = rospy.Subscriber('/navsat/vel', Vector3Stamped,
-                                             self.ros_velocity_callback)
-        self.ff_camera_sub = rospy.Subscriber('/front/left/image_raw', Image,
-                                             self.ros_img_callback)
-        self.velocity_pub = rospy.Publisher('/jackal_velocity_controller/cmd_vel', Twist,
-                                            queue_size=10)
-        self.waypoint_speed_pub = rospy.Publisher('/{}/control'.format('tars'), Float32,
-                                                  queue_size=10)
-        self.waypoint_plan_pub = rospy.Publisher('/{}/plan'.format('tars'), Plan,
-                                                 queue_size=10)
-        self.control_pub = rospy.Publisher('/jackal_velocity_controller/cmd_vel', Twist,
-                                           queue_size=10)
+            # /case/jackal_velocity_controller/odom twist.twist.linear
+            self.velocity_sub = rospy.Subscriber('/{}/jackal_velocity_controller/odom'.format(self.robot), Odometry,
+                                                 self.ros_velocity_callback)
+            self.ff_camera_sub = rospy.Subscriber('/front/left/image_raw', Image,
+                                                  self.ros_img_callback)
+            self.waypoint_speed_pub = rospy.Publisher('/{}/control'.format(self.robot), Float32,
+                                                      queue_size=10)
+            self.waypoint_plan_pub = rospy.Publisher('/{}/plan'.format(self.robot), Plan,
+                                                     queue_size=10)
+            self.control_pub = rospy.Publisher('/{}/jackal_velocity_controller/cmd_vel'.format(self.robot), Twist,
+                                               queue_size=10)
+        else: # self.area == 'gazebo'
+            self.pose_sub = rospy.Subscriber('/gazebo/model_states', ModelStates,
+                                             self.ros_position_callback)
+            self.velocity_sub = rospy.Subscriber('/navsat/vel', Vector3Stamped,
+                                                 self.ros_velocity_callback)
+            self.ff_camera_sub = rospy.Subscriber('/front/left/image_raw', Image,
+                                                 self.ros_img_callback)
+            self.waypoint_speed_pub = rospy.Publisher('/{}/control'.format(self.robot), Float32,
+                                                      queue_size=10)
+            self.waypoint_plan_pub = rospy.Publisher('/{}/plan'.format(self.robot), Plan,
+                                                     queue_size=10)
+            self.control_pub = rospy.Publisher('/jackal_velocity_controller/cmd_vel', Twist,
+                                               queue_size=10)
 
         self.teleoperation_actions = {'x':0, 'z':0}
         self.teleoperation_timer = QtCore.QTimer()
@@ -71,9 +82,6 @@ class InterfaceImpl(BaseInterface):
         self.last_robot_update = 0 # position_sub
         self.last_gps_update = 0 # position_sub
         self.ui_connected = True
-        self.ff_update_timer = QtCore.QTimer()
-        self.ff_update_timer.timeout.connect(self.update_ff_camera11)
-        self.ff_update_timer.start(500)
 
 
     def ros_control_waypoint_follower(self, speed):
@@ -108,7 +116,7 @@ class InterfaceImpl(BaseInterface):
         try:
             self.robot_connected = self.mission_time
             self.gps_connected = self.mission_time
-            pose, angle = extract_msg(msg)
+            pose, angle = extract_pose_msg(msg)
             self.position.x = pose[0]
             self.position.y = pose[1]
             self.position.z = pose[2]
@@ -123,8 +131,7 @@ class InterfaceImpl(BaseInterface):
         :return:
         """
         try:
-            v = msg.vector
-            v = np.linalg.norm(np.array([v.x, v.y, v.z]))
+            v = extract_velocity_msg(msg)
             if self.control_mode.state == ControlModeState.drive:
                 self.mean_velocity.append(v)
             self.velocity = v

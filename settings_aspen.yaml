@@ -1,0 +1,50 @@
+pois:
+  A:
+  - [1.0, 9.0]
+  - [1]
+  - 1
+  B:
+  - [4.0, 7.0]
+  - [1]
+  - 1
+  H:
+  - [2.5, 0.0]
+  - [1]
+  - 1
+obstructions:
+  o1:
+  - [4.0, 5.0]
+  - [1]
+  - 1
+  o2:
+  - [1, 7]
+  - [1.2]
+  - 1
+  o3:
+  - [-0.5, 6.5]
+  - [1.2]
+  - 1
+
+hazards:
+  h1:
+    - [ 5.0, 2.0 ]
+    - [ 1]
+    - 1
+power_draws: {}
+record_path: ./data
+map_path: ./imgs/display_area.png
+logo_path: ./imgs/logo.png
+rollout_path: /data/webots/rollout{}_state.npy
+condition: ET-GOA
+latitude_center: 40.01045433
+longitude_center: 105.24432153
+anomalies: false
+et_goa_threshold: 0.05
+et_goa_stds: [1.5, 1.5, 0.5, 1.5]
+batt_drain_anomaly: 0.05
+num_backup_batteries: 10
+speed_anomaly: 0.25
+available_pois: [A, B, C, D]
+show_surveys: [true, true, true, true]
+robot_name: case
+area: gazebo

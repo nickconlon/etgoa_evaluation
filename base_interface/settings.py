@@ -26,6 +26,8 @@ class Settings:
         self.speed_anomaly = None
         self.available_pois = None
         self.show_surveys = None
+        self.area = None
+        self.robot_name = None
 
     def read(self):
         try:
@@ -63,6 +65,8 @@ class Settings:
                 self.speed_anomaly = settings['speed_anomaly']
                 self.available_pois = settings['available_pois']
                 self.show_surveys = settings['show_surveys']
+                self.area = settings['area']
+                self.robot_name = settings['robot_name']
 
         except Exception as e:
             traceback.print_exc()
@@ -93,6 +97,8 @@ def create():
         'power_draws': {'b1': [[-8, 0], [5], 1.5],
                         'b2': [[-12, 5], [5], 1.5]
                         },
+        'area': 'gazebo',
+        'robot_name': 'case',
         'record_path': './data',
         'map_path': './imgs/display_area.png',
         'logo_path': './imgs/logo.png',

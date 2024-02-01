@@ -11,9 +11,9 @@ if __name__ == '__main__':
                             default="./settings.yaml")
         args = parser.parse_args()
 
-        mission_area = WaypointFollower.GAZEBO
-        robot = WaypointFollower.TARS
-        wp = WaypointFollower(area=mission_area, robot=robot, settings=args.settings)
+        mission_area = WaypointFollower.ASPEN
+        robot = WaypointFollower.CASE
+        wp = WaypointFollower(settings=args.settings)
         wp.set_control(0.0)
         print('waiting for plan')
         rospy.spin()

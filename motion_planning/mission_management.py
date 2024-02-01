@@ -14,8 +14,8 @@ class MissionManager:
     OUTDOOR = 'outdoor'
 
     def __init__(self, mission_area_image_path, projector, pois, obstructions, hazards, power_draws):
-        area_miny, area_maxy, area_minx, area_maxx = -20, 40, -20, 20
-        self.display_bounds = [-30, 45, -30, 45]  # minx, maxx, miny, maxy
+        area_miny, area_maxy, area_minx, area_maxx = -2, 10, -2, 5
+        self.display_bounds = [-3, 12, -3, 12]  # minx, maxx, miny, maxy
         self.projector = projector
         self.pois = {poi.name: poi for poi in pois}
         self.location = self.ASPEN
@@ -175,7 +175,7 @@ class MissionManager:
                 ax.scatter([poi.x], [poi.y], c='gold', s=200, marker='*')
                 ax.annotate(poi.name, (poi.x + 4, poi.y), size='large', va='center', ha='center')
             else:
-                ax.add_patch(Circle((poi.x, poi.y), radius=2, facecolor='green', edgecolor='black'))
+                ax.add_patch(Circle((poi.x, poi.y), radius=1, facecolor='green', edgecolor='black'))
                 ax.annotate(poi.name, (poi.x, poi.y), size='large', va='center', ha='center')
 
         # plot the obstacles
