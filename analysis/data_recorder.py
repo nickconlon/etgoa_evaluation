@@ -22,12 +22,12 @@ class DataRecorderBase:
 
 class ConcurrentTaskRecorder(DataRecorderBase):
     def __init__(self, path):
-        header = ['time stamp', 'correct', 'decision time', 'mineral']
+        header = ['time stamp', 'actual_x', 'actual_y', 'actual_std', 'x', 'y', 'decision time', 'mineral']
         DataRecorderBase.__init__(self, path, header)
         self.write_header()
 
-    def add_row(self, timestamp, correct, decition_time, mineral):
-        row = [timestamp, correct, decition_time, mineral]
+    def add_row(self, timestamp, actual_x, actual_y, actual_std, x, y, decition_time, mineral):
+        row = [timestamp, actual_x, actual_y, actual_std, x, y, decition_time, mineral]
         self.record(row)
 
 

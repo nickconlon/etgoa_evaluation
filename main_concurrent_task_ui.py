@@ -35,6 +35,7 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
         self.next_identification(False)
         self.next_mineral()
         self.submit_button.clicked.connect(self.submit_button_callback)
+        self.next_button.clicked.connect(self.next_button_callback)
         self.start_task = False
         self.next_idx = 1
         self.total = 5
@@ -65,18 +66,17 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
 
         :return:
         """
-        d = -1
+        mu_x, mu_y, std, x, y = -1, -1, -1, -1, -1
         try:
             mineral = self.mineral_of_interest
             mean_std = self.minerals2means[mineral]
-            x = self.map.mapped_x[lon_x]
-            y = self.map.mapped_y[lat_y]
-
+            if lat_y is not None and lat_y is not None:
+                x = self.map.mapped_x[lon_x]
+                y = self.map.mapped_y[lat_y]
             mu_y, mu_x, std = mean_std
-            d = np.linalg.norm(np.asarray([x, y])-np.asarray([mu_x, mu_y]))
         except Exception as e:
             traceback.print_exc()
-        return d
+        return mu_x, mu_y, std, x, y
 
     def next_mineral(self):
         """
@@ -85,6 +85,22 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
         """
         try:
             self.mineral_of_interest = np.random.choice(a=metals)
+        except Exception as e:
+            traceback.print_exc()
+
+    def next_button_callback(self):
+        """
+        Mission Control receives a next from the user
+
+        :return:
+        """
+        try:
+            self.splash_of_color(self.frame)
+            ax, ay, astd, px, py = self.check_response(None, None)
+            dt = -1
+            self.recorder.add_row(time.time(), ax, ay, astd, px, py, dt, self.mineral_of_interest)
+            self.reset()
+            self.make_timer(int(np.random.uniform(3000, 5000)))
         except Exception as e:
             traceback.print_exc()
 
@@ -106,23 +122,24 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
             try:
                 lat = int(float(lat))
                 lon = int(float(lon))
-                distance = self.check_response(lat, lon)
+                ax, ay, astd, px, py = self.check_response(lat, lon)
                 self.splash_of_color(self.frame)
                 dt = time.time() - self.request_time
-                self.recorder.add_row(time.time(), distance, dt, self.mineral_of_interest)
-                self.latitude_input.setText("")
-                self.longitude_input.setText("")
-                self.mineral_of_interest = None
-                self.request_time = None
-                self.next_identification(False)
+                self.recorder.add_row(time.time(), ax, ay, astd, px, py, dt, self.mineral_of_interest)
+                self.reset()
                 self.make_timer(int(np.random.uniform(3000, 5000)))
             except Exception as e:
                 traceback.print_exc()
-
                 print('bad cast')
-
         except Exception as e:
             traceback.print_exc()
+
+    def reset(self):
+        self.latitude_input.setText("")
+        self.longitude_input.setText("")
+        self.mineral_of_interest = None
+        self.request_time = None
+        self.next_identification(False)
 
     def next_identification(self, include_minerals):
         p = './data/concurrent_{}.{}'

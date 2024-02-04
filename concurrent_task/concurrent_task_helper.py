@@ -106,9 +106,9 @@ class MarsMap:
 
         plt.yticks(self.old_y_ticks, self.new_y_ticks)
         plt.xticks(self.old_x_ticks, self.new_x_ticks)
-        ax.tick_params(bottom=True, top=True, left=True, right=True)
+        ax.tick_params(labeltop=True, labelright=True)
         plt.tight_layout()
-        # plt.show()
+        #plt.show()
 
         if save_file is not None:
             plt.savefig(save_file)

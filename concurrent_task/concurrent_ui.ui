@@ -68,7 +68,7 @@
       <rect>
        <x>10</x>
        <y>850</y>
-       <width>1021</width>
+       <width>871</width>
        <height>71</height>
       </rect>
      </property>
@@ -87,7 +87,7 @@
     <widget class="QLabel" name="longitude_label">
      <property name="geometry">
       <rect>
-       <x>1080</x>
+       <x>910</x>
        <y>890</y>
        <width>151</width>
        <height>31</height>
@@ -105,7 +105,7 @@
     <widget class="QPushButton" name="submit_button">
      <property name="geometry">
       <rect>
-       <x>1490</x>
+       <x>1330</x>
        <y>850</y>
        <width>141</width>
        <height>71</height>
@@ -126,7 +126,7 @@
     <widget class="QLabel" name="latitude_label">
      <property name="geometry">
       <rect>
-       <x>1080</x>
+       <x>910</x>
        <y>850</y>
        <width>151</width>
        <height>31</height>
@@ -166,7 +166,7 @@
     <widget class="QLineEdit" name="latitude_input">
      <property name="geometry">
       <rect>
-       <x>1230</x>
+       <x>1060</x>
        <y>850</y>
        <width>251</width>
        <height>31</height>
@@ -179,7 +179,7 @@
     <widget class="QLineEdit" name="longitude_input">
      <property name="geometry">
       <rect>
-       <x>1230</x>
+       <x>1060</x>
        <y>890</y>
        <width>251</width>
        <height>31</height>
@@ -187,6 +187,27 @@
      </property>
      <property name="maxLength">
       <number>5</number>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="next_button">
+     <property name="geometry">
+      <rect>
+       <x>1490</x>
+       <y>850</y>
+       <width>141</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+      </font>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="text">
+      <string>Next</string>
      </property>
     </widget>
    </widget>
@@ -197,7 +218,7 @@
      <x>0</x>
      <y>0</y>
      <width>1859</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuPOI_Identification">
