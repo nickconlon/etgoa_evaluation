@@ -108,7 +108,7 @@ class MarsMap:
         plt.xticks(self.old_x_ticks, self.new_x_ticks)
         ax.tick_params(labeltop=True, labelright=True)
         plt.tight_layout()
-        #plt.show()
+        # plt.show()
 
         if save_file is not None:
             plt.savefig(save_file)
@@ -121,11 +121,12 @@ class MarsMap:
 
         return img, means
 
+
 def read_next(data_path, img_path):
     with open(data_path) as f:
         data = yaml.safe_load(f)
         img = Image.open(img_path)
-        img = np.array(img)[:,:,:3]
+        img = np.array(img)[:, :, :3]
         if 'minerals' in data:
             dist = data['minerals']
             target = data['target']
@@ -133,6 +134,7 @@ def read_next(data_path, img_path):
             dist = {}
             target = {}
     return img, dist, target
+
 
 if __name__ == '__main__':
     mars_map = MarsMap("../imgs/mars_map_cropped.png")
