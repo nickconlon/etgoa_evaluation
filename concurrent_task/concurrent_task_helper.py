@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from PIL import Image
 import numpy as np
+import yaml
 
 # , 'zinc', 'niobium', 'molybdenum', 'lanthanum', 'europium', 'tungsten', 'gold']
 metals = ['Iron', 'Gold', 'Lithium', 'Cobalt', 'Zinc']
@@ -74,7 +75,7 @@ class MarsMap:
         mapped_x = {int(lat): x for lat, x in zip(newy, yf)}
         return mapped_x, old_ticks, new_ticks
 
-    def make_task_instance(self, include_minerals, save_file=False):
+    def make_task_instance(self, include_minerals, save_file=None):
         fig, ax = plt.subplots(figsize=(25 * 0.65, 15 * 0.65))
 
         img = self.base_img.copy()
@@ -105,12 +106,12 @@ class MarsMap:
 
         plt.yticks(self.old_y_ticks, self.new_y_ticks)
         plt.xticks(self.old_x_ticks, self.new_x_ticks)
-
+        ax.tick_params(bottom=True, top=True, left=True, right=True)
         plt.tight_layout()
         # plt.show()
 
-        if save_file:
-            plt.savefig('test.png')
+        if save_file is not None:
+            plt.savefig(save_file)
 
         canvas = plt.gca().figure.canvas
         canvas.draw()
@@ -120,9 +121,41 @@ class MarsMap:
 
         return img, means
 
+def read_next(data_path, img_path):
+    with open(data_path) as f:
+        data = yaml.safe_load(f)
+        img = Image.open(img_path)
+        img = np.array(img)[:,:,:3]
+        if 'minerals' in data:
+            dist = data['minerals']
+            target = data['target']
+        else:
+            dist = {}
+            target = {}
+    return img, dist, target
 
 if __name__ == '__main__':
-    # remap(0)
-    # save_path = ""
-    mars_map = MarsMap("./mars_map_cropped.png")
-    mars_map.make_task_instance(False, False)
+    mars_map = MarsMap("../imgs/mars_map_cropped.png")
+
+    for i in range(5):
+        output = {}
+        if i == 0:
+            img, dist = mars_map.make_task_instance(False, '../data/concurrent_{}.png'.format(i))
+        else:
+            img, dist = mars_map.make_task_instance(True, '../data/concurrent_{}.png'.format(i))
+            for k, v in dist.items():
+                v = v[0]
+                v = [float(vv) for vv in v]
+                dist[k] = v
+            output = {'minerals': dist, 'target': str(np.random.choice(a=list(dist.keys())))}
+        fname = r'../data/concurrent_{}.yaml'.format(i)
+        with open(fname, 'w') as f:
+            yaml.dump(output, f, default_flow_style=None, sort_keys=False)
+
+    p = '../data/concurrent_{}.{}'
+    for i in range(5):
+        img, dist, tgt = read_next(p.format(i, 'yaml'), p.format(i, 'png'))
+        print(dist)
+        print(tgt)
+        plt.imshow(img)
+        plt.show()

@@ -14,7 +14,7 @@ import qdarktheme
 
 from concurrent_task.concurrent_ui import Ui_MainWindow
 from analysis.data_recorder import ConcurrentTaskRecorder
-from concurrent_task.concurrent_task_helper import MarsMap, metals, get_image
+from concurrent_task.concurrent_task_helper import MarsMap, metals, get_image, read_next
 from base_interface.settings import Settings
 
 
@@ -32,10 +32,12 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
         self.request_time = None
         self.mineral_of_interest = None
         self.minerals2means = None
-        self.request_new_identification(False)
+        self.next_identification(False)
         self.next_mineral()
         self.submit_button.clicked.connect(self.submit_button_callback)
         self.start_task = False
+        self.next_idx = 1
+        self.total = 5
 
     def set_legend(self, imgpath):
         img = get_image(imgpath)
@@ -52,31 +54,29 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
         """
         try:
             self.next_mineral()
-            QtCore.QTimer.singleShot(timeout, lambda: self.request_new_identification(True))
+            QtCore.QTimer.singleShot(timeout, lambda: self.next_identification(True))
         except Exception as e:
             traceback.print_exc()
 
     def check_response(self, lat_y, lon_x):
         """
         :param lat_y:
-        :param lon_x:
+        :param lon_x:            #for mean_std in mean_stds:
+
         :return:
         """
-        correct = False
+        d = -1
         try:
             mineral = self.mineral_of_interest
-            mean_stds = self.minerals2means[mineral]
+            mean_std = self.minerals2means[mineral]
             x = self.map.mapped_x[lon_x]
             y = self.map.mapped_y[lat_y]
 
-            for mean_std in mean_stds:
-                mu_y, mu_x, std = mean_std
-                if (abs(mu_x - x) <= 2 * std) and (abs(mu_y - y) <= 2 * std):
-                    correct = True
-                    break
+            mu_y, mu_x, std = mean_std
+            d = np.linalg.norm(np.asarray([x, y])-np.asarray([mu_x, mu_y]))
         except Exception as e:
             traceback.print_exc()
-        return correct
+        return d
 
     def next_mineral(self):
         """
@@ -106,15 +106,15 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
             try:
                 lat = int(float(lat))
                 lon = int(float(lon))
-                correct = self.check_response(lat, lon)
+                distance = self.check_response(lat, lon)
                 self.splash_of_color(self.frame)
                 dt = time.time() - self.request_time
-                self.recorder.add_row(time.time(), correct, dt, self.mineral_of_interest)
+                self.recorder.add_row(time.time(), distance, dt, self.mineral_of_interest)
                 self.latitude_input.setText("")
                 self.longitude_input.setText("")
                 self.mineral_of_interest = None
                 self.request_time = None
-                self.request_new_identification(False)
+                self.next_identification(False)
                 self.make_timer(int(np.random.uniform(3000, 5000)))
             except Exception as e:
                 traceback.print_exc()
@@ -124,26 +124,29 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
         except Exception as e:
             traceback.print_exc()
 
-    def request_new_identification(self, include_minerals):
-        """
-        Mission Control requests a new identification from the user
-        :return:
-        """
+    def next_identification(self, include_minerals):
+        p = './data/concurrent_{}.{}'
         try:
             if include_minerals:
                 self.splash_of_color(self.frame, color='red', timeout=1000)
-            img, self.minerals2means = self.map.make_task_instance(include_minerals, False)
+                img, self.minerals2means, self.mineral_of_interest = read_next(p.format(self.next_idx, 'yaml'),
+                                                          p.format(self.next_idx, 'png'))
+                self.request_time = time.time()
+                text = "Please identify one site with {}".format(self.mineral_of_interest)
+                print("trying to find ", self.minerals2means[self.mineral_of_interest])
+                print('index ', self.next_idx)
+                self.next_idx = (self.next_idx + 1) % self.total
+                self.next_idx = self.next_idx + 1 if self.next_idx == 0 else self.next_idx
+            else:
+                img, _, _ = read_next(p.format(0, 'yaml'), p.format(0, 'png'))
+                text = ""
+            img = np.array(img)
             height, width, channel = img.shape
             bytesPerLine = 3 * width
             qImg = QtGui.QImage(img, width, height, bytesPerLine, QtGui.QImage.Format_RGB888)
             self.map_label.setPixmap(QtGui.QPixmap(qImg))
-            if self.mineral_of_interest is not None:
-                self.request_time = time.time()
-                text = "Please identify one site with {}".format(self.mineral_of_interest)
-                print("trying to find ", self.minerals2means[self.mineral_of_interest])
-            else:
-                text = ""
             self.mission_control_text.setText(text)
+
         except Exception as e:
             traceback.print_exc()
 
