@@ -83,25 +83,11 @@ class MissionManager:
         return self.current_plan is not None
 
     def plan_known_poi(self, robot_x, robot_y, poi_string, tofrom=False):
-        print('PPLANNING T', poi_string)
         poi = None
         if poi_string in self.pois:
             poi = self.pois[poi_string]
         else:
             self.delete_plan()
-        '''   
-        if poi_string == 'POI A':
-            poi = self.poi_a
-        elif poi_string == 'POI B':
-            poi = self.poi_b
-        elif poi_string == 'POI C':
-            poi = self.poi_c
-        elif poi_string == 'POI D':
-            poi = self.poi_d
-        elif poi_string == 'POI HOME':
-            poi = self.home
-        '''
-
         if poi:
             if tofrom and poi_string != 'HOME':
                 home = self.pois['H']
@@ -109,7 +95,7 @@ class MissionManager:
                 self.ordered_goals = [poi, home]
             else:
                 self.plan_waypoints(robot_x, robot_y, poi.x, poi.y)
-                self.ordered_goals = [poi.name]
+                self.ordered_goals = [poi]
         print('going to', self.ordered_goals)
 
         self.current_goal = poi

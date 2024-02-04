@@ -81,6 +81,10 @@ class InterfaceImpl(BaseInterface):
 
         self.last_robot_update = 0 # position_sub
         self.last_gps_update = 0 # position_sub
+        self.ff_cam_updater = QtCore.QTimer()
+        self.ff_cam_updater.timeout.connect(self.update_ff_camera_ros)
+        self.ff_cam_updater.setInterval(500)
+        self.ff_cam_updater.start()
         self.ui_connected = True
 
 
@@ -132,7 +136,8 @@ class InterfaceImpl(BaseInterface):
         """
         try:
             v = extract_velocity_msg(msg)
-            if self.control_mode.state == ControlModeState.drive:
+            if (self.test_state_test.state == ControlModeState.executing_auto_driving
+                    or self.test_state_test.state == ControlModeState.executing_manual_driving):
                 self.mean_velocity.append(v)
             self.velocity = v
         except Exception as e:
@@ -155,20 +160,21 @@ class InterfaceImpl(BaseInterface):
             traceback.print_exc()
 
 
-    def update_ff_camera11(self):
+    def update_ff_camera_ros(self):
         """
         Updater for the map
         :return:
         """
         try:
-            #img = pil_image.open('./imgs/ff_camera.jpg')
-            #img = img.resize((481, 461))
-            #img = np.array(img)
-            img = self.bridge.imgmsg_to_cv2(self.msg, desired_encoding='passthrough')
-            height, width, channel = img.shape
-            bytesPerLine = 3 * width
-            qImg = QtGui.QImage(img, width, height, bytesPerLine, QtGui.QImage.Format_RGB888)
-            self.camera_label.setPixmap(QtGui.QPixmap(qImg))
+            if self.msg is not None:
+                #img = pil_image.open('./imgs/ff_camera.jpg')
+                #img = img.resize((481, 461))
+                #img = np.array(img)
+                img = self.bridge.imgmsg_to_cv2(self.msg, desired_encoding='passthrough')
+                height, width, channel = img.shape
+                bytesPerLine = 3 * width
+                qImg = QtGui.QImage(img, width, height, bytesPerLine, QtGui.QImage.Format_RGB888)
+                self.camera_label.setPixmap(QtGui.QPixmap(qImg))
         except Exception as e:
             traceback.print_exc()
 

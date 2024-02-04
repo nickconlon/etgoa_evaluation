@@ -27,9 +27,9 @@ obstructions:
 
 hazards:
   h1:
-    - [ 5.0, 2.0 ]
+    - [ 2.0, 3.0 ]
     - [ 1]
-    - 1
+    - 0.005
 power_draws: {}
 record_path: ./data
 map_path: ./imgs/display_area.png

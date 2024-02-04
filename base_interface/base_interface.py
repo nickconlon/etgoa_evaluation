@@ -125,7 +125,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         # Setup the Robot Control panel
         print('Setting up robot control')
         self.drive_mode_button.clicked.connect(
-            lambda: self.update_control_mode_state(ControlModeState.drive))
+            lambda: self.update_control_mode_state(ControlModeState.driving))
         self.drive_mode_button.setDisabled(True)
         self.stop_mode_button.clicked.connect(
             lambda: self.update_control_mode_state(ControlModeState.stopped))
@@ -371,7 +371,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         :return:
         """
         try:
-            if self.control_mode.state == ControlModeState.drive:
+            if self.control_mode.state == ControlModeState.driving:
                 dt = self.update_rate
                 drain_rate = self.batt_drain_rate
                 for o in self.mission_manager.get_active_obstacles():
@@ -504,7 +504,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             if self.control_mode.state == ControlModeState.stopped:
                 self.stop_mode_button.setStyleSheet('background-color: green')
                 self.drive_mode_button.setStyleSheet('background-color: light gray')
-            elif self.control_mode.state == ControlModeState.drive:
+            elif self.control_mode.state == ControlModeState.driving:
                 self.stop_mode_button.setStyleSheet('background-color: light gray')
                 self.drive_mode_button.setStyleSheet('background-color: green')
             self.update_control_mode_text()
@@ -701,7 +701,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         :return:
         """
         try:
-            if (self.control_mode.state == ControlModeState.drive
+            if (self.control_mode.state == ControlModeState.driving
                     and self.etgoa.has_data() and self.condition == self.COND_ETGOA):
                 t = self.mission_time
                 self.etgoa.set_start_time(t)
