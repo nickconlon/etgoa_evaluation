@@ -138,26 +138,19 @@ def read_next(data_path, img_path):
 
 if __name__ == '__main__':
     mars_map = MarsMap("../imgs/mars_map_cropped.png")
-
-    for i in range(5):
+    p = '../concurrent_task/episodes/concurrent_{}.{}'
+    num_examples = 0
+    for i in range(num_examples):
         output = {}
         if i == 0:
-            img, dist = mars_map.make_task_instance(False, '../data/concurrent_{}.png'.format(i))
+            img, dist = mars_map.make_task_instance(False, p.format(i, 'png').format(i))
         else:
-            img, dist = mars_map.make_task_instance(True, '../data/concurrent_{}.png'.format(i))
+            img, dist = mars_map.make_task_instance(True, p.format(i, 'png').format(i))
             for k, v in dist.items():
                 v = v[0]
                 v = [float(vv) for vv in v]
                 dist[k] = v
             output = {'minerals': dist, 'target': str(np.random.choice(a=list(dist.keys())))}
-        fname = r'../data/concurrent_{}.yaml'.format(i)
+        fname = p.format(i, 'yaml')
         with open(fname, 'w') as f:
             yaml.dump(output, f, default_flow_style=None, sort_keys=False)
-
-    p = '../data/concurrent_{}.{}'
-    for i in range(5):
-        img, dist, tgt = read_next(p.format(i, 'yaml'), p.format(i, 'png'))
-        print(dist)
-        print(tgt)
-        plt.imshow(img)
-        plt.show()

@@ -27,18 +27,20 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
         settings.read()
         self.map = MarsMap('./imgs/mars_map_cropped.png')
         self.set_legend('./imgs/legend.png')
+        self.data_path = './concurrent_task/episodes/concurrent_{}.{}'
         fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_secondary_{}.csv'.format(settings.condition)
         self.recorder = ConcurrentTaskRecorder(os.path.join(settings.record_path, fname))
         self.request_time = None
         self.mineral_of_interest = None
         self.minerals2means = None
+        self.next_button.setDisabled(True)
         self.next_identification(False)
         self.next_mineral()
         self.submit_button.clicked.connect(self.submit_button_callback)
         self.next_button.clicked.connect(self.next_button_callback)
         self.start_task = False
         self.next_idx = 1
-        self.total = 5
+        self.total = 50
 
     def set_legend(self, imgpath):
         img = get_image(imgpath)
@@ -114,16 +116,24 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
             if not self.start_task:
                 self.start_task = True
                 self.make_timer(3000)
+                self.submit_button.setDisabled(True)
                 return 0
 
+            self.splash_of_color(self.frame)
             lat = self.latitude_input.text().strip()
             lon = self.longitude_input.text().strip()
 
             try:
                 lat = int(float(lat))
                 lon = int(float(lon))
+            except Exception as e:
+                traceback.print_exc()
+                lat = -1
+                lon = -1
+
+            try:
                 ax, ay, astd, px, py = self.check_response(lat, lon)
-                self.splash_of_color(self.frame)
+
                 dt = time.time() - self.request_time
                 self.recorder.add_row(time.time(), ax, ay, astd, px, py, dt, self.mineral_of_interest)
                 self.reset()
@@ -140,14 +150,17 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
         self.mineral_of_interest = None
         self.request_time = None
         self.next_identification(False)
+        self.next_button.setDisabled(True)
+        self.submit_button.setDisabled(True)
 
     def next_identification(self, include_minerals):
-        p = './data/concurrent_{}.{}'
         try:
             if include_minerals:
+                self.next_button.setEnabled(True)
+                self.submit_button.setEnabled(True)
                 self.splash_of_color(self.frame, color='red', timeout=1000)
-                img, self.minerals2means, self.mineral_of_interest = read_next(p.format(self.next_idx, 'yaml'),
-                                                          p.format(self.next_idx, 'png'))
+                img, self.minerals2means, self.mineral_of_interest = read_next(
+                    self.data_path.format(self.next_idx, 'yaml'), self.data_path.format(self.next_idx, 'png'))
                 self.request_time = time.time()
                 text = "Please identify one site with {}".format(self.mineral_of_interest)
                 print("trying to find ", self.minerals2means[self.mineral_of_interest])
@@ -155,7 +168,7 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
                 self.next_idx = (self.next_idx + 1) % self.total
                 self.next_idx = self.next_idx + 1 if self.next_idx == 0 else self.next_idx
             else:
-                img, _, _ = read_next(p.format(0, 'yaml'), p.format(0, 'png'))
+                img, _, _ = read_next(self.data_path.format(0, 'yaml'), self.data_path.format(0, 'png'))
                 text = ""
             img = np.array(img)
             height, width, channel = img.shape
