@@ -17,6 +17,7 @@ from analysis.data_recorder import PrimaryTaskRecorder, SurveyRecorder
 from motion_planning.projections import Projector, PointOfInterest, get_heading, to_orientation_rhr
 from famsec import goa, rollout, et_goa
 from base_interface.settings import Settings
+from mission_control.mission_control import MissionControl
 
 
 class BaseInterface(QMainWindow, Ui_MainWindow):
@@ -132,6 +133,40 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.mqa = [0] * len(settings.et_goa_stds)
         self.goa = [0] * 5  # []
 
+
+
+        #################
+        # Setup the mission control panel
+        print('Setting up Mission Control')
+        self.mission_control = MissionControl(self.gps_frequency,
+                                              self.power_number,
+                                              self.battery_level,
+                                              100, 100, 5)
+        self.mission_control.set_mission_pois(settings.available_pois)
+        if settings.mode == 'cu':
+            self.request_help_button.clicked.connect(
+                self.request_mission_control_help_callback)
+            self.request_help_button.clicked.connect(lambda: self.splash_of_color(self.request_help_button))
+
+            self.robot_power_slider.valueChanged.connect(self.update_robot_power_callback)
+            self.robot_battery_slider.valueChanged.connect(self.update_robot_battery_callback)
+            self.robot_gps_slider.valueChanged.connect(self.update_robot_gps_frequency_callback)
+            self.robot_power_slider.setValue(self.power_number)
+            self.num_backup_batteries = settings.num_backup_batteries
+            self.robot_battery_slider.setMaximum(self.num_backup_batteries)
+            self.robot_battery_slider.setMinimum(1)
+            self.robot_battery_slider.setValue(self.battery_number)
+            self.robot_gps_slider.setValue(self.gps_frequency)
+            self.robot_battery_slider.setDisabled(True)
+            self.robot_gps_slider.setDisabled(True)
+            self.robot_power_slider.setDisabled(True)
+        else: # TODO cover this area with something fun
+            self.mission_control_panel.setVisible(False)
+
+        #################
+        # Setup the mission prompt panel
+        self.mission_text.setText(self.mission_control.send_mission())
+
         self.update_ff_camera()
         self.manual_drive_mode_button.clicked.connect(self.manual_mode_callback)
 
@@ -180,9 +215,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             traceback.print_exc()
 
     def state_update_test(self, transition):
-        print()
-        print('updating state from: ', self.test_state_test)
-        print('With transition: ', transition)
+        #print()
+        #print('updating state from: ', self.test_state_test)
+        #print('With transition: ', transition)
 
         # Planning state changes
         if self.test_state_test.state == ControlModeState.planning and transition =='started_assessing':
@@ -230,8 +265,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         if self.test_state_test.state == ControlModeState.executing_manual_driving and transition == 'nav_completed':
             self.test_state_test.state = ControlModeState.planning
 
-        print('to: ', self.test_state_test)
-        print()
+        #print('to: ', self.test_state_test)
+        #print()
 
     def check_planning_phase_limit(self):
         # TODO
@@ -834,6 +869,123 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
         except Exception as e:
             traceback.print_exc()
+
+    def update_robot_power_callback(self):# TODO anomaly
+        """
+        Updater for robot power LCD
+
+        :return:
+        """
+        try:
+            val = self.robot_power_slider.value()
+            self.robot_power_lcd.display(val)
+            self.power_number = val
+            self.check_anomaly_strategy()
+        except Exception as e:
+            traceback.print_exc()
+
+    def update_robot_battery_callback(self):# TODO anomaly
+        """
+        Updater for robot battery LCD
+
+        :return:
+        """
+        try:
+            val = self.robot_battery_slider.value()
+            self.robot_battery_lcd.display(val)
+            self.battery_number = int(val)
+            self.battery_level = 100
+            self.check_anomaly_strategy()
+        except Exception as e:
+            traceback.print_exc()
+
+    def update_robot_gps_frequency_callback(self):# TODO anomaly
+        """
+        Updater for robot GPS LCD
+
+        :return:
+        """
+        try:
+            val = self.robot_gps_slider.value()
+            self.robot_gps_lcd.display(val)
+            self.gps_frequency = val
+            self.check_anomaly_strategy()
+        except Exception as e:
+            traceback.print_exc()
+
+    def check_anomaly_strategy(self):# TODO anomaly
+        """
+        Check that the strategy fixed the anomaly
+
+        :return:
+        """
+        try:
+            if self.mission_control:
+                text = self.mission_control.check_strategy(self.power_number, self.gps_frequency,
+                                                           self.battery_number)
+                if text != "":
+                    print('Anomaly strategy successful!')
+                    self.robot_battery_slider.setDisabled(True)
+                    self.robot_gps_slider.setDisabled(True)
+                    self.robot_power_slider.setDisabled(True)
+                    self.request_help_button.setEnabled(True)
+                    self.update_mission_control_text(text, 'green')
+
+                    # if the anomaly resolution was successful, deactivate the obstacle
+                    addressed_anomalies = []
+                    for ob_id, o in self.mission_manager.all_obstacles.items():
+                        if o.distance(self.position.x, self.position.y) <= o.axis[0]:
+                            addressed_anomalies.append(o.id)
+                    self.mission_manager.deactivate_obstacles(addressed_anomalies)
+                    # TODO anomaly
+                    if self.condition == self.COND_ETGOA:
+                        self.start_competency_assessment()
+                    else:
+                        self.finish_competency_assessment(None)
+        except Exception as e:
+            traceback.print_exc()
+
+    def update_mission_control_text(self, text, color=None):# TODO anomaly
+        """
+        Updater for new mission control text
+
+        :param text:
+        :param color:
+        :return:
+        """
+        try:
+            if color is not None:
+                self.splash_of_color(self.request_help_text, color=color, timeout=1000)
+            self.request_help_text.setText(text)
+        except Exception as e:
+            traceback.print_exc()
+
+    def request_mission_control_help_callback(self):# TODO anomaly
+        """
+        Callback when help is requested from Mission Control
+
+        :return:
+        """
+        print('requesting help')
+
+        self.accept_poi_button.setStyleSheet('background-color: light grey')
+        anomaly = False
+        for ob_id, o in self.mission_manager.all_obstacles.items():
+            if ob_id in self.mission_manager.active_obstacles:
+                if o.distance(self.position.x, self.position.y) <= o.axis[0]:
+                    anomaly = True
+
+        if anomaly:
+            self.robot_battery_slider.setEnabled(True)
+            self.robot_gps_slider.setEnabled(True)
+            self.robot_power_slider.setEnabled(True)
+            self.request_help_button.setDisabled(True)
+            self.update_mission_control_text(self.mission_control.get_response(True), 'red')
+            self.state_update_test('help_request')
+        else:
+            self.update_mission_control_text(self.mission_control.get_response(False), 'green')
+        self.stop_mode_button.click()
+        time.sleep(0.1)  # just in case some asynch messes up the periodic button activation and this click
 
     def splash_of_color(self, obj, color='green', timeout=500):
         """

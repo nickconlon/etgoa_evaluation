@@ -44,7 +44,8 @@ et_goa_stds: [1.5, 1.5, 0.5, 1.5]
 batt_drain_anomaly: 0.05
 num_backup_batteries: 10
 speed_anomaly: 0.25
-available_pois: [A, B, C, D]
+available_pois: [A, B]
 show_surveys: [true, true, true, true]
 robot_name: case
 area: gazebo
+mode: cu #mdrs or cu

@@ -28,6 +28,7 @@ class Settings:
         self.show_surveys = None
         self.area = None
         self.robot_name = None
+        self.mode = None
 
     def read(self):
         try:
@@ -67,6 +68,7 @@ class Settings:
                 self.show_surveys = settings['show_surveys']
                 self.area = settings['area']
                 self.robot_name = settings['robot_name']
+                self.mode = settings['mode']
 
         except Exception as e:
             traceback.print_exc()
@@ -98,6 +100,7 @@ def create():
                         'b2': [[-12, 5], [5], 1.5]
                         },
         'area': 'gazebo',
+        'mode': 'cu',
         'robot_name': 'case',
         'record_path': './data',
         'map_path': './imgs/display_area.png',

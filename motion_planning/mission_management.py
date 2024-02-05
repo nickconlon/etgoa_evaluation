@@ -166,19 +166,22 @@ class MissionManager:
 
         # plot the obstacles
         for o in self.obstructions:
+            # Can't activate/fix/deactivate obstructions!
             rx, ry = o.center
             c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='red', facecolor='red', alpha=0.5)
             ax.add_patch(c)
 
         for o in self.hazards:
-            rx, ry = o.center
-            c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='orange', facecolor='orange', alpha=0.5)
-            ax.add_patch(c)
+            if o.id in self.active_obstacles:
+                rx, ry = o.center
+                c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='orange', facecolor='orange', alpha=0.5)
+                ax.add_patch(c)
 
         for o in self.power_draws:
-            rx, ry = o.center
-            c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='blue', facecolor='blue', alpha=0.5)
-            ax.add_patch(c)
+            if o.id in self.active_obstacles:
+                rx, ry = o.center
+                c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='blue', facecolor='blue', alpha=0.5)
+                ax.add_patch(c)
 
         # plot the plan
         if self.has_plan():
