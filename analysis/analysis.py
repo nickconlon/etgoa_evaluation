@@ -281,20 +281,33 @@ def plot_trust_survey_responses(conditions, base='../data/'):
 
 
 def plot_secondary_performance(conditions, base='../data/'):
-    data = []
+    accuracy = []
+    times = []
     for condition in conditions:
         paths = glob.glob(os.path.join(base, '*_secondary_{}.csv'.format(condition)))
-        c_data = []
+        a_data = []
+        t_data = []
         for p in paths:
             df = pd.read_csv(p)
-            correct = df['correct'].to_numpy(dtype=int)
-            times = df['decision time'].to_numpy()
-            [c_data.append(c) for c in correct]
-        data.append(c_data)
+            act_x = df['actual_x'].to_numpy()
+            act_y = df['actual_y'].to_numpy()
+            act_std = df['actual_std'].to_numpy()
+            rep_x = df['x'].to_numpy()
+            rep_y = df['y'].to_numpy()
+            act = np.column_stack((act_x, act_y))
+            rep = np.column_stack((rep_x, rep_y))
+            distances = np.linalg.norm(act-rep, axis=1)
+            ts = df['decision time'].to_numpy()
+            [a_data.append(c) for c in distances]
+            [t_data.append(c) for c in ts]
+        accuracy.append(a_data)
+        times.append(t_data)
 
-    plt.boxplot(data,
-                labels=conditions)
-    plt.ylim([0, 10])
+    plt.boxplot(accuracy, labels=conditions)
+    plt.title('Secondary task performance')
+    plt.show()
+
+    plt.boxplot(times, labels=conditions)
     plt.title('Secondary task performance')
     plt.show()
 
@@ -317,9 +330,9 @@ def plot_usability_scores(conditions, base='../data/'):
 
 if __name__ == '__main__':
     experimental_conditions = ['TELEM', 'GOA', 'ET-GOA']
-    #plot_secondary_performance(experimental_conditions)
+    plot_secondary_performance(experimental_conditions)
     #plot_goa_over_time(experimental_conditions)
     #plot_mqa_over_time(experimental_conditions)
-    plot_trust_survey_responses(experimental_conditions)
-    plot_usability_scores(experimental_conditions)
+    #plot_trust_survey_responses(experimental_conditions)
+    #plot_usability_scores(experimental_conditions)
 

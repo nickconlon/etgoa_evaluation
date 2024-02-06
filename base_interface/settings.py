@@ -29,6 +29,7 @@ class Settings:
         self.area = None
         self.robot_name = None
         self.mode = None
+        self.training = None
 
     def read(self):
         try:
@@ -69,6 +70,7 @@ class Settings:
                 self.area = settings['area']
                 self.robot_name = settings['robot_name']
                 self.mode = settings['mode']
+                self.training = settings['training']
 
         except Exception as e:
             traceback.print_exc()
@@ -116,8 +118,8 @@ def create():
         'num_backup_batteries': 10,
         'speed_anomaly': 0.25,  # % change in speed
         'available_pois': ['A', 'B', 'C', 'D'],
-        'show_surveys':  [True, True, True, True] #baseline trust, post planning trust, post execution trust, usability
-
+        'show_surveys':  [True, True, True, True], #baseline trust, post planning trust, post execution trust, usability
+        'training': True
     }
 
     print(yaml.dump(d))

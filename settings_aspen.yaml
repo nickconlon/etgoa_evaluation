@@ -49,3 +49,4 @@ show_surveys: [true, true, true, true]
 robot_name: case
 area: gazebo
 mode: cu #mdrs or cu
+training: true

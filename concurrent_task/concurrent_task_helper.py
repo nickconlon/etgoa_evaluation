@@ -103,20 +103,22 @@ class MarsMap:
 
         plt.grid(color='black', linestyle='-', linewidth=1)
         plt.imshow(img)
-
+        plt.ylabel('Latitude')
+        plt.xlabel('Longitude')
         plt.yticks(self.old_y_ticks, self.new_y_ticks)
         plt.xticks(self.old_x_ticks, self.new_x_ticks)
         ax.tick_params(labeltop=True, labelright=True)
         plt.tight_layout()
-        # plt.show()
-
-        if save_file is not None:
-            plt.savefig(save_file)
 
         canvas = plt.gca().figure.canvas
         canvas.draw()
         data = np.frombuffer(canvas.tostring_rgb(), dtype='uint8')
         img = data.reshape(canvas.get_width_height()[::-1] + (3,))
+        height, width, channel = img.shape
+        img = Image.fromarray(img)
+        img = img.crop((10, 60, width-10, height-60))
+        img.save(save_file)
+
         plt.close(fig)
 
         return img, means
@@ -126,6 +128,8 @@ def read_next(data_path, img_path):
     with open(data_path) as f:
         data = yaml.safe_load(f)
         img = Image.open(img_path)
+        # 1621, 831
+        img = img.resize((1621, 831))
         img = np.array(img)[:, :, :3]
         if 'minerals' in data:
             dist = data['minerals']
@@ -136,10 +140,10 @@ def read_next(data_path, img_path):
     return img, dist, target
 
 
-if __name__ == '__main__':
+def make_data():
     mars_map = MarsMap("../imgs/mars_map_cropped.png")
-    p = '../concurrent_task/episodes/concurrent_{}.{}'
-    num_examples = 0
+    p = '../concurrent_task/training/concurrent_{}.{}'
+    num_examples = 5
     for i in range(num_examples):
         output = {}
         if i == 0:
@@ -154,3 +158,7 @@ if __name__ == '__main__':
         fname = p.format(i, 'yaml')
         with open(fname, 'w') as f:
             yaml.dump(output, f, default_flow_style=None, sort_keys=False)
+
+
+if __name__ == '__main__':
+    make_data()

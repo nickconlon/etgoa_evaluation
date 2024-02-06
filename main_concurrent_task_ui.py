@@ -28,8 +28,14 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
         settings.read()
         self.map = MarsMap('./imgs/mars_map_cropped.png')
         self.set_legend('./imgs/legend.png')
-        self.data_path = './concurrent_task/episodes/concurrent_{}.{}'
-        fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_secondary_{}.csv'.format(settings.condition)
+        if settings.training:
+            self.data_path = './concurrent_task/training/concurrent_{}.{}'
+            fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_secondary_training_{}.csv'.format(settings.condition)
+            self.total = 5
+        else:
+            self.data_path = './concurrent_task/episodes/concurrent_{}.{}'
+            fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_secondary_{}.csv'.format(settings.condition)
+            self.total = 50
         self.recorder = ConcurrentTaskRecorder(os.path.join(settings.record_path, fname))
         self.request_time = None
         self.mineral_of_interest = None
@@ -41,7 +47,7 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
         self.next_button.clicked.connect(self.next_button_callback)
         self.start_task = False
         self.next_idx = 1
-        self.total = 50
+
         self.alert = QtMultimedia.QSound("./imgs/s2.wav")
 
     def set_legend(self, imgpath):
