@@ -214,9 +214,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             traceback.print_exc()
 
     def state_update_test(self, transition):
-        print()
-        print('updating state from: ', self.test_state_test)
-        print('With transition: ', transition)
+        #print()
+        #print('updating state from: ', self.test_state_test)
+        #print('With transition: ', transition)
 
         if transition == 'anomaly_found':
             self.test_state_test.state = ControlModeState.anomaly_found
@@ -268,8 +268,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         #if self.test_state_test.state == ControlModeState.executing_manual and transition == 'nav_completed':
         #    self.test_state_test.state = ControlModeState.planning
 
-        print('to: ', self.test_state_test)
-        print()
+        #print('to: ', self.test_state_test)
+        #print()
 
     def check_planning_phase_limit(self):
         # TODO
