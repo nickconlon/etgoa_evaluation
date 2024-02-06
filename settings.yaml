@@ -46,6 +46,9 @@ power_draws:
   - [-12, 5]
   - [5]
   - 1.5
+area: gazebo
+mode: cu
+robot_name: case
 record_path: ./data
 map_path: ./imgs/display_area.png
 logo_path: ./imgs/logo.png
@@ -61,5 +64,3 @@ num_backup_batteries: 10
 speed_anomaly: 0.25
 available_pois: [A, B, C, D]
 show_surveys: [true, true, true, true]
-robot_name: case
-area: gazebo

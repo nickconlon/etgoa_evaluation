@@ -177,6 +177,8 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, batt_level, batt_rat
     state = []
     t0 = robot.getTime()
 
+
+
     """
     Main loop
     """
@@ -185,6 +187,18 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, batt_level, batt_rat
         """
         Capture the current state of the robot
         """
+        if vel_rate <= 0.01:
+            print('impossible velocity')
+            for t in np.arange(0, max_time, 0.0064):
+                pose = robot.getSelf().getField('translation').getSFVec3f()
+                orient = robot.getSelf().getField('rotation').getSFRotation()
+                vel = robot.getSelf().getVelocity()
+                battery = np.maximum(battery - 0.064 * batt_rate + (np.random.normal(0.0, 0.05)), 0.0)
+                state_object = StateObject()
+                state_object.set_state(pose, orient, vel[:2], battery, t, time.time(), goal, waypoint_counter)
+                state.append(np.array(state_object.get_state_array(), dtype=object))
+            np.save(state_path, state)
+            break
         sample_time = robot.getTime() - t0
         pose = robot.getSelf().getField('translation').getSFVec3f()
         orient = robot.getSelf().getField('rotation').getSFRotation()

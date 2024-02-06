@@ -164,7 +164,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         #################
         # Setup the mission prompt panel
         self.mission_text.setText(self.mission_control.send_mission())
-        self.assessment_alert = QtMultimedia.QSound("./imgs/s1.wav")
+        self.assessment_started = QtMultimedia.QSound("./imgs/s4.wav")
+        self.assessment_finished = QtMultimedia.QSound("./imgs/s3.wav")
         self.update_ff_camera()
         self.manual_drive_mode_button.clicked.connect(self.manual_mode_callback)
 
@@ -540,7 +541,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         try:
             if self.condition == self.COND_ETGOA or self.condition == self.COND_GOA:
                 if self.mission_manager.has_plan():
-                    self.assessment_alert.play()
+                    self.assessment_started.play()
                     # Maybe add back the current (x,y) location to the beginning of the plan?
                     self.state_update_test('started_assessing')
                     self.splash_of_color(self.competency_assessment_frame, color='light grey', timeout=0)
@@ -586,6 +587,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         """
         try:
             if goa_ret is not None:
+                self.assessment_finished.play()
                 self.state_update_test('completed_assessment')
                 labels = [self.objective_1_assmt, self.objective_2_assmt, self.objective_3_assmt,
                           self.objective_4_assmt, self.objective_5_assmt]

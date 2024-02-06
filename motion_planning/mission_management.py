@@ -287,7 +287,7 @@ class MissionManager:
                     else:
                         self.captured_goal = True
                         print('captured goal')
-        print(self.captured_goal, self.captured_home)
+
         if self.has_plan():
             complete = False
         else:
