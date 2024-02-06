@@ -4,6 +4,7 @@ from collections import deque
 from PIL import Image
 from PyQt5.QtWidgets import QMainWindow, QApplication
 import PyQt5.QtCore as QtCore
+from PyQt5 import QtMultimedia
 import PyQt5.QtGui as QtGui
 import sys
 from datetime import datetime
@@ -73,14 +74,13 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         """
         planning
         planning_assessing
-        executing_manual_stopped
-        executing_manual_driving
+        executing_manual
         executing_auto_stopped
         executing_auto_driving
         completed
         """
         self.test_state_test = ControlModeState(ControlModeState.planning)
-
+        self.push_state = None
 
         #################
         # Setup the Mission Planning Panel
@@ -108,7 +108,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.telemetry_updater.setInterval(int(self.update_rate * 1000))
         self.telemetry_updater.start()
 
-        self.mean_velocity = deque(maxlen=10)
+        self.mean_velocity = deque([0.25] * 10, maxlen=10)
         self.mean_battery = deque(maxlen=10)
 
         #################
@@ -132,8 +132,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.objective_5_text.setText(self.objective_5_text.text().replace('X', '10'))
         self.mqa = [0] * len(settings.et_goa_stds)
         self.goa = [0] * 5  # []
-
-
 
         #################
         # Setup the mission control panel
@@ -166,7 +164,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         #################
         # Setup the mission prompt panel
         self.mission_text.setText(self.mission_control.send_mission())
-
+        self.assessment_alert = QtMultimedia.QSound("./imgs/s1.wav")
         self.update_ff_camera()
         self.manual_drive_mode_button.clicked.connect(self.manual_mode_callback)
 
@@ -215,9 +213,12 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             traceback.print_exc()
 
     def state_update_test(self, transition):
-        #print()
-        #print('updating state from: ', self.test_state_test)
-        #print('With transition: ', transition)
+        print()
+        print('updating state from: ', self.test_state_test)
+        print('With transition: ', transition)
+
+        if transition == 'anomaly_found':
+            self.test_state_test.state = ControlModeState.anomaly_found
 
         # Planning state changes
         if self.test_state_test.state == ControlModeState.planning and transition =='started_assessing':
@@ -235,18 +236,16 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         if self.test_state_test.state == ControlModeState.executing and transition == 'auto_selected':
             self.test_state_test.state = ControlModeState.executing_auto_stopped
         if self.test_state_test.state == ControlModeState.executing_auto_stopped and transition == 'manual_drive_selected':
-            self.test_state_test.state = ControlModeState.executing_manual_stopped
+            self.test_state_test.state = ControlModeState.executing_manual
         if self.test_state_test.state == ControlModeState.executing_auto_stopped and transition == 'auto_drive_selected':
             self.test_state_test.state = ControlModeState.executing_auto_driving
 
         # Manual driving state changes
-        if self.test_state_test.state == ControlModeState.executing and transition == 'manual_drive_selected':
-            self.test_state_test.state = ControlModeState.executing_manual_driving
-        if self.test_state_test.state == ControlModeState.executing_manual_driving and transition == 'stopping':
-            self.test_state_test.state = ControlModeState.executing_manual_stopped
+        if self.test_state_test.state == ControlModeState.planning and transition ==  'manual_drive_selected':
+            self.test_state_test.state = ControlModeState.executing_manual
         if self.test_state_test.state == ControlModeState.executing and transition == 'manual_selected':
-            self.test_state_test.state = ControlModeState.executing_manual_stopped
-        if self.test_state_test.state == ControlModeState.executing_manual_stopped and transition == 'auto_drive_selected':
+            self.test_state_test.state = ControlModeState.executing_manual
+        if self.test_state_test.state == ControlModeState.executing_manual and transition == 'auto_drive_selected':
             self.test_state_test.state = ControlModeState.executing_auto_stopped
 
         # In mission assessment state change
@@ -254,19 +253,22 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.test_state_test.state = ControlModeState.executing_auto_stopped_assessing
         if self.test_state_test.state == ControlModeState.executing_auto_stopped_assessing and transition == 'completed_assessment':
             self.test_state_test.state = ControlModeState.executing
-        if self.test_state_test.state == ControlModeState.executing_manual_stopped and transition == 'started_assessing':
+        if self.test_state_test.state == ControlModeState.executing_manual and transition == 'started_assessing':
             self.test_state_test.state = ControlModeState.executing_manual_stopped_assessing
         if self.test_state_test.state == ControlModeState.executing_manual_stopped_assessing and transition == 'completed_assessment':
             self.test_state_test.state = ControlModeState.executing
 
+        if self.test_state_test.state == ControlModeState.anomaly_found and transition == 'anomaly_fixed':
+            self.test_state_test.state = ControlModeState.planning
+
         # Mission complete state change
         if self.test_state_test.state == ControlModeState.executing_auto_driving and transition == 'nav_completed':
             self.test_state_test.state = ControlModeState.planning
-        if self.test_state_test.state == ControlModeState.executing_manual_driving and transition == 'nav_completed':
-            self.test_state_test.state = ControlModeState.planning
+        #if self.test_state_test.state == ControlModeState.executing_manual and transition == 'nav_completed':
+        #    self.test_state_test.state = ControlModeState.planning
 
-        #print('to: ', self.test_state_test)
-        #print()
+        print('to: ', self.test_state_test)
+        print()
 
     def check_planning_phase_limit(self):
         # TODO
@@ -320,7 +322,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         try:
             complete = self.mission_manager.update_progress(self.position.x, self.position.y)
             if complete:
-                self.navigation_complete()
+                self.navigation_complete() # TODO when we don't actually have a plan vs we just completed a plan
             img = self.mission_manager.get_overlay_image(self.position.x, self.position.y, to_orientation_rhr(self.heading)+180+90)
             height, width, channel = img.shape
             bytesPerLine = 3 * width
@@ -430,7 +432,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         """
         try:
             if (self.test_state_test.state == ControlModeState.executing_auto_driving
-                    or self.test_state_test == ControlModeState.executing_manual_driving):
+                    or self.test_state_test == ControlModeState.executing_manual):
                 dt = self.update_rate
                 drain_rate = self.batt_drain_rate
                 for o in self.mission_manager.get_active_obstacles():
@@ -538,6 +540,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         try:
             if self.condition == self.COND_ETGOA or self.condition == self.COND_GOA:
                 if self.mission_manager.has_plan():
+                    self.assessment_alert.play()
                     # Maybe add back the current (x,y) location to the beginning of the plan?
                     self.state_update_test('started_assessing')
                     self.splash_of_color(self.competency_assessment_frame, color='light grey', timeout=0)
@@ -598,11 +601,11 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             if self.condition == self.COND_ETGOA:
                 self.etgoa.preprocess()
             if self.test_state_test.state == ControlModeState.executing:
-                # This is a terrible workaround for being able to trigger the POI accept button callbacks
-                self.poi_accepted_workaround = True
+                #This is a terrible workaround for being able to trigger the POI accept button callbacks
+                #self.poi_accepted_workaround = True
                 self.accept_poi_button.setEnabled(True)
-                self.accept_poi_button.click()
-                self.poi_accepted_workaround = False
+                #self.accept_poi_button.click()
+                #self.poi_accepted_workaround = False
             self.splash_of_color(self.competency_assessment_frame, color='light grey', timeout=0)
         except Exception as e:
             traceback.print_exc()
@@ -641,7 +644,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
     def manual_mode_callback(self):
         self.stop_mode_button.click()
-        self.accept_poi_button.setStyleSheet('background-color: light grey')
         self.mission_manager.delete_plan()
 
 
@@ -664,7 +666,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
                 # control modes
                 self.automatic_drive_mode_button.setDisabled(True)
-                self.manual_drive_mode_button.setDisabled(True)
+                self.manual_drive_mode_button.setEnabled(True)
 
                 # Manual control buttons
                 self.forward_button_2.setDisabled(True)
@@ -675,7 +677,13 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 # Planning buttons
                 self.poi_selection.setEnabled(True)
                 self.plan_poi_button.setEnabled(True)
-                self.accept_poi_button.setEnabled(True)
+                if self.mission_manager.has_plan():
+                    self.accept_poi_button.setEnabled(True)
+                else:
+                    self.accept_poi_button.setDisabled(True)
+
+                # Mission Control buttons
+                self.request_help_button.setDisabled(True)
 
             if self.test_state_test.state == ControlModeState.planning_assessing:
                 self.splash_of_color(self.manual_drive_mode_button, color='light grey', timeout=0)
@@ -700,6 +708,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.plan_poi_button.setDisabled(True)
                 self.accept_poi_button.setDisabled(True)
 
+                # Mission Control buttons
+                self.request_help_button.setDisabled(True)
+
             if self.test_state_test.state == ControlModeState.executing:
                 self.splash_of_color(self.manual_drive_mode_button, color='light grey', timeout=0)
                 self.splash_of_color(self.automatic_drive_mode_button, color='light grey', timeout=0)
@@ -721,9 +732,15 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 # Planning buttons
                 self.poi_selection.setEnabled(True)
                 self.plan_poi_button.setEnabled(True)
-                self.accept_poi_button.setEnabled(True)
+                if self.mission_manager.has_plan():
+                    self.accept_poi_button.setEnabled(True)
+                else:
+                    self.accept_poi_button.setDisabled(True)
 
-            if self.test_state_test.state == ControlModeState.executing_manual_stopped:
+                # Mission Control buttons
+                self.request_help_button.setEnabled(True)
+
+            if self.test_state_test.state == ControlModeState.executing_manual:
                 self.splash_of_color(self.manual_drive_mode_button, color='green', timeout=0)
                 self.splash_of_color(self.automatic_drive_mode_button, color='light grey', timeout=0)
                 self.splash_of_color(self.stop_mode_button, color='light grey', timeout=0)
@@ -744,33 +761,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 # Planning buttons
                 self.poi_selection.setEnabled(True)
                 self.plan_poi_button.setEnabled(True)
-                self.accept_poi_button.setEnabled(True)
 
-            if self.test_state_test.state == ControlModeState.executing_manual_driving:
-                self.splash_of_color(self.manual_drive_mode_button, color='green', timeout=0)
-                self.splash_of_color(self.automatic_drive_mode_button, color='light grey', timeout=0)
-                self.splash_of_color(self.stop_mode_button, color='light grey', timeout=0)
-
-                # Stop always enabled
-                self.stop_mode_button.setEnabled(True)
-
-                # control modes
-                if self.mission_manager.has_plan():
-                    self.automatic_drive_mode_button.setEnabled(True)
-                else:
-                    self.automatic_drive_mode_button.setDisabled(True)
-                self.manual_drive_mode_button.setEnabled(True)
-
-                # Manual control buttons
-                self.forward_button_2.setEnabled(True)
-                self.back_button_2.setEnabled(True)
-                self.left_button_2.setEnabled(True)
-                self.right_button_2.setEnabled(True)
-
-                # Planning buttons
-                self.poi_selection.setEnabled(True)
-                self.plan_poi_button.setEnabled(True)
-                self.accept_poi_button.setEnabled(True)
+                # Mission Control buttons
+                self.request_help_button.setEnabled(True)
 
             if self.test_state_test.state == ControlModeState.executing_manual_stopped_assessing:
                 self.splash_of_color(self.manual_drive_mode_button, color='light grey', timeout=0)
@@ -789,11 +782,14 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.back_button_2.setDisabled(True)
                 self.left_button_2.setDisabled(True)
                 self.right_button_2.setDisabled(True)
+                self.accept_poi_button.setDisabled(True)
 
                 # Planning buttons
                 self.poi_selection.setDisabled(True)
                 self.plan_poi_button.setDisabled(True)
-                self.accept_poi_button.setDisabled(True)
+
+                # Mission Control buttons
+                self.request_help_button.setDisabled(True)
 
             if self.test_state_test.state == ControlModeState.executing_auto_stopped:
                 self.splash_of_color(self.manual_drive_mode_button, color='light grey', timeout=0)
@@ -816,7 +812,13 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 # Planning buttons
                 self.poi_selection.setEnabled(True)
                 self.plan_poi_button.setEnabled(True)
-                self.accept_poi_button.setEnabled(True)
+                if self.mission_manager.has_plan():
+                    self.accept_poi_button.setEnabled(True)
+                else:
+                    self.accept_poi_button.setDisabled(True)
+
+                # Mission Control buttons
+                self.request_help_button.setEnabled(True)
 
             if self.test_state_test.state == ControlModeState.executing_auto_driving:
                 self.splash_of_color(self.manual_drive_mode_button, color='light grey', timeout=0)
@@ -839,7 +841,13 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 # Planning buttons
                 self.poi_selection.setEnabled(True)
                 self.plan_poi_button.setEnabled(True)
-                self.accept_poi_button.setEnabled(True)
+                if self.mission_manager.has_plan():
+                    self.accept_poi_button.setEnabled(True)
+                else:
+                    self.accept_poi_button.setDisabled(True)
+
+                # Mission Control buttons
+                self.request_help_button.setEnabled(True)
 
             if self.test_state_test.state == ControlModeState.executing_auto_stopped_assessing:
                 self.splash_of_color(self.manual_drive_mode_button, color='light grey', timeout=0)
@@ -864,8 +872,11 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.plan_poi_button.setDisabled(True)
                 self.accept_poi_button.setDisabled(True)
 
-            if self.poi_accepted_workaround:
-                self.accept_poi_button.setEnabled(True)
+                # Mission Control buttons
+                self.request_help_button.setDisabled(True)
+
+            #if self.poi_accepted_workaround:
+            #    self.accept_poi_button.setEnabled(True)
 
         except Exception as e:
             traceback.print_exc()
@@ -939,6 +950,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                     self.mission_manager.deactivate_obstacles(addressed_anomalies)
                     # TODO anomaly
                     if self.condition == self.COND_ETGOA:
+                        self.state_update_test('anomaly_fixed')
                         self.start_competency_assessment()
                     else:
                         self.finish_competency_assessment(None)
@@ -976,6 +988,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                     anomaly = True
 
         if anomaly:
+            self.stop_mode_button.click()
+            self.state_update_test('anomaly_found')
             self.robot_battery_slider.setEnabled(True)
             self.robot_gps_slider.setEnabled(True)
             self.robot_power_slider.setEnabled(True)
@@ -983,8 +997,10 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.update_mission_control_text(self.mission_control.get_response(True), 'red')
             self.state_update_test('help_request')
         else:
+            self.stop_mode_button.click()
+            self.state_update_test('anomaly_fixed')
             self.update_mission_control_text(self.mission_control.get_response(False), 'green')
-        self.stop_mode_button.click()
+
         time.sleep(0.1)  # just in case some asynch messes up the periodic button activation and this click
 
     def splash_of_color(self, obj, color='green', timeout=500):

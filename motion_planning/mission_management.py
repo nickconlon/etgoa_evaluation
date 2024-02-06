@@ -266,27 +266,7 @@ class MissionManager:
         # if [rx, ry]-[px, py] < d -> remove [px, py] from plan
         # if plan empty -> delete plan
         # TODO fix this with new POI structure
-        '''
         if self.has_plan():
-            current_goal = self.ordered_goals[0]
-            dp = np.linalg.norm(np.asarray([robot_x, robot_y])-np.asarray([current_goal.x, current_goal.y]))
-            if dp <= 2:
-                self.captured_goal = True
-
-            dw = np.linalg.norm(np.array([robot_x, robot_y]) - self.current_plan[0])
-            if dw <= 0.1:
-                self.current_plan = np.delete(self.current_plan, [0], axis=0)
-                print('removing completed waypoint')
-
-                if len(self.current_plan) == 0:
-                    print('removing completed plan')
-                    self.delete_plan()
-                    dh = np.linalg.norm(np.asarray([robot_x, robot_y]) - np.asarray([self.home.x, self.home.y]))
-                    if dh <= 2:
-                        self.captured_home = True
-        '''
-        if self.has_plan():
-
             dw = np.linalg.norm(np.array([robot_x, robot_y]) - self.current_plan[0])
             if dw <= 0.1:
                 self.current_plan = np.delete(self.current_plan, [0], axis=0)
@@ -307,7 +287,7 @@ class MissionManager:
                     else:
                         self.captured_goal = True
                         print('captured goal')
-
+        print(self.captured_goal, self.captured_home)
         if self.has_plan():
             complete = False
         else:

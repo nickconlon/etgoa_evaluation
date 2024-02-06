@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QMainWindow
 import PyQt5.QtGui as QtGui
 import PyQt5.QtCore as QtCore
+from PyQt5 import QtMultimedia
 import qdarktheme
 
 from concurrent_task.concurrent_ui import Ui_MainWindow
@@ -41,6 +42,7 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
         self.start_task = False
         self.next_idx = 1
         self.total = 50
+        self.alert = QtMultimedia.QSound("./imgs/s2.wav")
 
     def set_legend(self, imgpath):
         img = get_image(imgpath)
@@ -159,6 +161,7 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
                 self.next_button.setEnabled(True)
                 self.submit_button.setEnabled(True)
                 self.splash_of_color(self.frame, color='red', timeout=1000)
+                self.alert.play()
                 img, self.minerals2means, self.mineral_of_interest = read_next(
                     self.data_path.format(self.next_idx, 'yaml'), self.data_path.format(self.next_idx, 'png'))
                 self.request_time = time.time()

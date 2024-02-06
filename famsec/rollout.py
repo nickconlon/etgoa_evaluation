@@ -111,11 +111,14 @@ def example_rollout():
     iterations = 10
     known_obs = {}
     time_offset = 0.0
-    waypoints = np.array([[0, 0], goal])
+    waypoints = np.array([[4, 7]])
+    wm_settings_path = '/data/webots/settings.yaml'
+    wm_executable_path = '/home/cohrint-skynet/catkin_ws/src/etgoa_evaluation/world_model/worlds/rollout_simulation.wbt'
     do_rollout(pos, orientation, goal,
                batt_level, batt_rate, vel_rate,
                known_obs, time_offset,
-               waypoints, max_time, iterations)
+               waypoints, max_time, iterations,
+               wm_settings_path, wm_executable_path)
 
 
 if __name__ == '__main__':

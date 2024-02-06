@@ -37,8 +37,7 @@ if __name__ == '__main__':
 
     wpx = settings['wp_x']
     wpy = settings['wp_y']
-    waypoints = np.dstack((wpx, wpy)).squeeze()
-
+    waypoints = np.dstack((wpx, wpy)).squeeze(axis=0)
     [print("{}:{}".format(x, y)) for (x,y) in settings.items()]
 
     reset_robot(robot, start, orientation)

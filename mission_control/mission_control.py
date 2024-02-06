@@ -40,6 +40,6 @@ class MissionControl:
 
     def check_strategy(self, power, gps, battery):
         if self.battery == battery and self.gps == gps and self.power == power:
-            return "Looks like that fixed the anomaly!\nPlea replan to the POI."
+            return "Looks like that fixed the anomaly!\nPlease replan to the POI."
         else:
             return ""
