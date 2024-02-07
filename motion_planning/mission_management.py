@@ -25,11 +25,10 @@ class MissionManager:
         self.captured_goal = False
         self.captured_home = False
         self.all_obstacles = {}
-        self.active_obstacles = set()
+        self.active_obstacle_ids = set()
         self.visualize = False
         self.mission_area_image = np.asarray(Image.open(mission_area_image_path))
         self.mission_area_bounds = np.array([[area_minx, area_maxx], [area_miny, area_maxy]])
-        self.obstructions = obstructions
         self.hazards = hazards
         self.power_draws = power_draws
         self.setup_obstacles(obstructions)
@@ -37,6 +36,14 @@ class MissionManager:
         self.setup_obstacles(hazards)
         self.activate_obstacles([o.id for o in hazards])
         self.activate_obstacles([o.id for o in power_draws])
+
+    def remove_obstacles(self, obstacles):
+        for o in obstacles:
+            print('deleting', o)
+            if o in self.all_obstacles:
+                self.all_obstacles.pop(o)
+            if o in self.active_obstacle_ids:
+                self.active_obstacle_ids.remove(o)
 
     def setup_obstacles(self, obstacles):
         for o in obstacles:
@@ -50,21 +57,21 @@ class MissionManager:
         print('activating obstacles', ob_ids)
         for ob_id in ob_ids:
             if ob_id in self.all_obstacles:
-                self.active_obstacles.add(ob_id)
+                self.active_obstacle_ids.add(ob_id)
             else:
                 print('Cannot find obstacle to activate ', ob_id)
 
     def deactivate_obstacles(self, ob_ids):
         print('deactivating obstacles', ob_ids)
         for ob_id in ob_ids:
-            if ob_id in self.active_obstacles:
-                self.active_obstacles.remove(ob_id)
+            if ob_id in self.active_obstacle_ids:
+                self.active_obstacle_ids.remove(ob_id)
             else:
                 print('Cannot find obstacle to deactivate ', ob_id)
 
     def get_active_obstacles(self):
         active = []
-        for ob_id in self.active_obstacles:
+        for ob_id in self.active_obstacle_ids:
             if ob_id in self.all_obstacles:
                 active.append(self.all_obstacles[ob_id])
         return active
@@ -96,7 +103,7 @@ class MissionManager:
             else:
                 self.plan_waypoints(robot_x, robot_y, poi.x, poi.y)
                 self.ordered_goals = [poi]
-        print('going to', self.ordered_goals)
+        print('going to', [o.name for o in self.ordered_goals])
 
         self.current_goal = poi
         self.captured_goal = False
@@ -108,22 +115,25 @@ class MissionManager:
         # RRT point [y, x]
         start = np.array([robot_x, robot_y])
         # RRT Obstacle
-        obstacles = self.obstructions
+        obstacles = [o for oid, o in self.all_obstacles.items() if 'o' in oid]
         # [ymin ymax], [xmin, xmax]
         bounds = self.mission_area_bounds
         plan = rrt.plan_rrt_webots(start, goal, obstacles, bounds,
                                    visualize_route=self.visualize,
-                                   filename='')
-        # Add back on the current position
-        plan = np.vstack((np.array([robot_x, robot_y]), plan))
-        self.update_plan(plan)
+                                   filename='tst.png')
+        if len(plan) == 0:
+            print('Planning failed')
+        else:
+            # Add back on the current position
+            plan = np.vstack((np.array([robot_x, robot_y]), plan))
+            self.update_plan(plan)
 
     def plan_to_from(self, robot_x, robot_y, goal_x, goal_y, home_x, home_y):
         # RRT goal = [y, x]
         goal = np.array([goal_x, goal_y])
         robot = np.array([robot_x, robot_y])
         home = np.array([home_x, home_y])
-        obstacles = self.obstructions
+        obstacles = [o for oid, o in self.all_obstacles.items() if 'o' in oid]
         bounds = self.mission_area_bounds
         # from robot (x, y) to goal (x, y)
         plan_to = rrt.plan_rrt_webots(robot, goal, obstacles, bounds,
@@ -139,7 +149,6 @@ class MissionManager:
         else:
             plan_to = np.vstack((np.array([robot_x, robot_y]), plan_to))
             plan = np.vstack((plan_to, plan_from))
-
             self.update_plan(plan)
 
     def get_overlay_image_aspen(self, robot_x, robot_y, robot_h, path_color='black'):
@@ -159,29 +168,33 @@ class MissionManager:
         for id, poi in self.pois.items():
             if id.upper() == 'H' or id.upper() == 'HOME':
                 ax.scatter([poi.x], [poi.y], c='gold', s=200, marker='*')
-                ax.annotate(poi.name, (poi.x + 4, poi.y), size='large', va='center', ha='center')
+                ax.annotate(poi.name, (poi.x, poi.y), size='large', va='center', ha='center')
             else:
                 ax.add_patch(Circle((poi.x, poi.y), radius=1, facecolor='green', edgecolor='black'))
                 ax.annotate(poi.name, (poi.x, poi.y), size='large', va='center', ha='center')
 
-        # plot the obstacles
-        for o in self.obstructions:
-            # Can't activate/fix/deactivate obstructions!
-            rx, ry = o.center
-            c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='red', facecolor='red', alpha=0.5)
-            ax.add_patch(c)
-
-        for o in self.hazards:
-            if o.id in self.active_obstacles:
+        legend_obstacles = 0
+        legend_hazards = 0
+        legend_powers = 0
+        for oid, o in self.all_obstacles.items():
+            if 'o' in oid:
+                rx, ry = o.center
+                c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='red', facecolor='red', alpha=0.5)
+                ax.annotate(o.id, (rx, ry), size='large', va='center', ha='center')
+                ax.add_patch(c)
+                legend_obstacles = 1
+            if 'h' in oid:
                 rx, ry = o.center
                 c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='orange', facecolor='orange', alpha=0.5)
+                ax.annotate(o.id, (rx, ry), size='large', va='center', ha='center')
                 ax.add_patch(c)
-
-        for o in self.power_draws:
-            if o.id in self.active_obstacles:
+                legend_hazards = 1
+            if 'b' in oid:
                 rx, ry = o.center
                 c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='blue', facecolor='blue', alpha=0.5)
+                ax.annotate(o.id, (rx, ry), size='large', va='center', ha='center')
                 ax.add_patch(c)
+                legend_powers = 1
 
         # plot the plan
         if self.has_plan():
@@ -205,15 +218,15 @@ class MissionManager:
         lines = [Line2D([], [], color="white", marker=u'$\u2191$', markersize=10, markeredgecolor='b', markerfacecolor="blue")]
         descriptions = ['Robot Position']
 
-        if len(self.power_draws) > 0:
+        if legend_powers:
             line2 = Line2D([], [], color="white", marker='o', markersize=10, markerfacecolor="blue", alpha=0.5)
             lines.append(line2)
             descriptions.append('Battery draws')
-        if len(self.obstructions) > 0:
+        if legend_obstacles:
             line3 = Line2D([], [], color="white", marker='o', markersize=10, markerfacecolor="red", alpha=0.5)
             lines.append(line3)
             descriptions.append('Blocked areas')
-        if len(self.hazards) > 0:
+        if legend_hazards:
             line4 = Line2D([], [], color="white", marker='o', markersize=10, markerfacecolor="orange", alpha=0.5)
             lines.append(line4)
             descriptions.append('Hazardous areas')

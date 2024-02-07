@@ -19,6 +19,7 @@ from motion_planning.projections import Projector, PointOfInterest, get_heading,
 from famsec import goa, rollout, et_goa
 from base_interface.settings import Settings
 from mission_control.mission_control import MissionControl
+from motion_planning.rrt import Obstacle
 
 
 class BaseInterface(QMainWindow, Ui_MainWindow):
@@ -168,6 +169,38 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.assessment_finished = QtMultimedia.QSound("./imgs/s3.wav")
         self.update_ff_camera()
         self.manual_drive_mode_button.clicked.connect(self.manual_mode_callback)
+
+        ##################
+        # Dynamically add/delete obstacles panel
+        self.obstacle_scroll.addItem('Add new obstacle')
+        self.obs_set = {}
+        self.obs_counter = 5
+        self.obstacle_confirm.clicked.connect(self.add_obstacle)
+
+    def add_obstacle(self):
+        try:
+            if self.obstacle_scroll.currentText() == 'Add new obstacle':
+                r = float(self.obstacle_r.toPlainText())
+                x = float(self.obstacle_x.toPlainText())
+                y = float(self.obstacle_y.toPlainText())
+                oid = 'o{}'.format(self.obs_counter)
+                self.obs_counter += 1
+                ob = Obstacle(Obstacle.circle, [x, y], [r], oid)
+                self.mission_manager.setup_obstacles([ob])
+
+                self.obs_set[oid] = ob
+                self.obstacle_scroll.addItem(oid)
+                self.obstacle_r.setText('')
+                self.obstacle_x.setText('')
+                self.obstacle_y.setText('')
+            else:
+                oid = self.obstacle_scroll.currentText()
+                idx = self.obstacle_scroll.currentIndex()
+                self.obstacle_scroll.removeItem(idx)
+                self.mission_manager.remove_obstacles([oid])
+
+        except Exception as e:
+            traceback.print_exc()
 
     def periodic_update(self):
         """
@@ -512,6 +545,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                                                 tofrom=False)
             if self.mission_manager.get_plan() is None:
                 self.splash_of_color(self.frame_2, color='red')
+                t = self.mission_text.text()
+                t += "\n{} is unreachable!".format(self.poi_selected)
+                self.mission_text.setText(t)
             else:
                 self.splash_of_color(self.frame_2, color='green')
 
@@ -985,7 +1021,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.accept_poi_button.setStyleSheet('background-color: light grey')
         anomaly = False
         for ob_id, o in self.mission_manager.all_obstacles.items():
-            if ob_id in self.mission_manager.active_obstacles:
+            if ob_id in self.mission_manager.active_obstacle_ids:
                 if o.distance(self.position.x, self.position.y) <= o.axis[0]:
                     anomaly = True
 

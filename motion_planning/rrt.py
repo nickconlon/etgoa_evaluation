@@ -336,7 +336,7 @@ class RRT:
         q_start = Node(start_point)
         node_list = [q_start]
 
-        for _ in range(k):
+        for kk in range(k):
             x_rand = self.get_random_valid_vertex()  # x_rand is a randomly sampled point
 
             # Bias the search towards the goal.
@@ -385,6 +385,7 @@ class RRT:
 
             # Check for goals
             if (goal_point is not None) and (np.linalg.norm(x_new.point - goal_point) < 1e-5):
+                print('Found goal in {} iterations'.format(kk))
                 break
 
         return node_list
@@ -415,17 +416,19 @@ class RRT:
 
 
 def plan_rrt_webots(start, goal, obstacles, bounds, visualize_route=False, filename='./plot.png'):
-    iterations = 5000
+    iterations = 500
     planner = RRT(bounds, 'holonomic')
     for ob in obstacles:
         planner.add_obstacle(ob)
 
     nodes = planner.rrt_star(start, goal, iterations,  2)  # np.linalg.norm(bounds / 10.))
-    waypoints = planner.get_path(nodes, goal)
-    waypoints = np.flip(waypoints, axis=0)
-    if visualize_route:
-        visualize(bounds, planner.get_obstacles_dict(), nodes, goal, filename)
-
+    if len(nodes) > 0:
+        waypoints = planner.get_path(nodes, goal)
+        waypoints = np.flip(waypoints, axis=0)
+        if visualize_route:
+            visualize(bounds, planner.get_obstacles_dict(), nodes, goal, filename)
+    else:
+        waypoints = []
     return waypoints
 
 

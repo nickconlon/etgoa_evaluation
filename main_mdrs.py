@@ -101,7 +101,7 @@ class InterfaceImpl(BaseInterface):
         try:
             if self.mission_manager.has_plan():
                 plan = self.mission_manager.current_plan
-                actives = [a for a in self.mission_manager.active_obstacles if 'h' in a]
+                actives = [a for a in self.mission_manager.active_obstacle_ids if 'h' in a]
                 msg = Plan()
                 msg.xs = list(plan[:, 0])
                 msg.ys = list(plan[:, 1])
