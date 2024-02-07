@@ -16,11 +16,14 @@ import famsec.factorized_machine_self_confidence as fmc
 px = 0
 py = 1
 pz = 2
-ori = [3, 4, 5, 6]  # [x, y, z, w]
+ori_x = 3  # [x, y, z, w]
+ori_y = 4  # [x, y, z, w]
+ori_z = 5  # [x, y, z, w]
+ori_w = 6  # [x, y, z, w]
 speed = 7
 obs = 8
-gx = 9
-gy = 10
+goal_x = 9
+goal_y = 10
 t_robot = 11  # seconds since start
 t_wall = 12  # seconds since epoch
 
@@ -81,7 +84,7 @@ def outcome_obstacles(rollouts, outcome):
     """
     quality = []
     for rollout in rollouts:
-        goal = rollout[-1, gx:gy + 1]
+        goal = rollout[-1, goal_x:goal_y + 1]
         pos = rollout[-1, px:py + 1]
         d = 1  # np.linalg.norm(pos)
         quality.append(d)
@@ -99,7 +102,7 @@ def outcome_survey_quality(rollouts, outcome):
     """
     quality = []
     for rollout in rollouts:
-        goal = rollout[-1, gx:gy + 1]
+        goal = rollout[-1, goal_x:goal_y + 1]
         pos = rollout[-1, px:py + 1]
         d = np.linalg.norm(pos - goal)
         if d < 1.0:
@@ -120,7 +123,7 @@ def outcome_poi_arrival(rollouts, outcome):
     """
     arrived = []
     for rollout in rollouts:
-        goal = [2.286757010644174, -17.808005333287724]
+        goal = rollout[-1, goal_x:goal_y + 1]
         pos = rollout[-1, px:py + 1]
         d = np.linalg.norm(pos - goal)
         if d < 2.0:
@@ -128,6 +131,7 @@ def outcome_poi_arrival(rollouts, outcome):
         else:
             arrived.append(0)
     return arrived
+
 
 def outcome_home_arrival(rollouts, outcome):
     """
@@ -140,7 +144,7 @@ def outcome_home_arrival(rollouts, outcome):
     """
     arrived = []
     for rollout in rollouts:
-        goal = rollout[-1, gx:gy + 1]
+        goal = rollout[-1, goal_x:goal_y + 1]
         pos = rollout[-1, px:py + 1]
         d = np.linalg.norm(pos - goal)
         if d < 2.0:

@@ -129,8 +129,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.etgoa.set_pred_paths([self.rollout_path.format(i) for i in range(10)])
             self.rollout_thread = None
             self.et_goa_threshold = settings.et_goa_threshold
-            self.objective_3_text.setText(self.objective_3_text.text().replace('X', '50'))
-            self.objective_5_text.setText(self.objective_5_text.text().replace('X', '10'))
+            self.objective_2_text.setText(self.objective_2_text.text().replace('X', '5'))
+            self.objective_3_text.setText(self.objective_3_text.text().replace('X %', '50%'))
         self.mqa = [0] * len(settings.et_goa_stds)
         self.goa = [0] * 5  # []
 
@@ -633,8 +633,11 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             if goa_ret is not None:
                 self.assessment_finished.play()
                 self.state_update_test('completed_assessment')
-                labels = [self.objective_1_assmt, self.objective_2_assmt, self.objective_3_assmt,
-                          self.objective_4_assmt, self.objective_5_assmt]
+                labels = [self.objective_1_assmt, # arrive at POI
+                          self.objective_2_assmt, # time
+                          self.objective_3_assmt, # battery level
+                          self.objective_4_assmt, # avoid stuff
+                          self.objective_5_assmt]
                 goas = []
                 for gg, label in zip(goa_ret.items(), labels):
                     outcome = gg[1]

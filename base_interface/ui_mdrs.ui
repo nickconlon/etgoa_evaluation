@@ -454,7 +454,7 @@
       <rect>
        <x>10</x>
        <y>0</y>
-       <width>251</width>
+       <width>261</width>
        <height>41</height>
       </rect>
      </property>
@@ -493,7 +493,7 @@
       <enum>QFrame::Box</enum>
      </property>
      <property name="text">
-      <string>All obstacles avoided</string>
+      <string>Avoid all known hazards</string>
      </property>
     </widget>
     <widget class="QLabel" name="objective_2_text">
@@ -514,7 +514,7 @@
       <enum>QFrame::Box</enum>
      </property>
      <property name="text">
-      <string>Drive from POI to Home</string>
+      <string>Arrive within X minutes</string>
      </property>
     </widget>
     <widget class="QLabel" name="objective_3_text">
@@ -535,7 +535,7 @@
       <enum>QFrame::Box</enum>
      </property>
      <property name="text">
-      <string>Battery level always &gt; X %</string>
+      <string>Keep battery level above X %</string>
      </property>
     </widget>
     <widget class="QLabel" name="objective_1_text">
@@ -556,7 +556,7 @@
       <enum>QFrame::Box</enum>
      </property>
      <property name="text">
-      <string>Drive from Home to POI</string>
+      <string>Arrive at chosen POI</string>
      </property>
     </widget>
     <widget class="QLabel" name="objective_5_text">
@@ -577,15 +577,15 @@
       <enum>QFrame::Box</enum>
      </property>
      <property name="text">
-      <string>Mission complete &lt; X mins</string>
+      <string>TODO</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_27">
      <property name="geometry">
       <rect>
-       <x>260</x>
+       <x>270</x>
        <y>0</y>
-       <width>131</width>
+       <width>171</width>
        <height>41</height>
       </rect>
      </property>
