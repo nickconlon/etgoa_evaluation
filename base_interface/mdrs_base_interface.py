@@ -180,6 +180,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
     def add_obstacle(self):
         try:
             if self.obstacle_scroll.currentText() == 'Add new obstacle':
+                print('adding new obstacle')
                 r = float(self.obstacle_r.toPlainText())
                 x = float(self.obstacle_x.toPlainText())
                 y = float(self.obstacle_y.toPlainText())
@@ -187,6 +188,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.obs_counter += 1
                 ob = Obstacle(Obstacle.circle, [x, y], [r], oid)
                 self.mission_manager.setup_obstacles([ob])
+                self.mission_manager.activate_obstacles([ob.id])
 
                 self.obs_set[oid] = ob
                 self.obstacle_scroll.addItem(oid)
@@ -194,10 +196,12 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.obstacle_x.setText('')
                 self.obstacle_y.setText('')
             else:
+                print('deleting obstacle')
                 oid = self.obstacle_scroll.currentText()
                 idx = self.obstacle_scroll.currentIndex()
                 self.obstacle_scroll.removeItem(idx)
                 self.mission_manager.remove_obstacles([oid])
+                self.obstacle_scroll.setCurrentIndex(0)
 
         except Exception as e:
             traceback.print_exc()
@@ -253,6 +257,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
         if transition == 'anomaly_found':
             self.test_state_test.state = ControlModeState.anomaly_found
+
+        if transition == 'started_planning':
+            self.test_state_test.state = ControlModeState.planning
 
         # Planning state changes
         if self.test_state_test.state == ControlModeState.planning and transition =='started_assessing':
@@ -539,6 +546,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         """
         self.accept_poi_button.setStyleSheet('background-color: light grey')
         if self.poi_selected:
+            self.state_update_test('started_planning')
             self.mission_manager.delete_plan()
             print('Planning route to POI: ', self.poi_selected)
             self.mission_manager.plan_known_poi(self.position.x, self.position.y, self.poi_selected.replace('POI ', ''),

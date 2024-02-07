@@ -36,6 +36,7 @@ class MissionManager:
         self.setup_obstacles(hazards)
         self.activate_obstacles([o.id for o in hazards])
         self.activate_obstacles([o.id for o in power_draws])
+        self.activate_obstacles([o.id for o in obstructions])
 
     def remove_obstacles(self, obstacles):
         for o in obstacles:
@@ -177,24 +178,25 @@ class MissionManager:
         legend_hazards = 0
         legend_powers = 0
         for oid, o in self.all_obstacles.items():
-            if 'o' in oid:
-                rx, ry = o.center
-                c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='red', facecolor='red', alpha=0.5)
-                ax.annotate(o.id, (rx, ry), size='large', va='center', ha='center')
-                ax.add_patch(c)
-                legend_obstacles = 1
-            if 'h' in oid:
-                rx, ry = o.center
-                c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='orange', facecolor='orange', alpha=0.5)
-                ax.annotate(o.id, (rx, ry), size='large', va='center', ha='center')
-                ax.add_patch(c)
-                legend_hazards = 1
-            if 'b' in oid:
-                rx, ry = o.center
-                c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='blue', facecolor='blue', alpha=0.5)
-                ax.annotate(o.id, (rx, ry), size='large', va='center', ha='center')
-                ax.add_patch(c)
-                legend_powers = 1
+            if  oid in self.active_obstacle_ids:
+                if 'o' in oid:
+                    rx, ry = o.center
+                    c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='red', facecolor='red', alpha=0.5)
+                    ax.annotate(o.id, (rx, ry), size='large', va='center', ha='center')
+                    ax.add_patch(c)
+                    legend_obstacles = 1
+                if 'h' in oid:
+                    rx, ry = o.center
+                    c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='orange', facecolor='orange', alpha=0.5)
+                    ax.annotate(o.id, (rx, ry), size='large', va='center', ha='center')
+                    ax.add_patch(c)
+                    legend_hazards = 1
+                if 'b' in oid:
+                    rx, ry = o.center
+                    c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='blue', facecolor='blue', alpha=0.5)
+                    ax.annotate(o.id, (rx, ry), size='large', va='center', ha='center')
+                    ax.add_patch(c)
+                    legend_powers = 1
 
         # plot the plan
         if self.has_plan():

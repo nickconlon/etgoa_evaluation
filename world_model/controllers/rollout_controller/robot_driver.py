@@ -189,7 +189,7 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, batt_level, batt_rat
         """
         if vel_rate <= 0.01:
             print('impossible velocity')
-            for t in np.arange(0, max_time, 0.0064):
+            for t in np.arange(0, max_time/2, 0.064):
                 pose = robot.getSelf().getField('translation').getSFVec3f()
                 orient = robot.getSelf().getField('rotation').getSFRotation()
                 vel = robot.getSelf().getVelocity()
