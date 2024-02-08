@@ -166,7 +166,7 @@ def update_machine(_current_state_machine, _current_state, _goal, _next_waypoint
     return _state_machine
 
 
-def run(goal, robot, wheels, gps, compass, known_obstacles, batt_level, batt_rate, vel_rate, waypoints, waypoint_index, run_number, run_prefix, max_time):
+def run(goal, robot, wheels, gps, compass, known_obstacles, batt_level, battery_rate, velocity_rate, waypoints, waypoint_index, run_number, run_prefix, max_time):
     velocity_noise = np.random.normal(loc=0.0, scale=0.5)
     battery = batt_level
     state_path = '/data/webots/{}{}_state.npy'.format(run_prefix, run_number)
@@ -177,13 +177,13 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, batt_level, batt_rat
     state = []
     t0 = robot.getTime()
 
-
-
     """
     Main loop
     """
     state_machine = StateMachine.driving
     while robot.step(TIME_STEP) != -1:
+        vel_rate = velocity_rate
+        batt_rate = battery_rate
         """
         Capture the current state of the robot
         """
@@ -203,6 +203,16 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, batt_level, batt_rat
         pose = robot.getSelf().getField('translation').getSFVec3f()
         orient = robot.getSelf().getField('rotation').getSFRotation()
         vel = robot.getSelf().getVelocity()
+        hit_obstacles = []
+        for oid, o in known_obstacles.items():
+            if np.linalg.norm(np.asarray(pose[:2]) - np.asarray(o['center'])) < o['radius']:
+                hit_obstacles.append(oid)
+                if 'h' in oid:
+                    vel_rate = o['data']
+                if 'b' in oid:
+                    batt_rate = o['data']
+        hit_obstacles = '_'.join(hit_obstacles)
+        print('hit ', hit_obstacles)
         battery = np.maximum(battery - 0.064 * batt_rate+(np.random.normal(0.0, 0.05)), 0.0)
         state_object = StateObject()
         state_object.set_state(pose, orient, vel[:2], battery, sample_time, time.time(), goal, waypoint_counter)
@@ -222,21 +232,11 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, batt_level, batt_rat
                 next_waypoint = []
             else:
                 next_waypoint = waypoints[waypoint_counter]
-
         # Robot has more driving to do
         elif state_machine == StateMachine.driving:
             speed, arrived = goto(next_waypoint, gps, compass, velocity_noise)
             speed *= vel_rate  # adjust based on "real" speed
-            '''
-            # Sand trap functionality
-            sand_pos = get_obstacles(robot, ['SAND'])
-            if len(sand_pos) == 1:
-                sand_pos = [2.4, 3.4]
-                offset = 0.2
-                robot_pos = robot.getSelf().getField('translation').getSFVec3f()
-                if sand_pos[1] - offset < robot_pos[1] < sand_pos[1] + offset:
-                    speed *= np.random.normal(loc=0.3, scale=0.5, size=4)
-            '''
+
             for i, wheel in enumerate(wheels):
                 wheel.setVelocity(speed[i])
 

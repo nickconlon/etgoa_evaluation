@@ -90,7 +90,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.poi_accepted = None
         self.accept_poi_button.clicked.connect(self.accept_poi_callback)
         self.plan_poi_button.clicked.connect(self.plan_poi_callback)
-        self.plan_poi_button.clicked.connect(self.start_competency_assessment)
+        #self.plan_poi_button.clicked.connect(self.start_competency_assessment)
         self.poi_selection.currentTextChanged.connect(self.select_poi_callback)
 
         #################
@@ -558,6 +558,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.mission_text.setText(t)
             else:
                 self.splash_of_color(self.frame_2, color='green')
+        self.start_competency_assessment()
 
     def accept_poi_callback(self):
         """
@@ -584,8 +585,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         """
         try:
             if self.condition == self.COND_ETGOA or self.condition == self.COND_GOA:
+                self.assessment_started.play()
                 if self.mission_manager.has_plan():
-                    self.assessment_started.play()
                     # Maybe add back the current (x,y) location to the beginning of the plan?
                     self.state_update_test('started_assessing')
                     self.splash_of_color(self.competency_assessment_frame, color='light grey', timeout=0)
@@ -603,6 +604,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                     self.rollout_thread.known_obstacles = {}
                     self.rollout_thread.goal = plan[-1]
                     self.rollout_thread.battery = self.battery_level
+                    self.rollout_thread.known_obstacles = self.mission_manager.get_all_active_obstacles()
                     if (self.test_state_test.state == ControlModeState.planning_assessing
                             or self.test_state_test.state == ControlModeState.executing_manual_stopped_assessing):
                         # During mission planning, parameter values are at their baseline
@@ -619,6 +621,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                     print(self.rollout_thread)
                     self.rollout_thread.finished.connect(self.finish_competency_assessment)
                     self.rollout_thread.start()
+                else:
+                    goas = {x:0 for x in range(5)}
+                    self.finish_competency_assessment(goas)
         except Exception as e:
             traceback.print_exc()
 

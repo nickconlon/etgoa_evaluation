@@ -41,14 +41,6 @@ if __name__ == '__main__':
     [print("{}:{}".format(x, y)) for (x,y) in settings.items()]
 
     reset_robot(robot, start, orientation)
-    set_obstacles(robot, known_obs)
-    all_obstacles = ['BOX1', 'BOX2', 'BOX3', 'BOX4', 'SAND', 'WALL']
-    
-    obstacles_pos = get_obstacles(robot, known_obs)
-    
-    a = set(all_obstacles)
-    b = set(known_obs)
-    remove_obstacles(robot, b.symmetric_difference(a))
 
     # Real run first, so we don't have to play games resetting obstacles
     t0 = time.time()

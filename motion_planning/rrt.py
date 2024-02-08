@@ -24,7 +24,7 @@ class Obstacle:
     rectangle: center (x,y), axis = [width, height]
     """
 
-    def __init__(self, obs_type, obs_center, obs_axis, name, obs_angle=0, buffer=None, data=1):
+    def __init__(self, obs_type, obs_center, obs_axis, name, obs_angle=0, buffer=0.05, data=1):
         self.center = obs_center
         self.axis = obs_axis
         self.type = obs_type
@@ -41,6 +41,9 @@ class Obstacle:
 
     def __str__(self):
         return 'Obstacle ID: {}\nCenter: ({},{})\nAxis: {}\n'.format(self.id, *self.center, self.axis)
+
+    def to_dict(self):
+        return {'center': self.center, 'radius': self.axis[0], 'id': self.id, 'data': self.data}
 
 class RRT:
     """

@@ -161,10 +161,10 @@ def compute_outcomes(time_offset=0):
     goas = {}
     functions = {
         'poi_arrival': [outcome_poi_arrival, 1, [-0.5, 0.5, 1.5], 2],
-        'home_arrival': [outcome_home_arrival, 1, [-0.5, 0.5, 1.5], 2],
+        'time': [outcome_time, 60 * 5, [-0.5, 0.5, 1.5], 2],
         'battery': [outcome_battery, 20, [-0.5, 0.5, 1.5], 2],
         'obstacles': [outcome_obstacles, 1, [-0.5, 0.5, 1.5], 2],
-        'time': [outcome_time, 60*10, [-0.5, 0.5, 1.5], 2],
+        'TODO': [outcome_home_arrival, 1, [-0.5, 0.5, 1.5], 2],
     }
 
     for k, v in functions.items():
