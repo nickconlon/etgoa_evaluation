@@ -37,19 +37,34 @@ class Settings:
                 settings = yaml.safe_load(file)
 
                 for id, poi in settings['pois'].items():
-                    p = PointOfInterest(poi[0][0], poi[0][1], name=id)
+                    p = PointOfInterest(*poi['center'], name=id)
                     self.pois.append(p)
 
                 for id, obs in settings['obstructions'].items():
-                    ob = Obstacle(Obstacle.circle, obs[0], obs[1], id, data=obs[2])
+                    ob = Obstacle(Obstacle.circle,
+                                  obs['center'],
+                                  [obs['radius']],
+                                  id,
+                                  data=obs['effect'],
+                                  visible=obs['visible'])
                     self.obstructions.append(ob)
 
                 for id, obs in settings['hazards'].items():
-                    ob = Obstacle(Obstacle.circle, obs[0], obs[1], id, data=obs[2])
+                    ob = Obstacle(Obstacle.circle,
+                                  obs['center'],
+                                  [obs['radius']],
+                                  id,
+                                  data=obs['effect'],
+                                  visible=obs['visible'])
                     self.hazards.append(ob)
 
                 for id, obs in settings['power_draws'].items():
-                    ob = Obstacle(Obstacle.circle, obs[0], obs[1], id, data=obs[2])
+                    ob = Obstacle(Obstacle.circle,
+                                  obs['center'],
+                                  [obs['radius']],
+                                  id,
+                                  data=obs['effect'],
+                                  visible=obs['visible'])
                     self.power_draws.append(ob)
 
                 self.record_path = settings['record_path']
@@ -86,20 +101,20 @@ def create():
     batt_drain_rate     % per second
     """
     d = {
-        'pois':{'A': [[8.0, -0.5], [1], 1],
-                'B': [[-3.0, 33.0], [1], 1],
-                'C': [[-9.0, 13.0], [1], 1],
-                'D': [[-16.0, -16.0], [1], 1],
-                'H': [[2.0, -18.0], [1], 1]
+        'pois':{'A': {'center': [1, 9]},
+                'B': {'center': [4, 7]},
+                'H': {'center': [2.5, 0]}
                 },
-        'obstructions': {'o1': [[10, 15], [2], 1],
-                         'o2': [[4, -5], [5], 1],
-                         'o3': [[12, 21], [2.5], 1]
+        'obstructions': {
+            'o1': {'center': [4, 5], 'radius': 1, 'effect': 1, 'visible':True}, #{'center': [], 'radius': r, 'effect': e, 'visible': T/F,'active': T/F}
+            'o2': {'center': [1, 7], 'radius': 1.2, 'effect': 1, 'visible':True},
+            'o3': {'center': [-0.5, 6.5], 'radius': 1, 'effect': 1, 'visible':True}
                          },
-        'hazards': {'h1': [[-5, -15], [2.5], 0.25],
+        'hazards': {
+            'h1': {'center': [5, 3], 'radius': 1, 'effect': 0.005, 'visible':True},
                     },
-        'power_draws': {'b1': [[-8, 0], [5], 1.5],
-                        'b2': [[-12, 5], [5], 1.5]
+        'power_draws': {
+            'b1': {'center': [2, 5], 'radius': 1, 'effect': 5.0, 'visible':True}
                         },
         'area': 'gazebo',
         'mode': 'cu',
@@ -108,7 +123,7 @@ def create():
         'map_path': './imgs/display_area.png',
         'logo_path': './imgs/logo.png',
         'rollout_path': '/data/webots/rollout{}_state.npy',
-        'condition': 'TELEM',  # TELEM, GOA, ET-GA
+        'condition': 'ET-GOA',  # TELEM, GOA, ET-GOA
         'latitude_center': 40.01045433,
         'longitude_center': 105.24432153,
         'anomalies': False,
@@ -119,7 +134,7 @@ def create():
         'speed_anomaly': 0.25,  # % change in speed
         'available_pois': ['A', 'B', 'C', 'D'],
         'show_surveys':  [True, True, True, True], #baseline trust, post planning trust, post execution trust, usability
-        'training': True
+        'training': False
     }
 
     print(yaml.dump(d))

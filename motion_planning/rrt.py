@@ -24,7 +24,7 @@ class Obstacle:
     rectangle: center (x,y), axis = [width, height]
     """
 
-    def __init__(self, obs_type, obs_center, obs_axis, name, obs_angle=0, buffer=0.05, data=1):
+    def __init__(self, obs_type, obs_center, obs_axis, name, obs_angle=0, buffer=0.05, data=1, visible=True):
         self.center = obs_center
         self.axis = obs_axis
         self.type = obs_type
@@ -32,6 +32,8 @@ class Obstacle:
         self.angle = obs_angle
         self.buffer = buffer
         self.data = data
+        self.active = True # only use in RRT if active
+        self.visible = visible # only display on UI if visible
 
     def distance(self, x, y):
         """

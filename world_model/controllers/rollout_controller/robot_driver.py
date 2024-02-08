@@ -212,7 +212,7 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, batt_level, battery_
                 if 'b' in oid:
                     batt_rate = o['data']
         hit_obstacles = '_'.join(hit_obstacles)
-        print('hit ', hit_obstacles)
+        # TODO include hit_obstacles in state
         battery = np.maximum(battery - 0.064 * batt_rate+(np.random.normal(0.0, 0.05)), 0.0)
         state_object = StateObject()
         state_object.set_state(pose, orient, vel[:2], battery, sample_time, time.time(), goal, waypoint_counter)

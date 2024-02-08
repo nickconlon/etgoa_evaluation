@@ -38,10 +38,11 @@ class MissionManager:
         self.activate_obstacles([o.id for o in power_draws])
         self.activate_obstacles([o.id for o in obstructions])
 
-    def get_all_active_obstacles(self):
+    def get_all_active_visible_obstacles(self):
         obs = {}
         for oid in self.active_obstacle_ids:
-            obs[oid] = self.all_obstacles[oid].to_dict()
+            if self.all_obstacles[oid].visible:
+                obs[oid] = self.all_obstacles[oid].to_dict()
         return obs
     def remove_obstacles(self, obstacles):
         for o in obstacles:
