@@ -177,14 +177,14 @@ class MissionManager:
                 ax.scatter([poi.x], [poi.y], c='gold', s=200, marker='*')
                 ax.annotate(poi.name, (poi.x, poi.y), size='large', va='center', ha='center')
             else:
-                ax.add_patch(Circle((poi.x, poi.y), radius=1, facecolor='green', edgecolor='black'))
+                ax.add_patch(Circle((poi.x, poi.y), radius=0.5, facecolor='green', edgecolor='black'))
                 ax.annotate(poi.name, (poi.x, poi.y), size='large', va='center', ha='center')
 
         legend_obstacles = 0
         legend_hazards = 0
         legend_powers = 0
         for oid, o in self.all_obstacles.items():
-            if  oid in self.active_obstacle_ids:
+            if oid in self.active_obstacle_ids and o.visible:
                 if 'o' in oid:
                     rx, ry = o.center
                     c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='red', facecolor='red', alpha=0.5)
@@ -322,8 +322,8 @@ if __name__ == '__main__':
     lat_center, lon_center = 40.01045433, 105.24432153
     projector = Projector(lat_center, lon_center)
     projector.setup()
-    obs = [rrt.Obstacle(rrt.Obstacle.circle, (-5, 5), [2], 'ob')]
-    pois = [PointOfInterest(10, 10, name='H'), PointOfInterest(-2, -10, name='A')]
+    obs = [rrt.Obstacle(rrt.Obstacle.circle, (0, 7), [1], 'ob')]
+    pois = [PointOfInterest(0, 0, name='H'), PointOfInterest(2, 2, name='A')]
     m = MissionManager('../imgs/display_area.png', projector, pois, obs, [], [])
     m.plan_to_from(0, 0, pois[0].x, pois[0].y, pois[1].x, pois[1].y)
     img = m.get_overlay_image_aspen(0, 0, 45)
