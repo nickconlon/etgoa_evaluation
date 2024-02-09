@@ -29,30 +29,34 @@ Build with ROS:
 catkin build 
 ```
 
-Start some ROS environment (I use the base Jackal): 
+Start some ROS environment. For example, I use the base Jackal Gazebo for sim: 
 ```commandline
 roslaunch jackal_gazebo empty_world.launch
 ```
 
-Start the waypoint follower:
-```commandline
-python3 main_waypoint_follower.py
-```
-
 Adjust any settings for this episode:
 ```commandline
-vim settings.yaml
+vim scenarios/settings.yaml
+```
+
+Start the waypoint follower:
+```commandline
+start_waypoint_follower.sh
+```
+
+Start the gazebo bridge:
+```commandline
+start_bridge.sh
 ```
 
 Start the user interface:
 ```commandline
-python3 main_ros_ui.py
+start_ui.sh
 ```
 
 The interface should be started. Telemetry should be flowing. Select a POI with the dropdown, plan, 
-and accept the plan to unlock the drive button. Drive button signals the robot to drive autonomously 
-along the planned waypoints to the POI.
-
+and accept the plan to unlock the autonomous mode buttons. Alternatively use the teleoperation buttons
+to drive manually.
 
 ### Building
 Rebuild the GUI with the pyqt5 Designer then use this command:
