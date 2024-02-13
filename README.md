@@ -32,6 +32,7 @@ catkin build
 Start some ROS environment. For example, I use the base Jackal Gazebo for sim: 
 ```commandline
 roslaunch jackal_gazebo empty_world.launch
+roslaunch jackal_gazebo empty_world.launch config:=front_bumblebee2
 ```
 
 Adjust any settings for this episode:
@@ -62,4 +63,9 @@ to drive manually.
 Rebuild the GUI with the pyqt5 Designer then use this command:
 ```commandline
 pyuic5 -x ui.ui -o ui.py
+```
+
+Figuring out where webcams are attached when there are several cameras available:
+```commandline
+ll /dev/v4l/by-id/
 ```

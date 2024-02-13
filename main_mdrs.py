@@ -30,7 +30,7 @@ class InterfaceImpl(BaseInterface):
     def __init__(self, settings_path):
         BaseInterface.__init__(self, settings_path)
         rospy.init_node('user_interface', anonymous=True)
-        self.img = None
+        self.img_msg = None
         self.bridge = CvBridge()
         self.accept_poi_button.clicked.connect(self.ros_send_waypoint_plan)
         self.stop_mode_button.clicked.connect(lambda: self.ros_control_waypoint_follower(0.0))
@@ -151,12 +151,7 @@ class InterfaceImpl(BaseInterface):
         :return:
         """
         try:
-            self.msg = msg
-            #img = bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
-            #height, width, channel = img.shape
-            #bytesPerLine = 3 * width
-            #qImg = QtGui.QImage(img, width, height, bytesPerLine, QtGui.QImage.Format_RGB888)
-            #self.camera_label.setPixmap(QtGui.QPixmap(qImg))
+            self.img_msg = msg
         except Exception as e:
             traceback.print_exc()
 
@@ -167,11 +162,11 @@ class InterfaceImpl(BaseInterface):
         :return:
         """
         try:
-            if self.msg is not None:
+            if self.img_msg is not None:
                 #img = pil_image.open('./imgs/ff_camera.jpg')
                 #img = img.resize((481, 461))
                 #img = np.array(img)
-                img = self.bridge.imgmsg_to_cv2(self.msg, desired_encoding='passthrough')
+                img = self.bridge.imgmsg_to_cv2(self.img_msg, desired_encoding='passthrough')
                 height, width, channel = img.shape
                 bytesPerLine = 3 * width
                 qImg = QtGui.QImage(img, width, height, bytesPerLine, QtGui.QImage.Format_RGB888)
