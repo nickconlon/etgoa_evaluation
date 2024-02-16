@@ -140,7 +140,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         print('Setting up Mission Control')
         self.mission_control = MissionControl(self.gps_frequency,
                                               self.power_number,
-                                              self.battery_level,
+                                              self.battery_number,
                                               100, 100, 5)
         self.mission_control.set_mission_pois(settings.available_pois)
         if settings.mode == 'cu':
@@ -1020,7 +1020,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                     print('Anomaly strategy successful! at t=', self.mission_time)
                     self.assessment_started_sound.play()
                     self.old_battery_level = self.battery_level
-                    self.battery_level = 100
+                    self.battery_level = 100 # TODO switch only if a battery anomaly!!!!!!!!!!
                     self.robot_battery_slider.setDisabled(True)
                     self.robot_gps_slider.setDisabled(True)
                     self.robot_power_slider.setDisabled(True)

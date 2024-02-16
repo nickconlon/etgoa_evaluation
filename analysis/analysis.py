@@ -333,9 +333,11 @@ def plot_usability_scores(conditions, base='../data/'):
     plt.show()
 
 def plot_anomaly_response_time(conditions, base='../data/'):
-
+    time_condition = []
+    labels = ['C1', 'C2', 'C3']
     for condition in conditions:
         paths = glob.glob(os.path.join(base, '*_primary_{}.csv'.format(condition)))
+        response_times = []
         for p in paths:
             df = pd.read_csv(p)
             d_anomaly = df['anomaly state']
@@ -348,9 +350,8 @@ def plot_anomaly_response_time(conditions, base='../data/'):
 
             start = -1
             end = -1
-            response_times = []
             for anomaly, req, t in zip(d_anomaly, d_help, d_t):
-                if start < 0 and anomaly != '' and 'Please follow this procedure' in req:
+                if start < 0 and anomaly != '' and  'Looks like that fixed the anomaly' not in req:
                     start = t
                 elif start > 0 and 'Looks like that fixed the anomaly' in req:
                     end = t
@@ -359,21 +360,27 @@ def plot_anomaly_response_time(conditions, base='../data/'):
                     response_times.append(end - start)
                     start = -1
                     end = -1
-            print(response_times)
+        time_condition.append(response_times)
+
+    plt.boxplot(time_condition, labels=labels[0:len(time_condition)])
+    plt.show()
 
 
+def plot_mission_objectives(conditions, base='../data/'):
+    for condition in conditions:
+        pass
 
 if __name__ == '__main__':
     experimental_conditions = ['TELEM', 'GOA', 'ET-GOA']
     # Primary navigation and exploration task
     plot_anomaly_response_time(experimental_conditions)
 
-    plot_goa_over_time(experimental_conditions)
-    plot_mqa_over_time(experimental_conditions)
+    #plot_goa_over_time(experimental_conditions)
+    #plot_mqa_over_time(experimental_conditions)
     # TODO response time between anomaly and help request
 
     # Secondary task
-    plot_secondary_performance(experimental_conditions)
+    #plot_secondary_performance(experimental_conditions)
 
     # Surveys
     #plot_trust_survey_responses(experimental_conditions)

@@ -34,6 +34,7 @@ class MissionControl:
         if anomaly:
             self.gps = np.random.randint(0, self.gps_max) if 'h' in anomaly_type else self.gps
             self.battery = np.random.randint(1, self.battery_max) if 'b' in anomaly_type else self.battery
+            self.backup_batts_used = self.backup_batts_used + 1 if 'b' in anomaly_type else self.backup_batts_used
             self.power = np.random.randint(5, self.power_max) if 'h' in anomaly_type or 'b' in anomaly_type else self.power
             return self.help_responses[self.GENERAL].format(self.battery, self.gps, self.power)
         else:
@@ -41,7 +42,6 @@ class MissionControl:
 
     def check_strategy(self, power, gps, battery):
         if self.battery == battery and self.gps == gps and self.power == power:
-            self.backup_batts_used += 1
             return "Looks like that fixed the anomaly!\nPlease replan to the POI."
         else:
             return ""
