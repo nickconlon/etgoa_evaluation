@@ -47,7 +47,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--settings",
                         help='path to settings file',
-                        default="./settings.yaml")
+                        default="./scenarios/settings_aspen.yaml")
     args = parser.parse_args()
 
     qdarktheme.enable_hi_dpi()

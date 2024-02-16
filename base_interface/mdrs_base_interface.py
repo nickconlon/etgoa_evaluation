@@ -218,8 +218,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.update_mission_time()
                 self.update_battery_level()
                 self.update_connections()
-                self.update_control_mode_text()
-                self.update_mission_mode_text()
+                self.update_robot_state_text()
                 self.update_battery_text()
                 self.update_velocity_text()
                 self.update_heading_text()
@@ -419,7 +418,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         except Exception as e:
             traceback.print_exc()
 
-    def update_control_mode_text(self):
+    def update_robot_state_text(self):
         """
         Updater for control mode
 
@@ -430,21 +429,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.state_text.setText(text)
         except Exception as e:
             traceback.print_exc()
-
-    def update_mission_mode_text(self):
-        """
-        Updater for mission mode
-
-        :return:
-        """
-        try:
-            text = '{}'.format(self.test_state_test)
-            self.mode_text.setText(text)
-        except Exception as e:
-            traceback.print_exc()
-
-    def update_phase_text(self):
-        pass
 
     def update_position_text(self):
         """
