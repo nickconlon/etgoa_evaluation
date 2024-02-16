@@ -24,7 +24,7 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
         QMainWindow.__init__(self)
         self.setupUi(self)
 
-        settings = Settings('./settings.yaml')
+        settings = Settings(settings_path)
         settings.read()
         self.map = MarsMap('./imgs/mars_map_cropped.png')
         self.set_legend('./imgs/legend.png')
@@ -211,7 +211,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--settings",
                         help='path to settings file',
-                        default="./settings.yaml")
+                        default="./scenarios/settings_aspen.yaml")
     args = parser.parse_args()
 
     qdarktheme.enable_hi_dpi()

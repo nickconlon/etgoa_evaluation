@@ -4,39 +4,67 @@ pois:
   H:
     center: [2.5, 0]
 obstructions:
+# left side obstacles
   o1:
-    center: [4, 5]
-    radius: 1
+    center: [3, 5.5]
+    radius: 0.6
     effect: 1
     visible: true
   o2:
-    center: [3, 6]
-    radius: 1
+    center: [3.5, 4.75]
+    radius: 0.6
+    effect: 1
+    visible: true
+  o11:
+    center: [4.5, 4.75]
+    radius: 0.6
+    effect: 1
+    visible: true
+  o12:
+    center: [3.25, 5.25]
+    radius: 0.6
+    effect: 1
+    visible: true
+# top obstacles
+  o9:
+    center: [2.75, 9.25]
+    radius: 0.6
+    effect: 1
+    visible: true
+  o8:
+    center: [2.25, 8.25]
+    radius: 0.6
     effect: 1
     visible: true
   o3:
-    center: [1, 9]
-    radius: 1
+    center: [1.5, 7.5]
+    radius: 0.5
+    effect: 1
+    visible: true
+  o10:
+    center: [2, 7.5]
+    radius: 0.4
     effect: 1
     visible: true
   o4:
-    center: [0, 8]
-    radius: 1
+    center: [0.75, 7.5]
+    radius: 0.5
     effect: 1
     visible: true
+# right side low obstacles
   o5:
-    center: [-1, 0]
-    radius: 1
+    center: [0, 1.75]
+    radius: 0.6
     effect: 1
     visible: true
   o6:
-    center: [0, 1]
-    radius: 1
+    center: [0.75, 2]
+    radius: 0.6
     effect: 1
     visible: true
   o7:
-    center: [0.5, 2]
-    radius: 1
+    center: [1.25, 2.25]
+    radius: 0.6
     effect: 1
     visible: true
 hazards:
@@ -46,7 +74,7 @@ hazards:
     effect: 0.005
     visible: true
 power_draws: {}
-area: gazebo
+area: aspen
 mode: cu
 robot_name: case
 record_path: ./data
@@ -59,9 +87,10 @@ longitude_center: 105.24432153
 anomalies: false
 et_goa_threshold: 0.05
 et_goa_stds: [1.5, 1.5, 0.5, 1.5]
-batt_drain_anomaly: 0.05
+batt_drain_anomaly: 10
 num_backup_batteries: 10
 speed_anomaly: 0.25
 available_pois: [A, B, C, D]
 show_surveys: [true, true, true, true]
 training: false
+map: t3

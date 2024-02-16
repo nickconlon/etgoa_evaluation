@@ -54,7 +54,7 @@ class SurveyRecorder:
 
 
 class PrimaryTaskRecorder(DataRecorderBase):
-    def __init__(self, condition, fname):
+    def __init__(self, condition, configuration, fname):
         """
         position (latitude, longitude, altitude)
         heading (degrees from N)
@@ -67,36 +67,39 @@ class PrimaryTaskRecorder(DataRecorderBase):
         """
         header = ['latitude', 'longitude', 'altitude',
                   'heading', 'velocity',
-                  'control mode', 'mission mode',
+                  'state',
                   'battery number', 'battery remaining',
                   'power value', 'gps frequency',
-                  'help request', 'help response',
+                  'anomaly state',
+                  'mission control text',
                   'goa', 'mqa',
                   'timestamp',
-                  'condition']
+                  'condition', 'configuration']
         DataRecorderBase.__init__(self, fname, header)
         self.write_header()
         self.condition = condition
+        self.configuration = configuration
 
     def add_row(self, latitude, longitude, altitude,
                 heading, velocity,
-                control_mode, mission_mode,
+                state,
                 battery_number, battery_remaining,
                 power_value, gps_value,
-                participant_help_request, mission_control_response,
+                experiencing_anomaly,
+                mission_control_text,
                 goa, mqa,
                 mission_time):
         try:
             row = [latitude, longitude, altitude,
                    heading, velocity,
-                   control_mode, mission_mode,
+                   state,
                    battery_number, battery_remaining,
                    power_value, gps_value,
-                   participant_help_request,
-                   mission_control_response,
+                   experiencing_anomaly,
+                   mission_control_text,
                    goa, mqa,
                    mission_time,
-                   self.condition]
+                   self.condition, self.configuration]
             self.record(row)
         except Exception as e:
             traceback.print_exc()

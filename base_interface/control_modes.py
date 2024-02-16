@@ -30,15 +30,15 @@ class ControlModeState:
                     'Autonomous Drive',
 
                     'Planning',
-                    'Planning|Assessing',
+                    'Planning | Assessing',
                     'Executing',
-                    'Executing|Manual',
-                    'Executing|Manual|Driving',
-                    'Executing|Manual|Stopped|Assessing',
-                    'Executing|Auto|Stopped',
-                    'Executing|Auto|Driving',
-                    'Executing|Auto|Stopped|Assessing',
-                    'Anomaly',
+                    'Executing | Manual',
+                    'Executing | Manual | Driving',
+                    'Executing | Manual | Assessing',
+                    'Executing | Auto | Stopped',
+                    'Executing | Auto | Driving',
+                    'Executing | Auto | Assessing',
+                    'Executing | Requesting Help',
                     'Completed']
 
     def __init__(self, mode):

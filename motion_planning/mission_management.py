@@ -14,7 +14,7 @@ class MissionManager:
     OUTDOOR = 'outdoor'
 
     def __init__(self, mission_area_image_path, projector, pois, obstructions, hazards, power_draws):
-        area_miny, area_maxy, area_minx, area_maxx = -2, 10, -2, 5
+        area_miny, area_maxy, area_minx, area_maxx = -2, 10, -0.5, 5
         self.display_bounds = [-3, 12, -3, 12]  # minx, maxx, miny, maxy
         self.projector = projector
         self.pois = {poi.name: poi for poi in pois}
@@ -24,6 +24,7 @@ class MissionManager:
         self.all_goals = None
         self.captured_goal = False
         self.captured_home = False
+        self.hit_known_hazards = 0
         self.all_obstacles = {}
         self.active_obstacle_ids = set()
         self.visualize = False
@@ -187,20 +188,20 @@ class MissionManager:
             if oid in self.active_obstacle_ids and o.visible:
                 if 'o' in oid:
                     rx, ry = o.center
-                    c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='red', facecolor='red', alpha=0.5)
-                    ax.annotate(o.id, (rx, ry), size='large', va='center', ha='center')
+                    c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='black', facecolor='red', alpha=0.5, hatch='++')
+                    #ax.annotate(o.id, (rx, ry), size='large', va='center', ha='center')
                     ax.add_patch(c)
                     legend_obstacles = 1
                 if 'h' in oid:
                     rx, ry = o.center
                     c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='orange', facecolor='orange', alpha=0.5)
-                    ax.annotate(o.id, (rx, ry), size='large', va='center', ha='center')
+                    #ax.annotate(o.id, (rx, ry), size='large', va='center', ha='center')
                     ax.add_patch(c)
                     legend_hazards = 1
                 if 'b' in oid:
                     rx, ry = o.center
                     c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='blue', facecolor='blue', alpha=0.5)
-                    ax.annotate(o.id, (rx, ry), size='large', va='center', ha='center')
+                    #ax.annotate(o.id, (rx, ry), size='large', va='center', ha='center')
                     ax.add_patch(c)
                     legend_powers = 1
 

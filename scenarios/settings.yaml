@@ -52,3 +52,4 @@ speed_anomaly: 0.25
 available_pois: [A, B, C, D]
 show_surveys: [true, true, true, true]
 training: false
+map: s1

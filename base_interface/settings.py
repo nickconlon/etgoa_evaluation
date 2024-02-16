@@ -30,6 +30,7 @@ class Settings:
         self.robot_name = None
         self.mode = None
         self.training = None
+        self.map = None
 
     def read(self):
         try:
@@ -86,6 +87,7 @@ class Settings:
                 self.robot_name = settings['robot_name']
                 self.mode = settings['mode']
                 self.training = settings['training']
+                self.map = settings['map']
 
         except Exception as e:
             traceback.print_exc()
@@ -134,7 +136,8 @@ def create():
         'speed_anomaly': 0.25,  # % change in speed
         'available_pois': ['A', 'B', 'C', 'D'],
         'show_surveys':  [True, True, True, True], #baseline trust, post planning trust, post execution trust, usability
-        'training': False
+        'training': False,
+        'map': 'm1'
     }
 
     print(yaml.dump(d))

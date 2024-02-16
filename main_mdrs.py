@@ -152,6 +152,7 @@ class InterfaceImpl(BaseInterface):
         """
         try:
             self.img_msg = msg
+            self.sensor2_connected = self.mission_time
         except Exception as e:
             traceback.print_exc()
 
@@ -163,9 +164,6 @@ class InterfaceImpl(BaseInterface):
         """
         try:
             if self.img_msg is not None:
-                #img = pil_image.open('./imgs/ff_camera.jpg')
-                #img = img.resize((481, 461))
-                #img = np.array(img)
                 img = self.bridge.imgmsg_to_cv2(self.img_msg, desired_encoding='passthrough')
                 height, width, channel = img.shape
                 bytesPerLine = 3 * width
@@ -175,10 +173,12 @@ class InterfaceImpl(BaseInterface):
             traceback.print_exc()
 
     def teleop_action(self):
-        msg = Twist()
-        msg.linear.x = self.teleoperation_actions['x']
-        msg.angular.z = self.teleoperation_actions['z']
-        self.control_pub.publish(msg)
+        print(self.battery_level)
+        if self.battery_level > 0:
+            msg = Twist()
+            msg.linear.x = self.teleoperation_actions['x']
+            msg.angular.z = self.teleoperation_actions['z']
+            self.control_pub.publish(msg)
 
     def teleop_press(self, x, z):
         self.teleoperation_actions['x'] = x

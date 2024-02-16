@@ -182,17 +182,20 @@ def plot_mqa_over_time(conditions, base='../data/'):
             df = pd.read_csv(p)
             d_mqa = df['mqa'].to_numpy()
             d_t = df['timestamp'].to_numpy()
-            modes = df['mission mode'].tolist()
+            modes = df['state'].tolist()
             planning = []
             executing = []
             assessing = []
-            for t, mode in enumerate(modes):
-                if mode == 'Execution':
+            anomaly = []
+            for t, mode in zip(d_t, modes):
+                if 'Executing' in mode and 'Assessing' not in mode:
                     executing.append(t)
-                elif mode == 'Assessing':
+                elif 'Assessing' in mode:
                     assessing.append(t)
-                elif mode == 'Planning':
+                elif 'Planning' in mode:
                     planning.append(t)
+                elif 'Anomaly' in mode:
+                    anomaly.append(t)
             d_t = d_t[1:]
             d_mqa = d_mqa[1:]
 
@@ -201,23 +204,24 @@ def plot_mqa_over_time(conditions, base='../data/'):
 
             i = 0
             for mqa, t in zip(d_mqa, d_t):
-                mqas = mqa.split('_')
+                mqas = mqa.split('|')
                 if len(mqas) == 3:
                     data_mqa[i] = np.array([0.0, 0.0, 0.0, 0.0])
                 else:
                     data_mqa[i] = np.array([float(x) for x in mqas])
                 data_t[i] = t
                 i += 1
-            t = np.arange(0, len(data_t))
 
+            t = data_t
             plt.plot(t, data_mqa[:, 0], label='x pos')
             plt.plot(t, data_mqa[:, 1], label='y pos')
             plt.plot(t, data_mqa[:, 2], label='speed')
             plt.plot(t, data_mqa[:, 3], label='battery')
 
             plt.scatter(planning, [1.05] * len(planning), color='green', marker='s', label='Planning')
-            plt.scatter(assessing, [1.05] * len(assessing), color='red', marker='s', label='Assessing')
+            plt.scatter(assessing, [1.05] * len(assessing), color='orange', marker='s', label='Assessing')
             plt.scatter(executing, [1.05] * len(executing), color='blue', marker='s', label='Executing')
+            plt.scatter(anomaly, [1.05] * len(anomaly), color='red', marker='s', label='Anomaly')
 
             plt.ylim([0, 1.1])
             plt.legend()
@@ -243,17 +247,17 @@ def plot_goa_over_time(conditions, base='../data/'):
                     data_goa[i] = np.array([0, 0, 0, 0, 0])
                     data_t[i] = t
                 else:
-                    goas = goa.split('_')
+                    goas = goa.split('|')
                     data_goa[i] = np.array([float(x) for x in goas]) + [0.01, 0.02, 0.03, 0.04, 0.05]
                     data_t[i] = t
                 i += 1
 
-            t = np.arange(0, len(data_t))
+            t = data_t
             plt.plot(t, data_goa[:, 0], label='arrive POI')
-            plt.plot(t, data_goa[:, 1], label='arrive Home')
+            plt.plot(t, data_goa[:, 1], label='Mission time')
             plt.plot(t, data_goa[:, 2], label='Battery')
             plt.plot(t, data_goa[:, 3], label='Obstacles avoided')
-            plt.plot(t, data_goa[:, 4], label='Mission time')
+            plt.plot(t, data_goa[:, 4], label='TODO')
             plt.ylim([0, 1.1])
             plt.legend()
             plt.title('GOA over time for {}'.format(condition))
@@ -328,11 +332,50 @@ def plot_usability_scores(conditions, base='../data/'):
     plt.title('Usability')
     plt.show()
 
+def plot_anomaly_response_time(conditions, base='../data/'):
+
+    for condition in conditions:
+        paths = glob.glob(os.path.join(base, '*_primary_{}.csv'.format(condition)))
+        for p in paths:
+            df = pd.read_csv(p)
+            d_anomaly = df['anomaly state']
+            d_anomaly.fillna('', inplace=True)
+            d_anomaly = d_anomaly.tolist()
+            d_t = df['timestamp'].to_numpy()
+            d_help = df['mission control text']
+            d_help.fillna('', inplace=True)
+            d_help = d_help.tolist()
+
+            start = -1
+            end = -1
+            response_times = []
+            for anomaly, req, t in zip(d_anomaly, d_help, d_t):
+                if start < 0 and anomaly != '' and 'Please follow this procedure' in req:
+                    start = t
+                elif start > 0 and 'Looks like that fixed the anomaly' in req:
+                    end = t
+
+                if start > 0 and end > 0:
+                    response_times.append(end - start)
+                    start = -1
+                    end = -1
+            print(response_times)
+
+
+
 if __name__ == '__main__':
     experimental_conditions = ['TELEM', 'GOA', 'ET-GOA']
+    # Primary navigation and exploration task
+    plot_anomaly_response_time(experimental_conditions)
+
+    plot_goa_over_time(experimental_conditions)
+    plot_mqa_over_time(experimental_conditions)
+    # TODO response time between anomaly and help request
+
+    # Secondary task
     plot_secondary_performance(experimental_conditions)
-    #plot_goa_over_time(experimental_conditions)
-    #plot_mqa_over_time(experimental_conditions)
+
+    # Surveys
     #plot_trust_survey_responses(experimental_conditions)
     #plot_usability_scores(experimental_conditions)
 

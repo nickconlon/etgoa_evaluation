@@ -5,6 +5,7 @@ from cv_bridge import CvBridge
 
 from ff_camera import CameraWrapper
 class CameraNode:
+    # TODO : http://wiki.ros.org/rospy_tutorials/Tutorials/WritingImagePublisherSubscriber
     def __init__(self, _rate=10, _device=2, _topic='/img'):
         """
         Receive position data from the robot

@@ -23,7 +23,7 @@ from motion_planning.rrt import Obstacle
 
 
 class BaseInterface(QMainWindow, Ui_MainWindow):
-    COND_TELEMENTRY = 'TELEM'
+    COND_TELEMETRY = 'TELEM'
     COND_GOA = 'GOA'
     COND_ETGOA = 'ET-GOA'
 
@@ -40,7 +40,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.condition = settings.condition
 
         data_fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_primary_{}.csv'.format(settings.condition)
-        self.data_recorder = PrimaryTaskRecorder(self.condition, os.path.join(settings.record_path, data_fname))
+        self.data_recorder = PrimaryTaskRecorder(self.condition, settings.map, os.path.join(settings.record_path, data_fname))
         trust_fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_trust_survey_{}.csv'.format(settings.condition)
         usability_fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_usability_survey_{}.csv'.format(
             settings.condition)
@@ -81,7 +81,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         completed
         """
         self.test_state_test = ControlModeState(ControlModeState.planning)
-        self.push_state = None
+        self.experiencing_anomaly = ''
 
         #################
         # Setup the Mission Planning Panel
@@ -90,7 +90,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.poi_accepted = None
         self.accept_poi_button.clicked.connect(self.accept_poi_callback)
         self.plan_poi_button.clicked.connect(self.plan_poi_callback)
-        #self.plan_poi_button.clicked.connect(self.start_competency_assessment)
         self.poi_selection.currentTextChanged.connect(self.select_poi_callback)
 
         #################
@@ -226,15 +225,18 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.update_heading_text()
                 self.update_position_text()
 
+                mission_control_text = self.request_help_text.text()
+                mission_control_text = mission_control_text.replace('\n', ' ').replace(',', '.')
                 self.data_recorder.add_row(self.position.x, self.position.y, self.position.z,
                                            self.heading, self.velocity,
-                                           self.test_state_test, self.test_state_test,
+                                           self.test_state_test,
                                            self.battery_number, self.battery_level,
                                            self.power_number, self.gps_frequency,
-                                           'N/A', 'N/A',
-                                           "_".join(["{:.2f}".format(x) for x in self.goa]),
-                                           "_".join(["{:.2f}".format(x) for x in self.mqa]),
-                                           datetime.now())
+                                           self.experiencing_anomaly,
+                                           mission_control_text,
+                                           "|".join(["{:.2f}".format(x) for x in self.goa]),
+                                           "|".join(["{:.2f}".format(x) for x in self.mqa]),
+                                           self.mission_time)
                 self.update_map()
                 self.update_et_goa()
 
@@ -278,8 +280,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             next_state = ControlModeState.executing_auto_driving
         if self.test_state_test.state == ControlModeState.executing_auto_driving and transition == 'stopping':
             next_state = ControlModeState.executing_auto_stopped
-        if self.test_state_test.state == ControlModeState.executing and transition == 'auto_selected':
-            next_state = ControlModeState.executing_auto_stopped
+        if self.test_state_test.state == ControlModeState.executing and transition == 'manual_drive_selected':
+            next_state = ControlModeState.executing_manual
         if self.test_state_test.state == ControlModeState.executing_auto_stopped and transition == 'manual_drive_selected':
             next_state = ControlModeState.executing_manual
         if self.test_state_test.state == ControlModeState.executing_auto_stopped and transition == 'auto_drive_selected':
@@ -308,6 +310,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
         # Mission complete state change
         if self.test_state_test.state == ControlModeState.executing_auto_driving and transition == 'nav_completed':
+            self.update_assessment_mission_complete()
+            self.mission_manager.hit_known_hazards = 0
             next_state = ControlModeState.planning
             self.arrive_sound.play()
 
@@ -332,29 +336,41 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
     def update_assessment_mission_complete(self):
         try:
             achieve, fail = 'Achieved', 'Failed to Achieve'
-            self.objective_1_assmt.setText(
-                achieve) if self.mission_manager.captured_goal else self.objective_1_assmt.setText(fail)
+            # Reached the goal
+            achieved = self.mission_manager.captured_goal or self.mission_manager.captured_home
+            print('goal outcome :', self.mission_manager.captured_home, self.mission_manager.captured_goal)
+            self.objective_1_assmt.setText(achieve) if achieved else self.objective_1_assmt.setText(fail)
             self.objective_1_assmt.setStyleSheet(
-                'background-color: {}; color: black'.format('green' if self.mission_manager.captured_goal else 'red'))
+                'background-color: {}; color: black'.format('green' if achieved else 'red'))
 
-            self.objective_2_assmt.setText(
-                achieve) if self.mission_manager.captured_home else self.objective_2_assmt.setText(fail)
+            # Arrived within time limit
+            achieved = self.mission_time < 5 * 60
+            print('time outcome :', self.mission_time)
+            self.objective_2_assmt.setText(achieve) if achieved else self.objective_2_assmt.setText(fail)
             self.objective_2_assmt.setStyleSheet(
-                'background-color: {}; color: black'.format('green' if self.mission_manager.captured_home else 'red'))
+                'background-color: {}; color: black'.format('green' if achieved else 'red'))
 
-            self.objective_3_assmt.setText(achieve) if self.battery_level > 50 else self.objective_3_assmt.setText(fail)
+            # Battery always above threshold
+            achieved = self.battery_level > 50
+            print('battery outcome :', self.battery_level)
+            self.objective_3_assmt.setText(achieve) if achieved else self.objective_3_assmt.setText(fail)
             self.objective_3_assmt.setStyleSheet(
-                'background-color: {}; color: black'.format('green' if self.battery_level > 50 else 'red'))
+                'background-color: {}; color: black'.format('green' if achieved else 'red'))
 
-            # TODO assess obstacle hits?
-            self.objective_4_assmt.setText(achieve) if True else self.objective_4_assmt.setText(fail)
+            # Known hazards avoided
+            achieved = self.mission_manager.hit_known_hazards == 0
+            print('Avoidance outcome :', self.mission_manager.hit_known_hazards)
+            self.objective_4_assmt.setText(achieve) if achieved else self.objective_4_assmt.setText(fail)
             self.objective_4_assmt.setStyleSheet(
-                'background-color: {}; color: black'.format('green' if True else 'red'))
+                'background-color: {}; color: black'.format('green' if achieved else 'red'))
 
-            self.objective_5_assmt.setText(achieve) if self.mission_time < 10 * 60 else self.objective_5_assmt.setText(
-                fail)
+            # TODO outcome
+            achieved = True
+            self.objective_5_assmt.setText(achieve) if achieved else self.objective_5_assmt.setText(fail)
             self.objective_5_assmt.setStyleSheet(
-                'background-color: {}; color: black'.format('green' if self.mission_time < 10 * 60 else 'red'))
+                'background-color: {}; color: black'.format('green' if achieved else 'red'))
+
+
 
         except Exception as e:
             traceback.print_exc()
@@ -393,15 +409,13 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         try:
 
             self.robot_connected_indicator.setStyleSheet(
-                'background-color: {}'.format('green' if abs(self.robot_connected - self.mission_time) < 2 else 'green'))
+                'background-color: {}'.format('green' if abs(self.robot_connected - self.mission_time) < 2 else 'red'))
             self.gps_connected_indicator.setStyleSheet(
-                'background-color: {}'.format('green' if abs(self.gps_connected - self.mission_time) < 2 else 'green'))
+                'background-color: {}'.format('green' if abs(self.gps_connected - self.mission_time) < 2 else 'red'))
             self.camera360_connected_indicator.setStyleSheet(
-                'background-color: {}'.format(
-                    'green' if abs(self.sensor1_connected - self.mission_time) < 2 else 'green'))
+                'background-color: {}'.format('green' if abs(self.sensor1_connected - self.mission_time) < 5 else 'red'))
             self.cameraFF_connected_indicator.setStyleSheet(
-                'background-color: {}'.format(
-                    'green' if abs(self.sensor2_connected - self.mission_time) < 2 else 'green'))
+                'background-color: {}'.format('green' if abs(self.sensor2_connected - self.mission_time) < 5 else 'red'))
         except Exception as e:
             traceback.print_exc()
 
@@ -477,18 +491,29 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         """
         try:
             if (self.test_state_test.state == ControlModeState.executing_auto_driving
-                    or self.test_state_test == ControlModeState.executing_manual):
+                    or self.test_state_test.state == ControlModeState.executing_manual):
                 dt = self.update_rate
                 drain_rate = self.batt_drain_rate
+                anomalies = []
                 for o in self.mission_manager.get_active_obstacles():
-                    if 'b' in o.id:
-                        dh = o.distance(self.position.x, self.position.y)
-                        if dh <= o.axis[0]:
+                    dh = o.distance(self.position.x, self.position.y)
+                    if dh <= o.axis[0]:
+                        if o.visible:
+                            self.mission_manager.hit_known_hazards += 1
+                            print('hit known obstacle at t=', self.mission_time)
+                        else:
+                            print('hit unknown obstacle at t=', self.mission_time)
+                        anomalies.append(o.id)
+                        if 'b' in o.id:
                             drain_rate = o.data
+                self.experiencing_anomaly = '|'.join(anomalies)
+
                 prev_battery = self.battery_level
                 new_battery = float(np.maximum(self.battery_level - dt * drain_rate, 0.0))
                 self.mean_battery.append(abs(prev_battery - new_battery) / dt)
                 self.battery_level = new_battery
+                if self.battery_level <= 0:
+                    self.stop_mode_button.click()
         except Exception as e:
             traceback.print_exc()
 
@@ -538,6 +563,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.poi_selected = self.poi_selection.currentText()
                 print('Selected POI: ', self.poi_selected)
                 self.accept_poi_button.setStyleSheet('background-color: light grey')
+            else:
+                self.poi_selected = None
         except Exception as e:
             traceback.print_exc()
 
@@ -548,6 +575,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         :return:
         """
         self.accept_poi_button.setStyleSheet('background-color: light grey')
+        self.assessment_started_sound.play()
         if self.poi_selected:
             self.state_update_test('started_planning')
             self.mission_manager.delete_plan()
@@ -561,7 +589,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.mission_text.setText(t)
             else:
                 self.splash_of_color(self.frame_2, color='green')
-        self.start_competency_assessment('planning_assessing')
+            self.start_competency_assessment('planning_assessing')
+        else:
+            self.splash_of_color(self.poi_selection, color='red')
 
     def accept_poi_callback(self):
         """
@@ -586,7 +616,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         """
         try:
             if self.condition == self.COND_ETGOA or self.condition == self.COND_GOA:
-                self.assessment_started_sound.play()
                 if self.mission_manager.has_plan():
                     # Maybe add back the current (x,y) location to the beginning of the plan?
                     self.state_update_test('started_assessing')
@@ -606,11 +635,11 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                     self.rollout_thread.goal = plan[-1]
                     self.rollout_thread.battery = self.battery_level
                     self.rollout_thread.known_obstacles = self.mission_manager.get_all_active_visible_obstacles()
+                    self.rollout_thread.time_offset = self.mission_time
                     if trigger == 'planning_assessing':
                         # During mission planning, parameter values are at their baseline
                         self.rollout_thread.velocity_rate = 1.0
                         self.rollout_thread.battery_rate = self.batt_drain_rate
-                        self.rollout_thread.time_offset = 0.0
                     elif trigger == 'et_goa':
                         # During mission execution, parameter values may have changed
                         # TODO readjust this, so we don't accidentally get zero velocity
@@ -624,6 +653,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 else:
                     goas = {x:0 for x in range(5)}
                     self.finish_competency_assessment(goas)
+            else:
+                time.sleep(1)
+                self.assessment_finished_sound.play()
         except Exception as e:
             traceback.print_exc()
 
@@ -636,7 +668,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         """
         try:
             if goa_ret is not None:
-                self.assessment_finished_sound.play()
                 self.state_update_test('completed_assessment')
                 labels = [self.objective_1_assmt, # arrive at POI
                           self.objective_2_assmt, # time
@@ -661,6 +692,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 #self.accept_poi_button.click()
                 #self.poi_accepted_workaround = False
             self.splash_of_color(self.competency_assessment_frame, color='light grey', timeout=0)
+            self.assessment_finished_sound.play()
         except Exception as e:
             traceback.print_exc()
 
@@ -679,6 +711,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 si = self.etgoa.get_si(px, py, pv, pb, t)
                 self.mqa = si
                 if np.min(self.mqa) <= self.et_goa_threshold:
+                    self.assessment_started_sound.play()
                     self.state_update_test('started_assessing')
                     self.stop_mode_button.click()
                     print('Should trigger a stop + reassessment with:')
@@ -983,7 +1016,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 text = self.mission_control.check_strategy(self.power_number, self.gps_frequency,
                                                            self.battery_number)
                 if text != "":
-                    print('Anomaly strategy successful!')
+                    print('Anomaly strategy successful! at t=', self.mission_time)
+                    self.assessment_started_sound.play()
+                    self.battery_level = 100
                     self.robot_battery_slider.setDisabled(True)
                     self.robot_gps_slider.setDisabled(True)
                     self.robot_power_slider.setDisabled(True)
@@ -993,10 +1028,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                     # if the anomaly resolution was successful, deactivate the obstacle
                     addressed_anomalies = []
                     for ob_id, o in self.mission_manager.all_obstacles.items():
-                        if o.distance(self.position.x, self.position.y) <= o.axis[0]:
+                        if o.distance(self.position.x, self.position.y) <= o.axis[0] + 0.1:
                             addressed_anomalies.append(o.id)
                     self.mission_manager.deactivate_obstacles(addressed_anomalies)
-                    # TODO anomaly
                     self.state_update_test('anomaly_fixed')
                     if self.condition == self.COND_ETGOA:
                         self.start_competency_assessment('planning_assessing')

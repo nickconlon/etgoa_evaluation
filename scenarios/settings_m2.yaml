@@ -1,46 +1,74 @@
 pois:
   A:
-    center: [-1.5, 9]
+    center: [1.0, 9.25]
   B:
-    center: [4.5, 7]
+    center: [4.25, 6]
   C:
-    center: [-1.5, 2]
+    center: [0.25, 3]
   H:
     center: [2.5, 0]
 obstructions:
+# left side obstacles
   o1:
-    center: [4, 5]
-    radius: 1
+    center: [3, 5.5]
+    radius: 0.6
     effect: 1
     visible: true
   o2:
-    center: [3, 6]
-    radius: 1
+    center: [3.5, 4.75]
+    radius: 0.6
+    effect: 1
+    visible: true
+  o11:
+    center: [4.5, 4.75]
+    radius: 0.6
+    effect: 1
+    visible: true
+  o12:
+    center: [3.25, 5.25]
+    radius: 0.6
+    effect: 1
+    visible: true
+# top obstacles
+  o9:
+    center: [2.75, 9.25]
+    radius: 0.6
+    effect: 1
+    visible: true
+  o8:
+    center: [2.25, 8.25]
+    radius: 0.6
     effect: 1
     visible: true
   o3:
-    center: [1, 9]
-    radius: 1
+    center: [1.5, 7.5]
+    radius: 0.5
+    effect: 1
+    visible: true
+  o10:
+    center: [2, 7.5]
+    radius: 0.4
     effect: 1
     visible: true
   o4:
-    center: [0, 8]
-    radius: 1
+    center: [0.75, 7.5]
+    radius: 0.5
     effect: 1
     visible: true
+# right side low obstacles
   o5:
-    center: [-1, 0]
-    radius: 1
+    center: [0, 1.75]
+    radius: 0.6
     effect: 1
     visible: true
   o6:
-    center: [0, 1]
-    radius: 1
+    center: [0.75, 2]
+    radius: 0.6
     effect: 1
     visible: true
   o7:
-    center: [0.5, 2]
-    radius: 1
+    center: [1.25, 2.25]
+    radius: 0.6
     effect: 1
     visible: true
 hazards:
@@ -50,17 +78,17 @@ hazards:
     effect: 0.005
     visible: false
   h2:
-    center: [2, 7.5]
+    center: [3, 7.0]
     radius: 1.0
     effect: 0.005
     visible: false
   h3:
-    center: [ -1, 7.5 ]
+    center: [ 0, 7.5 ]
     radius: 0.5
     effect: 0.005
     visible: true
   h4:
-    center: [ -0.2, 6.5]
+    center: [ 0.2, 6.5]
     radius: 0.5
     effect: 0.005
     visible: true
@@ -71,11 +99,11 @@ hazards:
     visible: true
 power_draws:
   b1:
-    center: [-1, 3]
+    center: [0.5, 3.6]
     radius: 1
     effect: 5.0
-    visible: true
-area: gazebo
+    visible: false
+area: aspen
 mode: cu #mdrs or cu
 robot_name: case
 record_path: ./data
@@ -91,6 +119,7 @@ et_goa_stds: [1.5, 1.5, 0.5, 1.5]
 batt_drain_anomaly: 0.05
 num_backup_batteries: 10
 speed_anomaly: 0.25
-available_pois: [A, B]
+available_pois: [A, B, C]
 show_surveys: [true, true, true, true]
 training: true
+map: m2
