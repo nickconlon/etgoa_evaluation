@@ -584,7 +584,7 @@ class Ui_MainWindow(object):
         self.label_2.setText(_translate("MainWindow", "Mission Objectives"))
         self.objective_4_text.setText(_translate("MainWindow", "Avoid all known hazards"))
         self.objective_2_text.setText(_translate("MainWindow", "Arrive within X minutes"))
-        self.objective_3_text.setText(_translate("MainWindow", "Keep battery level above X %"))
+        self.objective_3_text.setText(_translate("MainWindow", "Keep all batteries above X %"))
         self.objective_1_text.setText(_translate("MainWindow", "Arrive at chosen POI"))
         self.objective_5_text.setText(_translate("MainWindow", "TODO"))
         self.label_27.setText(_translate("MainWindow", "Assessment"))

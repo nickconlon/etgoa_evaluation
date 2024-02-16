@@ -496,7 +496,7 @@
       <enum>QFrame::Box</enum>
      </property>
      <property name="text">
-      <string>Keep battery level above X %</string>
+      <string>Keep all batteries above X %</string>
      </property>
     </widget>
     <widget class="QLabel" name="objective_1_text">
