@@ -11,6 +11,7 @@ robot_name = 'case'
 
 class Aspen2Gazebo:
     def __init__(self):
+        print('Starting Bridge')
         rospy.init_node('bridgers', anonymous=True)
         self.pose_pub = rospy.Publisher('/{}/vrpn_client_node/cohrint_{}/pose'.format(robot_name, robot_name),
                                         PoseStamped, queue_size=10)
@@ -19,6 +20,12 @@ class Aspen2Gazebo:
         self.cmd_pub = rospy.Publisher('/jackal_velocity_controller/cmd_vel', Twist, queue_size=10)
         self.cmd_sub = rospy.Subscriber('/{}/jackal_velocity_controller/cmd_vel'.format(robot_name),
                                         Twist, self.cmd_callback)
+
+        self.vel_pub = rospy.Publisher('/{}/jackal_velocity_controller/odom'.format(robot_name), Odometry, queue_size=10)
+        self.vel_sub = rospy.Subscriber('/jackal_velocity_controller/odom', Odometry, self.vel_callback)
+
+    def vel_callback(self, msg):
+        self.vel_pub.publish(msg)
 
     def pose_callback(self, msg):
         def extract_msg(data):
@@ -38,7 +45,6 @@ class Aspen2Gazebo:
         self.pose_pub.publish(newmsg)
 
     def cmd_callback(self, msg):
-        print('cmd published')
         self.cmd_pub.publish(msg)
 
 
