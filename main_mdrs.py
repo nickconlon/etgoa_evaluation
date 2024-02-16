@@ -173,7 +173,6 @@ class InterfaceImpl(BaseInterface):
             traceback.print_exc()
 
     def teleop_action(self):
-        print(self.battery_level)
         if self.battery_level > 0:
             msg = Twist()
             msg.linear.x = self.teleoperation_actions['x']
