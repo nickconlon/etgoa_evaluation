@@ -4,10 +4,10 @@ import time
 import numpy as np
 from PyQt5.QtWidgets import QMessageBox
 
-from surveys.trust_survey import Ui_Trust_Survey
+from surveys.trust_survey import Ui_Survey
 
 
-class Popup(QtWidgets.QDialog, Ui_Trust_Survey):
+class Popup(QtWidgets.QDialog, Ui_Survey):
     def __init__(self, prompt, section, number, total):
         QtWidgets.QDialog.__init__(self)
         self.setupUi(self)

@@ -5,10 +5,10 @@ import numpy as np
 from PyQt5.QtWidgets import QMessageBox
 from datetime import datetime
 
-from surveys.usability_survey import Ui_Trust_Survey
+from surveys.usability_survey import Ui_Survey
 from analysis.data_recorder import SurveyRecorder
 
-class Popup(QtWidgets.QDialog, Ui_Trust_Survey):
+class Popup(QtWidgets.QDialog, Ui_Survey):
     def __init__(self, prompt, number, total):
         QtWidgets.QDialog.__init__(self)
         self.setupUi(self)
@@ -48,16 +48,16 @@ def run_survey_popup_online():
     responses = []
     score = -1
     try:
-        prompts = ['I think that I would like to use this system frequently',
+        prompts = ['I think that I would like to use this system\nfrequently',
                    'I found the system unnecessarily complex',
                    'I thought the system was easy to use',
-                   'I think that I would need the support of a technical\nperson to be able to use this system',
-                   'I found the various functions in the system were well\nintegrated',
-                   'I thought there was too much inconsistency in the system',
-                   'I would imagine that most people would learn to use this\nsystem very quickly',
+                   'I think that I would need the support of a\ntechnical person to be able to use this system',
+                   'I found the various functions in the system\nwere well integrated',
+                   'I thought there was too much inconsistency\nin the system',
+                   'I would imagine that most people would learn\nto use this system very quickly',
                    'I found the system very cumbersome to use',
                    'I felt very confident using the system',
-                   'I need to learn a lot of things before I could get going on\nthis system',
+                   'I need to learn a lot of things before I could\nget going on this system',
                    ]
 
         responses = []
