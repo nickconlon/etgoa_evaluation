@@ -177,6 +177,8 @@ def plot_trust(trust_baseline, trust_planning, trust_execution, save_path):
 
 def plot_mqa_over_time(conditions, base='../data/'):
     for condition in conditions:
+        if condition != 'ET-GOA':
+            continue
         paths = glob.glob(os.path.join(base, '*_primary_{}.csv'.format(condition)))
         for p in paths:
             df = pd.read_csv(p)
@@ -226,12 +228,13 @@ def plot_mqa_over_time(conditions, base='../data/'):
             plt.ylim([0, 1.1])
             plt.legend()
             plt.title('MQA over time for {}'.format(condition))
-            plt.show()
+        plt.show()
 
 
 def plot_goa_over_time(conditions, base='../data/'):
-
     for condition in conditions:
+        if condition == 'TELEM':
+            continue
         paths = glob.glob(os.path.join(base, '*_primary_{}.csv'.format(condition)))
         for p in paths:
             df = pd.read_csv(p)
@@ -253,15 +256,15 @@ def plot_goa_over_time(conditions, base='../data/'):
                 i += 1
 
             t = data_t
-            plt.plot(t, data_goa[:, 0], label='arrive POI')
-            plt.plot(t, data_goa[:, 1], label='Mission time')
-            plt.plot(t, data_goa[:, 2], label='Battery')
-            plt.plot(t, data_goa[:, 3], label='Obstacles avoided')
-            plt.plot(t, data_goa[:, 4], label='TODO')
+            plt.plot(t, data_goa[:, 0], label='arrive POI', color='orange')
+            plt.plot(t, data_goa[:, 1], label='Mission time', color='red')
+            plt.plot(t, data_goa[:, 2], label='Battery', color='blue')
+            plt.plot(t, data_goa[:, 3], label='Obstacles avoided', color='green')
+            plt.plot(t, data_goa[:, 4], label='TODO', color='black')
             plt.ylim([0, 1.1])
             plt.legend()
             plt.title('GOA over time for {}'.format(condition))
-            plt.show()
+        plt.show()
 
 
 def plot_trust_survey_responses(conditions, base='../data/'):
@@ -317,27 +320,25 @@ def plot_secondary_performance(conditions, base='../data/'):
 
 
 def plot_usability_scores(conditions, base='../data/'):
-    usability = []
-    labels = ['C1', 'C2', 'C3']
+    data = []
     for idx, condition in enumerate(conditions):
         paths = glob.glob(os.path.join(base, '*_usability_survey_{}.csv'.format(condition)))
-        data = []
+        tmp_data = []
         for p in paths:
             df = pd.read_csv(p)
             results = df['score'].to_numpy()
             data.append(results[0])
-        usability.append(data)
-    plt.boxplot(usability, labels=labels[0:len(usability)])
+        data.append(tmp_data)
+    plt.boxplot(data, labels=conditions[0:len(data)])
     plt.ylim([0, 100])
     plt.title('Usability')
     plt.show()
 
 def plot_anomaly_response_time(conditions, base='../data/'):
-    time_condition = []
-    labels = ['C1', 'C2', 'C3']
+    data = []
     for condition in conditions:
         paths = glob.glob(os.path.join(base, '*_primary_{}.csv'.format(condition)))
-        response_times = []
+        tmp_data = []
         for p in paths:
             df = pd.read_csv(p)
             d_anomaly = df['anomaly state']
@@ -355,25 +356,42 @@ def plot_anomaly_response_time(conditions, base='../data/'):
                     start = t
                 elif start > 0 and 'Looks like that fixed the anomaly' in req:
                     end = t
-
                 if start > 0 and end > 0:
-                    response_times.append(end - start)
+                    tmp_data.append(end - start)
                     start = -1
                     end = -1
-        time_condition.append(response_times)
+        data.append(tmp_data)
 
-    plt.boxplot(time_condition, labels=labels[0:len(time_condition)])
+    plt.boxplot(data, labels=conditions[0:len(data)])
     plt.show()
 
 
 def plot_mission_objectives(conditions, base='../data/'):
+    data = []
     for condition in conditions:
-        pass
+        paths = glob.glob(os.path.join(base, '*_primary_{}.csv'.format(condition)))
+        tmp_data = []
+        for p in paths:
+            df = pd.read_csv(p)
+            outcomes = df['mission outcomes']
+            outcomes.fillna('', inplace=True)
+            outcomes = outcomes.tolist()
+            for o in outcomes:
+                if o != '':
+                    o = [int(x) for x in o.split('|')]
+                    tmp_data.append(np.sum(o))
+        data.append(tmp_data)
+
+    plt.boxplot(data, labels=conditions[0:len(data)])
+    plt.show()
+    print(data)
+
 
 if __name__ == '__main__':
     experimental_conditions = ['TELEM', 'GOA', 'ET-GOA']
     # Primary navigation and exploration task
     plot_anomaly_response_time(experimental_conditions)
+    plot_mission_objectives(experimental_conditions)
 
     #plot_goa_over_time(experimental_conditions)
     #plot_mqa_over_time(experimental_conditions)

@@ -21,6 +21,9 @@ from base_interface.settings import Settings
 from mission_control.mission_control import MissionControl
 from motion_planning.rrt import Obstacle
 
+from surveys.trust_survey_popup import run_survey_popup_online as trust_survey
+from surveys.usability_survey_popup import run_survey_popup_online as usability_survey
+
 
 class BaseInterface(QMainWindow, Ui_MainWindow):
     COND_TELEMETRY = 'TELEM'
@@ -147,16 +150,15 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.request_help_button.clicked.connect(
                 self.request_mission_control_help_callback)
             self.request_help_button.clicked.connect(lambda: self.splash_of_color(self.request_help_button))
-
-            self.robot_power_slider.valueChanged.connect(self.update_robot_power_callback)
-            self.robot_battery_slider.valueChanged.connect(self.update_robot_battery_callback)
-            self.robot_gps_slider.valueChanged.connect(self.update_robot_gps_frequency_callback)
             self.robot_power_slider.setValue(self.power_number)
             self.num_backup_batteries = settings.num_backup_batteries
             self.robot_battery_slider.setMaximum(self.num_backup_batteries)
             self.robot_battery_slider.setMinimum(1)
             self.robot_battery_slider.setValue(self.battery_number)
             self.robot_gps_slider.setValue(self.gps_frequency)
+            self.robot_power_slider.valueChanged.connect(self.update_robot_power_callback)
+            self.robot_battery_slider.valueChanged.connect(self.update_robot_battery_callback)
+            self.robot_gps_slider.valueChanged.connect(self.update_robot_gps_frequency_callback)
             self.robot_battery_slider.setDisabled(True)
             self.robot_gps_slider.setDisabled(True)
             self.robot_power_slider.setDisabled(True)
@@ -179,6 +181,10 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.obs_set = {}
         self.obs_counter = 5
         self.obstacle_confirm.clicked.connect(self.add_obstacle)
+
+        self.surveys = settings.show_surveys
+        print(self.surveys)
+
 
     def add_obstacle(self):
         try:
@@ -216,7 +222,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         :return:
         """
         try:
-            if self.test_state_test.state is not ControlModeState.completed :
+            if self.test_state_test.state is not ControlModeState.phase_mission_done:
                 self.update_mission_time()
                 self.update_battery_level()
                 self.update_connections()
@@ -243,19 +249,47 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.update_map()
                 self.update_et_goa()
 
-            if self.test_state_test.state == ControlModeState.completed:
-                self.update_assessment_mission_complete()
-                time.sleep(1)
-                # TODO mission complete behavior
-                #self.test_state_test.state = ControlModeState.phase_mission_done
-
             # always update these
+            self.update_complete()
+            self.update_surveys()
             self.update_time_text()
             self.activate_buttons()
             #print(self.test_state_test)
 
         except Exception as e:
             traceback.print_exc()
+
+    def update_surveys(self):
+        if self.test_state_test.state == ControlModeState.planning:
+            if 'pre-planning' in self.surveys and self.surveys['pre-planning']:
+                self.surveys['pre-planning'] = False
+                self.trust_survey_prompt()
+
+        if self.test_state_test.state == ControlModeState.execution:
+            if 'post-planning' in self.surveys and self.surveys['post-planning']:
+                self.surveys['post-planning'] = False
+                self.trust_survey_prompt()
+
+        if self.test_state_test.state == ControlModeState.phase_mission_done:
+            if 'post-mission' in self.surveys and self.surveys['post-mission']:
+                self.surveys['post-mission'] = False
+                self.trust_survey_prompt()
+
+            if 'usability' in self.surveys and self.surveys['usability']:
+                self.surveys['usability'] = False
+                self.usability_survey_prompt()
+
+    def update_complete(self):
+        if self.test_state_test.state == ControlModeState.completed:
+            self.arrive_sound.play()
+            self.update_assessment_mission_complete()
+            if self.mission_manager.captured_home:
+                print('COMPLETED MISSION - BACK HOME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+                self.state_update_test('captured_home')
+            elif self.mission_manager.captured_goal:
+                print('HALF WAY THERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+                self.state_update_test('captured_goal')
+
 
     def state_update_test(self, transition):
         #print()
@@ -313,10 +347,15 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
         # Mission complete state change
         if self.test_state_test.state == ControlModeState.executing_auto_driving and transition == 'nav_completed':
-            self.update_assessment_mission_complete()
-            self.mission_manager.hit_known_hazards = 0
+            #self.update_assessment_mission_complete()
+            #self.mission_manager.hit_known_hazards = 0
+            next_state = ControlModeState.completed
+            #self.arrive_sound.play()
+
+        if self.test_state_test.state == ControlModeState.completed and transition == 'captured_home':
+            next_state = ControlModeState.phase_mission_done
+        if self.test_state_test.state == ControlModeState.completed and transition == 'captured_goal':
             next_state = ControlModeState.planning
-            self.arrive_sound.play()
 
         self.test_state_test.state = next_state
         #print('to: ', self.test_state_test)
@@ -958,8 +997,30 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 # Mission Control buttons
                 self.request_help_button.setDisabled(True)
 
-            #if self.poi_accepted_workaround:
-            #    self.accept_poi_button.setEnabled(True)
+            if self.test_state_test.state == ControlModeState.phase_mission_done:
+                # Make sure we are stopped, then disable everything
+
+                self.stop_mode_button.click()
+                # Stop always enabled
+                self.stop_mode_button.setDisabled(True)
+
+                # control modes
+                self.automatic_drive_mode_button.setDisabled(True)
+                self.manual_drive_mode_button.setDisabled(True)
+
+                # Manual control buttons
+                self.forward_button_2.setDisabled(True)
+                self.back_button_2.setDisabled(True)
+                self.left_button_2.setDisabled(True)
+                self.right_button_2.setDisabled(True)
+
+                # Planning buttons
+                self.poi_selection.setDisabled(True)
+                self.plan_poi_button.setDisabled(True)
+                self.accept_poi_button.setDisabled(True)
+
+                # Mission Control buttons
+                self.request_help_button.setDisabled(True)
 
         except Exception as e:
             traceback.print_exc()
@@ -1089,6 +1150,19 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
         time.sleep(0.1)  # just in case some asynch messes up the periodic button activation and this click
 
+    def trust_survey_prompt(self):
+        try:
+            responses, score = trust_survey()
+            self.survey_recorder.record_trust(responses, score, datetime.now())
+        except Exception as e:
+            traceback.print_exc()
+
+    def usability_survey_prompt(self):
+        try:
+            responses, score = usability_survey()
+            self.survey_recorder.record_usability(responses, score, datetime.now())
+        except Exception as e:
+            traceback.print_exc()
     def splash_of_color(self, obj, color='green', timeout=500):
         """
         Change the color of a panel
