@@ -144,24 +144,30 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.mission_control = MissionControl(self.gps_frequency,
                                               self.power_number,
                                               self.battery_number,
-                                              100, 100, 5)
+                                              100, 100,
+                                              settings.num_backup_batteries)
         self.mission_control.set_mission_pois(settings.available_pois)
         if settings.mode == 'cu':
             self.request_help_button.clicked.connect(
                 self.request_mission_control_help_callback)
             self.request_help_button.clicked.connect(lambda: self.splash_of_color(self.request_help_button))
+
             self.robot_power_slider.setValue(self.power_number)
-            self.num_backup_batteries = settings.num_backup_batteries
-            self.robot_battery_slider.setMaximum(self.num_backup_batteries)
+            self.robot_power_lcd.display(self.power_number)
+            self.robot_power_slider.valueChanged.connect(self.update_robot_power_callback)
+            self.robot_power_slider.setDisabled(True)
+
+            self.robot_battery_slider.setMaximum(settings.num_backup_batteries)
             self.robot_battery_slider.setMinimum(1)
             self.robot_battery_slider.setValue(self.battery_number)
-            self.robot_gps_slider.setValue(self.gps_frequency)
-            self.robot_power_slider.valueChanged.connect(self.update_robot_power_callback)
+            self.robot_battery_lcd.display(self.battery_number)
             self.robot_battery_slider.valueChanged.connect(self.update_robot_battery_callback)
-            self.robot_gps_slider.valueChanged.connect(self.update_robot_gps_frequency_callback)
             self.robot_battery_slider.setDisabled(True)
+
+            self.robot_gps_slider.setValue(self.gps_frequency)
+            self.robot_gps_lcd.display(self.gps_frequency)
+            self.robot_gps_slider.valueChanged.connect(self.update_robot_gps_frequency_callback)
             self.robot_gps_slider.setDisabled(True)
-            self.robot_power_slider.setDisabled(True)
         else: # TODO cover this area with something fun
             self.mission_control_panel.setVisible(False)
 
