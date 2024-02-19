@@ -32,6 +32,7 @@ class StateObject:
         self.waypoint = 0
         self.battery = 0
         self.speed = 0
+        self.obstacles_hit = ''
 
     def get_state_dict(self):
         obj = {
@@ -41,7 +42,8 @@ class StateObject:
             't_robot': self.robot_time,
             't_wall': self.wall_time,
             'goal': self.goal,
-            'waypoint': self.waypoint
+            'waypoint': self.waypoint,
+            'obstacles_hit': self.obstacles_hit
         }
         return obj
 
@@ -53,10 +55,12 @@ class StateObject:
             self.battery, # 1
             *self.goal, # 3
             self.robot_time, # 1
-            self.wall_time # 1
+            self.wall_time, # 1
+            self.obstacles_hit
+            # TODO self.obstacles hit. Check ET-GOA and Outcome Assessment
         ]
 
-    def set_state(self, position, orientation, velocity, battery, t_robot, t_wall, goal, waypoint):
+    def set_state(self, position, orientation, velocity, battery, t_robot, t_wall, goal, waypoint, obstacles_hit):
         self.pos = [float(x) for x in position]
         self.ori = [float(x) for x in orientation]
         self.obs = []
@@ -66,6 +70,7 @@ class StateObject:
         self.waypoint = waypoint
         self.speed = np.linalg.norm(velocity)
         self.battery = battery
+        self.obstacles_hit = obstacles_hit
 
     def set_state_from_object(self, obj):
         self.pos = obj['position']
@@ -75,6 +80,7 @@ class StateObject:
         self.wall_time = obj['t_wall']
         self.goal = obj['goal']
         self.waypoint = obj['waypoint']
+
 
 
 NOBLOCK = zmq.NOBLOCK

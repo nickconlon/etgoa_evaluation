@@ -116,9 +116,9 @@ num_backup_batteries: 10
 speed_anomaly: 0.25
 available_pois: [A, B, C]
 show_surveys:
-  pre-planning: true
-  post-planning: true
-  post-mission: true
-  usability: true
+  pre-planning: false
+  post-planning: false
+  post-mission: false
+  usability: false
 training: true
 map: m1

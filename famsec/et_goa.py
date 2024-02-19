@@ -108,7 +108,7 @@ class et_goa:
         print('processing rollouts')
         predicted_states = [np.load(d, allow_pickle=True) for d in self.pred_paths]
         for idx, x in enumerate(predicted_states):
-            predicted_states[idx] = predicted_states[idx].astype('float64')
+            predicted_states[idx][:, 0:-2] = predicted_states[idx][:, 0:-2].astype('float64') # the last column is strings
         max_len = np.max([len(x) for x in predicted_states])
         preprocessed = np.zeros((max_len, 2*len(self.indices))) * np.nan
         for t in range(max_len):
@@ -168,7 +168,6 @@ if __name__ == '__main__':
     batt = 100
     dt = 1
     for i in range(100):
-
         idx = find_nearest(etgoa.data[:, 0], i)
         act = etgoa.data[idx].copy()
         act[8] = batt

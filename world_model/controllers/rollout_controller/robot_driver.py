@@ -195,7 +195,7 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, batt_level, battery_
                 vel = robot.getSelf().getVelocity()
                 battery = np.maximum(battery - 0.064 * batt_rate + (np.random.normal(0.0, 0.05)), 0.0)
                 state_object = StateObject()
-                state_object.set_state(pose, orient, vel[:2], battery, t, time.time(), goal, waypoint_counter)
+                state_object.set_state(pose, orient, vel[:2], battery, t, time.time(), goal, waypoint_counter, [])
                 state.append(np.array(state_object.get_state_array(), dtype=object))
             np.save(state_path, state)
             break
@@ -206,16 +206,18 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, batt_level, battery_
         hit_obstacles = []
         for oid, o in known_obstacles.items():
             if np.linalg.norm(np.asarray(pose[:2]) - np.asarray(o['center'])) < o['radius']:
-                hit_obstacles.append(oid)
+                # Only respond to obstacles of type h or b
                 if 'h' in oid:
                     vel_rate = o['data']
+                    hit_obstacles.append(oid)
                 if 'b' in oid:
                     batt_rate = o['data']
-        hit_obstacles = '_'.join(hit_obstacles)
+                    hit_obstacles.append(oid)
+        hit_obstacles = '|'.join(hit_obstacles)
         # TODO include hit_obstacles in state
         battery = np.maximum(battery - 0.064 * batt_rate+(np.random.normal(0.0, 0.05)), 0.0)
         state_object = StateObject()
-        state_object.set_state(pose, orient, vel[:2], battery, sample_time, time.time(), goal, waypoint_counter)
+        state_object.set_state(pose, orient, vel[:2], battery, sample_time, time.time(), goal, waypoint_counter, hit_obstacles)
         state.append(np.array(state_object.get_state_array(), dtype=object))
 
         """

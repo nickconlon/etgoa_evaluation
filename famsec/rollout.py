@@ -41,14 +41,11 @@ def do_rollout(position, orientation, goal, batt_level, batt_rate, vel_rate,
         d['wp_x'] = [float(x) for x in waypoints[:, 0]]
         d['wp_y'] = [float(x) for x in waypoints[:, 1]]
 
-    # TODO fix mess of hard coded paths
-    settings_fname = wm_settings_path #'/data/webots/settings.yaml'
+    settings_fname = wm_settings_path
 
     with open(settings_fname, 'w') as f:
         yaml.dump(d, f, default_flow_style=None, sort_keys=False)
-    cmd = ['webots',
-           wp_executable_path, #'/home/cohrint-skynet/catkin_ws/src/etgoa_evaluation/world_model/worlds/rollout_simulation.wbt',
-           '--minimize', '--batch', '--mode=fast', '--stdout']
+    cmd = ['webots', wp_executable_path, '--minimize', '--batch', '--mode=fast', '--stdout']
     p = Popen(cmd)
     stdout, stderr = p.communicate()
     goas = compute_outcomes(time_offset=time_offset)
@@ -72,7 +69,7 @@ class RolloutThread(QtCore.QThread):
     wm_executable_path = '/home/cohrint-skynet/catkin_ws/src/etgoa_evaluation/world_model/worlds/rollout_simulation.wbt'
 
     def run(self):
-        print('starting rollout thread')
+        print('Starting rollout thread')
         t1 = time.time()
         try:
             goas = do_rollout(self.pose, self.orientation, self.goal,
@@ -84,20 +81,21 @@ class RolloutThread(QtCore.QThread):
         except Exception as e:
             traceback.print_exc()
         t2 = time.time()
-        print('exiting rollout thread. Secs: {:.2f}'.format(t2 - t1))
+        print('Exiting rollout thread. Secs: {:.2f}'.format(t2 - t1))
 
     def __str__(self):
-        return ('pose: ' + str(self.pose) + '\n' +
-                'orientation: ' + str(self.orientation) + '\n' +
-                'goal: ' + str(self.goal) + '\n' +
-                'battery: ' + str(self.battery) + '\n' +
-                'battery_rate: ' + str(self.battery_rate) + '\n' +
-                'velocity_rate: ' + str(self.velocity_rate) + '\n' +
-                'time_offset: ' + str(self.time_offset) + '\n' +
-                'known_obstacles: ' + str(self.known_obstacles) + '\n' +
-                'waypoints: ' + str(self.waypoints) + '\n' +
-                'num_iterations: ' + str(self.num_iterations) + '\n' +
-                'max_time: ' + str(self.max_time) + '\n')
+        return ('Rollout parameters:'
+                '   pose: ' + str(self.pose) + '\n' +
+                '   orientation: ' + str(self.orientation) + '\n' +
+                '   goal: ' + str(self.goal) + '\n' +
+                '   battery: ' + str(self.battery) + '\n' +
+                '   battery_rate: ' + str(self.battery_rate) + '\n' +
+                '   velocity_rate: ' + str(self.velocity_rate) + '\n' +
+                '   time_offset: ' + str(self.time_offset) + '\n' +
+                '   known_obstacles: \n    ' + ', '.join([str(xy.__str__()) for xy in self.known_obstacles]) + '\n' +
+                '   waypoints: \n    ' + '\n    '.join([str(xy) for xy in self.waypoints]) + '\n' +
+                '   num_iterations: ' + str(self.num_iterations) + '\n' +
+                '   max_time: ' + str(self.max_time) + '\n')
 
 
 def example_rollout():
@@ -109,7 +107,7 @@ def example_rollout():
     vel_rate = 0.5
     max_time = 200
     iterations = 10
-    known_obs = {}
+    known_obs = {'b2': {'center': [2.5, 6.5], 'radius': 10.5, 'id': 'b2', 'data': 0.005}}
     time_offset = 0.0
     waypoints = np.array([[4, 7]])
     wm_settings_path = '/data/webots/settings.yaml'

@@ -120,6 +120,10 @@ batt_drain_anomaly: 0.05
 num_backup_batteries: 10
 speed_anomaly: 0.25
 available_pois: [A, B, C]
-show_surveys: [true, true, true, true]
+show_surveys:
+  pre-planning: false
+  post-planning: false
+  post-mission: false
+  usability: false
 training: true
 map: m2

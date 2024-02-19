@@ -26,6 +26,7 @@ goal_x = 9
 goal_y = 10
 t_robot = 11  # seconds since start
 t_wall = 12  # seconds since epoch
+obs_hit = 13
 
 
 def get_rollouts():
@@ -82,13 +83,14 @@ def outcome_obstacles(rollouts, outcome):
     :param rollouts:
     :return:
     """
-    quality = []
+    obstacles = []
     for rollout in rollouts:
-        goal = rollout[-1, goal_x:goal_y + 1]
-        pos = rollout[-1, px:py + 1]
-        d = 1  # np.linalg.norm(pos)
-        quality.append(d)
-    return quality
+        hits = rollout[:, obs_hit]
+        hits = set(hits)
+        if '' in hits:
+            hits.remove('')
+        obstacles.append(0 if len(hits) > 0 else 1)
+    return obstacles
 
 
 def outcome_survey_quality(rollouts, outcome):
@@ -157,24 +159,14 @@ def compute_outcomes(time_offset=0):
     print('computing outcome')
     data = get_rollouts()
     for d in data:
-        d[:, 11] += time_offset
-    goas = {}
-    functions = {
-        'poi_arrival': [outcome_poi_arrival, 1, [-0.5, 0.5, 1.5], 2],
-        'time': [outcome_time, 60 * 5, [-0.5, 0.5, 1.5], 2],
-        'battery': [outcome_battery, 20, [-0.5, 0.5, 1.5], 2],
-        'obstacles': [outcome_obstacles, 1, [-0.5, 0.5, 1.5], 2],
-        'TODO': [outcome_home_arrival, 1, [-0.5, 0.5, 1.5], 2],
+        d[:, 11] += time_offset # update the time field
+    goas = {
+        'poi_arrival': fmc.assess_rollouts(outcome_poi_arrival(data, 1), bins=[-0.5, 0.5, 1.5], z_star=2),
+        'time': fmc.assess_rollouts(outcome_time(data, 60*5), bins=[-0.5, 0.5, 1.5], z_star=2),
+        'battery': fmc.assess_rollouts(outcome_battery(data, 50), bins=[-0.5, 0.5, 1.5], z_star=2),
+        'obstacles': fmc.assess_rollouts(outcome_obstacles(data, 1), bins=[-0.5, 0.5, 1.5], z_star=2),
+        'TODO': fmc.assess_rollouts(outcome_home_arrival(data, 1), bins=[-0.5, 0.5, 1.5], z_star=2)
     }
-
-    for k, v in functions.items():
-        f = v[0]
-        o = v[1]
-        bins = v[2]
-        zstar = v[3]
-        outcomes = f(data, o)
-        goa = fmc.assess_rollouts(outcomes, bins, zstar)
-        goas[k] = goa
     return goas
 
 

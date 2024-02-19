@@ -182,8 +182,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.obs_counter = 5
         self.obstacle_confirm.clicked.connect(self.add_obstacle)
 
+        ##################
+        # Automatic surveys
         self.surveys = settings.show_surveys
-        print(self.surveys)
 
 
     def add_obstacle(self):
@@ -251,10 +252,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
             # always update these
             self.update_complete()
-            self.update_surveys()
+            #self.update_surveys()
             self.update_time_text()
             self.activate_buttons()
-            #print(self.test_state_test)
 
         except Exception as e:
             traceback.print_exc()
@@ -284,10 +284,10 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.arrive_sound.play()
             self.update_assessment_mission_complete()
             if self.mission_manager.captured_home:
-                print('COMPLETED MISSION - BACK HOME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+                print('home captured at t=', self.mission_time)
                 self.state_update_test('captured_home')
             elif self.mission_manager.captured_goal:
-                print('HALF WAY THERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+                print('goal captured at t=', self.mission_time)
                 self.state_update_test('captured_goal')
 
 
@@ -380,41 +380,41 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             achieve, fail = 'Achieved', 'Failed to Achieve'
             green, red = 'green', 'red'
             colors, assmts = [], []
-
+            print('Outcomes:')
             # Reached the goal
             achieved = self.mission_manager.captured_goal or self.mission_manager.captured_home
             colors.append(green if achieved else red)
             assmts.append(achieve if achieved else fail)
             self.mission_objectives['goal'] = int(achieved)
-            print('goal outcome :', self.mission_manager.captured_home, self.mission_manager.captured_goal)
+            print('     Goal outcome :', self.mission_manager.captured_home, self.mission_manager.captured_goal)
 
             # Arrived within time limit
             achieved = self.mission_time < 5 * 60
             colors.append(green if achieved else red)
             assmts.append(achieve if achieved else fail)
             self.mission_objectives['time'] = int(achieved)
-            print('time outcome :', self.mission_time)
+            print('     Time outcome :', self.mission_time)
 
             # Battery always above threshold
             achieved = self.battery_level >= 50 and self.old_battery_level >= 50
             colors.append(green if achieved else red)
             assmts.append(achieve if achieved else fail)
             self.mission_objectives['battery'] = int(achieved)
-            print('battery outcome :', self.battery_level)
+            print('     Battery outcome :', self.battery_level)
 
             # Battery always above threshold
             achieved = self.mission_manager.hit_known_hazards == 0
             colors.append(green if achieved else red)
             assmts.append(achieve if achieved else fail)
             self.mission_objectives['hazards'] = int(achieved)
-            print('Avoidance outcome :', self.mission_manager.hit_known_hazards)
+            print('     Avoidance outcome :', self.mission_manager.hit_known_hazards)
 
             # TODO outcome
             achieved = True
             colors.append(green if achieved else red)
             assmts.append(achieve if achieved else fail)
             self.mission_objectives['todo'] = int(achieved)
-            print('TODO outcome :', self.mission_manager.hit_known_hazards)
+            print('     TODO outcome :', self.mission_manager.hit_known_hazards)
 
             self.update_assessment_text(assmts, colors)
         except Exception as e:

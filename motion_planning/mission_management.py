@@ -56,7 +56,7 @@ class MissionManager:
     def setup_obstacles(self, obstacles):
         for o in obstacles:
             if o.id not in self.all_obstacles:
-                print('adding ', o.id)
+                #print('adding ', o.id)
                 self.all_obstacles[o.id] = o
             else:
                 print('found duplicate obstacle ', o.id)
