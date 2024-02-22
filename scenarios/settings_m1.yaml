@@ -6,7 +6,7 @@ pois:
   C:
     center: [0.25, 3]
   H:
-    center: [2.5, 0]
+    center: [4, 0]
 obstructions:
 # left side obstacles
   o1:
@@ -87,7 +87,7 @@ hazards:
     radius: 0.5
     effect: 0.005
     visible: true
-  h4:
+  h4: # unknown obstacle top
     center: [0.5, 6.25]
     radius: 1.0
     effect: 0.005
@@ -98,6 +98,11 @@ power_draws:
     radius: 1
     effect: 5.0
     visible: true
+  b2: # unknown obstacle bottom
+    center: [3.5, 2.5]
+    radius: 1
+    effect: 5.0
+    visible: false
 area: aspen
 mode: cu #mdrs or cu
 robot_name: case
@@ -105,7 +110,7 @@ record_path: ./data
 map_path: ./imgs/display_area.png
 logo_path: ./imgs/logo.png
 rollout_path: /data/webots/rollout{}_state.npy
-condition: ET-GOA
+condition: CONDITION
 latitude_center: 40.01045433
 longitude_center: 105.24432153
 anomalies: false

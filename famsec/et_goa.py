@@ -39,6 +39,8 @@ def preprocess_predicted(predicted_paths):
 
 
 def gaussian_si_1d(pred_mu, pred_std, actual, min_std=1.0, plot=False):
+    if pred_std == 0:
+        return 0
     _myclip_a = min(actual - 10, pred_mu - 10)
     _myclip_b = max(actual + 10, pred_mu + 10)
     _loc = pred_mu
@@ -146,6 +148,9 @@ class et_goa:
         print("t={:.2f} | mu(x,y,v,b): ({:.2f}, {:.2f}, {:.2f}, {:.2f}) || act({:.2f}, {:.2f}, {:.2f}, {:.2f})".
               format(t_now, pred_mus[0], pred_mus[1], pred_mus[2], pred_mus[3],
                      actuals[0], actuals[1], actuals[2], actuals[3]))
+        print("t={:.2f} | st(x,y,v,b): ({:.2f}, {:.2f}, {:.2f}, {:.2f}) || min({:.2f}, {:.2f}, {:.2f}, {:.2f})".
+              format(t_now, pred_stds[0], pred_stds[1], pred_stds[2], pred_stds[3],
+                     self.min_stds[0], self.min_stds[1], self.min_stds[2], self.min_stds[3]))
         print('si(x): {:.2f}, si(y): {:.2f}, si(v): {:.2f}, si(b): {:.2f}'.format(*sis))
         return sis
 

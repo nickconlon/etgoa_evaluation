@@ -112,8 +112,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.telemetry_updater.setInterval(int(self.update_rate * 1000))
         self.telemetry_updater.start()
 
-        self.mean_velocity = deque([0.25] * 10, maxlen=10)
-        self.mean_battery = deque(maxlen=10)
+        self.mean_velocity = deque([0.25] * 10, maxlen=50)
+        self.mean_battery = deque(maxlen=5)
 
         #################
         # Setup the Robot Control panel
@@ -148,8 +148,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                                               settings.num_backup_batteries)
         self.mission_control.set_mission_pois(settings.available_pois)
         if settings.mode == 'cu':
-            self.request_help_button.clicked.connect(
-                self.request_mission_control_help_callback)
+            self.request_help_button.clicked.connect(self.request_mission_control_help_callback)
             self.request_help_button.clicked.connect(lambda: self.splash_of_color(self.request_help_button))
 
             self.robot_power_slider.setValue(self.power_number)
@@ -561,9 +560,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         """
         try:
             if self.mission_control.backup_batts_used == 0:
-                text = 'Batt 1: {}% Batt 2: {}%'.format(int(self.battery_level), 100)
+                text = 'Primary: {}% Backup: {}%'.format(int(self.battery_level), 100)
             else:
-                text = 'Batt 1: {}% Batt 2: {}%'.format(int(self.old_battery_level), int(self.battery_level))
+                text = 'Primary: {}% Backup: {}%'.format(int(self.old_battery_level), int(self.battery_level))
             self.battery_text.setText(text)
         except Exception as e:
             traceback.print_exc()
@@ -683,8 +682,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                     elif trigger == 'et_goa':
                         # During mission execution, parameter values may have changed
                         # TODO readjust this, so we don't accidentally get zero velocity
-                        self.rollout_thread.velocity_rate = float(
-                            np.mean(np.asarray(self.mean_velocity)) / 0.25)
+                        self.rollout_thread.velocity_rate = float(np.mean(np.asarray(self.mean_velocity)) / 0.25)
                         self.rollout_thread.battery_rate = float(np.mean(np.asarray(self.mean_battery)))
                         self.rollout_thread.time_offset = float(self.mission_time)
                     print(self.rollout_thread)
@@ -1147,12 +1145,12 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.robot_gps_slider.setEnabled(True)
             self.robot_power_slider.setEnabled(True)
             self.request_help_button.setDisabled(True)
-            self.update_mission_control_text(self.mission_control.get_response(True, anomaly_type), 'red')
+            self.update_mission_control_text(self.mission_control.get_response(True, anomaly_type, self.test_state_test), 'red')
             self.state_update_test('help_request')
         else:
             self.stop_mode_button.click()
             self.state_update_test('anomaly_fixed')
-            self.update_mission_control_text(self.mission_control.get_response(False, anomaly_type), 'green')
+            self.update_mission_control_text(self.mission_control.get_response(False, anomaly_type, self.test_state_test), 'green')
 
         time.sleep(0.1)  # just in case some asynch messes up the periodic button activation and this click
 

@@ -72,13 +72,13 @@ obstructions:
     effect: 1
     visible: true
 hazards:
-  h1:
-    center: [1.5, 6.8]
+  h1: # unknown obstacle top
+    center: [2.3, 6.5]
     radius: 1
     effect: 0.005
     visible: false
-  h2:
-    center: [3, 7.0]
+  h2: # unknown obstacle
+    center: [2, 4]
     radius: 1.0
     effect: 0.005
     visible: false
@@ -98,8 +98,13 @@ hazards:
     effect: 0.005
     visible: true
 power_draws:
-  b1:
+  b1: # unknown obstacle
     center: [0.5, 3.6]
+    radius: 1
+    effect: 5.0
+    visible: false
+  b2: # unknown obstacle
+    center: [2.5, 2]
     radius: 1
     effect: 5.0
     visible: false
@@ -110,12 +115,12 @@ record_path: ./data
 map_path: ./imgs/display_area.png
 logo_path: ./imgs/logo.png
 rollout_path: /data/webots/rollout{}_state.npy
-condition: TELEM
+condition: CONDITION
 latitude_center: 40.01045433
 longitude_center: 105.24432153
 anomalies: false
 et_goa_threshold: 0.05
-et_goa_stds: [1.5, 1.5, 0.5, 1.5]
+et_goa_stds: [1.5, 1.5, 0.15, 1.5]
 batt_drain_anomaly: 0.05
 num_backup_batteries: 10
 speed_anomaly: 0.25

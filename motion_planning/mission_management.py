@@ -185,7 +185,7 @@ class MissionManager:
         legend_hazards = 0
         legend_powers = 0
         for oid, o in self.all_obstacles.items():
-            if oid in self.active_obstacle_ids and o.visible:
+            if oid in self.active_obstacle_ids:
                 if 'o' in oid:
                     rx, ry = o.center
                     c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='black', facecolor='red', alpha=0.5, hatch='++')
@@ -194,13 +194,19 @@ class MissionManager:
                     legend_obstacles = 1
                 if 'h' in oid:
                     rx, ry = o.center
-                    c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='orange', facecolor='orange', alpha=0.5)
+                    if o.visible:
+                        c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='orange', facecolor='orange', alpha=0.5)
+                    else:
+                        c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='orange', facecolor='orange', alpha=0.2, hatch='//')
                     #ax.annotate(o.id, (rx, ry), size='large', va='center', ha='center')
                     ax.add_patch(c)
                     legend_hazards = 1
                 if 'b' in oid:
                     rx, ry = o.center
-                    c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='blue', facecolor='blue', alpha=0.5)
+                    if o.visible:
+                        c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='blue', facecolor='blue', alpha=0.5)
+                    else:
+                        c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='blue', facecolor='blue', alpha=0.2, hatch='//')
                     #ax.annotate(o.id, (rx, ry), size='large', va='center', ha='center')
                     ax.add_patch(c)
                     legend_powers = 1
