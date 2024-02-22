@@ -136,9 +136,9 @@ class InterfaceImpl(BaseInterface):
         """
         try:
             v = extract_velocity_msg(msg)
-            if self.test_state_test.state == ControlModeState.executing_auto_driving:
+            if self.mission_state.state == ControlModeState.executing_auto_driving:
                 self.mean_velocity.append(v)
-            elif self.test_state_test.state == ControlModeState.manual_drive:
+            elif self.mission_state.state == ControlModeState.manual_drive:
                 self.mean_velocity.append(0.25)
             self.velocity = v
         except Exception as e:

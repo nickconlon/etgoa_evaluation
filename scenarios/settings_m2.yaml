@@ -130,5 +130,5 @@ show_surveys:
   post-planning: false
   post-mission: false
   usability: false
-training: true
+training: false
 map: m2

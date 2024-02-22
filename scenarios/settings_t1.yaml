@@ -87,5 +87,5 @@ num_backup_batteries: 10
 speed_anomaly: 0.25
 available_pois: [A, B, C, D]
 show_surveys: [true, true, true, true]
-training: false
+training: true
 map: t1
