@@ -1,12 +1,10 @@
 import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
-from PIL import Image
+from PIL import Image, ImageOps
 import numpy as np
 import yaml
 
-# , 'zinc', 'niobium', 'molybdenum', 'lanthanum', 'europium', 'tungsten', 'gold']
 metals = ['Iron', 'Gold', 'Lithium', 'Cobalt', 'Zinc']
-colors = [[183, 65, 14], [212, 175, 55], [192, 192, 192], [0, 71, 171], [52, 85, 70]]
+colors = ['sienna', 'goldenrod', 'silver', 'steelblue', 'forestgreen']
 
 
 def get_image(path):
@@ -19,94 +17,61 @@ class MarsMap:
         img = get_image(imgpath)
         self.base_img = img
         self.maxy, self.maxx, _ = img.shape
-        self.mapped_x, self.old_x_ticks, self.new_x_ticks = self.remap_x()
-        self.mapped_y, self.old_y_ticks, self.new_y_ticks = self.remap_y()
 
     def find_nearest(self, array, value):
         array = np.asarray(array)
         idx = (np.abs(array - value)).argmin()
         return idx
 
-    def remap_y(self):
-        yf = np.arange(0, self.maxy)
-        yi = np.arange(0, self.maxy / 2)
-
-        upper = np.linspace(90, 0, len(yi))
-        lower = np.linspace(-1, -90, len(yi))
-        newy = np.concatenate((upper, lower))
-
-        old_ticks = []
-        new_ticks = []
-
-        for i in np.arange(0, 100, 10):
-            idx = self.find_nearest(newy, i)
-            old_ticks.append(yf[idx])
-            new_ticks.append(int(np.around(newy[idx], -1)))
-
-        for i in np.linspace(10, 90, 9):
-            idx = self.find_nearest(newy, -i)
-            old_ticks.append(yf[idx])
-            new_ticks.append(int(np.around(newy[idx], -1)))
-
-        mapped_y = {int(lat): x for lat, x in zip(newy, yf)}
-        return mapped_y, old_ticks, new_ticks
-
-    def remap_x(self):
-        yf = np.arange(0, self.maxx)
-        yi = np.arange(0, self.maxx / 2)
-
-        upper = np.linspace(180, 360, len(yi))
-        lower = np.linspace(0, 180, len(yi))
-        newy = np.concatenate((upper, lower))
-
-        old_ticks = []
-        new_ticks = []
-
-        for i in np.arange(0, 180, 10):
-            idx = self.find_nearest(newy, i)
-            old_ticks.append(yf[idx])
-            new_ticks.append(int(np.around(newy[idx], -1)))
-
-        for i in np.linspace(190, 350, 17):
-            idx = self.find_nearest(newy, i)
-            old_ticks.append(yf[idx])
-            new_ticks.append(int(np.around(newy[idx], -1)))
-
-        mapped_x = {int(lat): x for lat, x in zip(newy, yf)}
-        return mapped_x, old_ticks, new_ticks
-
-    def make_task_instance(self, include_minerals, save_file=None):
+    def make_randomized_subset(self, save_file=None):
         fig, ax = plt.subplots(figsize=(25 * 0.65, 15 * 0.65))
 
         img = self.base_img.copy()
-        means = {}
+        _miny = np.random.randint(-90, 90)
+        _height = np.random.randint(10, 90)
+        _minx = np.random.randint(0, 360 - 2 * _height)
+        _width = _height * 2
+        print('H', _height)
+        print('W', _width)
+        print('Miny', _miny)
+        print('Minx', _minx)
+        if _miny >= 0:
+            plt.imshow(img, extent=[_minx, _minx + _width, _miny, _miny + _height])
+        else:
+            plt.imshow(img, extent=[_minx, _minx + _width, _miny, _miny + _height])
 
-        if include_minerals:
-            means = {m: [] for m in metals}
-            for i in range(1):
-                for c, m in zip(colors, metals):
-                    scale = np.random.randint(5, 20)
-                    size = np.random.randint(100, 500)
-                    x, y = np.random.randint(scale, self.maxx - scale), np.random.randint(scale, self.maxy - scale)
-                    xs, ys = np.random.normal(loc=x, scale=scale, size=size), np.random.normal(loc=y, scale=scale,
-                                                                                               size=size)
-                    for y, x in zip(ys, xs):
-                        if 0 < x < self.maxx and 0 < y < self.maxy:
-                            y, x = int(y), int(x)
-                            img[y, x] = c
+        means = {m: [] for m in metals}
+        for i in range(1):
+            for c, m in zip(colors, metals):
+                scale = np.random.uniform(1, _height*0.1)
+                size = np.random.randint(20, 50)
+                x = np.random.randint(_minx, _minx+_width)
+                y = np.random.randint(_miny, _miny+_height)
 
-                    means[m].append((y, x, scale))
+                xs, ys = np.random.normal(loc=x, scale=scale, size=size), np.random.normal(loc=y, scale=scale,size=size)
+                xs = xs[xs > _minx]
+                xs = xs[xs < _minx+_width]
+                ys = ys[ys > _miny]
+                ys = ys[ys < _miny+_height]
 
-            patches = [mpatches.Patch(color=np.asarray(colors[i]) / 255., label=metals[i]) for i in range(len(colors))]
-            # put those patched as legend-handles into the legend
-            # plt.legend(handles=patches, bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0., prop={'size': 20})
+                if len(ys) > len(xs):
+                    ys = ys[:len(xs)]
+                elif len(xs) > len(ys):
+                    xs = xs[:len(ys)]
 
-        plt.grid(color='black', linestyle='-', linewidth=1)
-        plt.imshow(img)
+                plt.scatter(xs, ys, s=0.5, c=c, alpha=0.5)
+                #plt.annotate(m, (x, y))
+                means[m].append((x, y, scale))
+
+        print('means', means)
+
         plt.ylabel('Latitude')
         plt.xlabel('Longitude')
-        plt.yticks(self.old_y_ticks, self.new_y_ticks)
-        plt.xticks(self.old_x_ticks, self.new_x_ticks)
+        ax.set_xticks(np.arange(_minx, _minx+_width+1, 10))
+        ax.set_xticks(np.arange(_minx, _minx+_width+1, 1), minor=True)
+        ax.set_yticks(np.arange(_miny, _miny+_height+1, 10))
+        ax.set_yticks(np.arange(_miny, _miny+_height+1, 1), minor=True)
+        plt.grid(color='black', linestyle='-', linewidth=0.5, axis='both')
         ax.tick_params(labeltop=True, labelright=True)
         plt.tight_layout()
 
@@ -118,7 +83,7 @@ class MarsMap:
         img = Image.fromarray(img)
         img = img.crop((10, 60, width-10, height-60))
         img.save(save_file)
-
+        #img.show()
         plt.close(fig)
 
         return img, means
@@ -140,25 +105,27 @@ def read_next(data_path, img_path):
     return img, dist, target
 
 
-def make_data():
-    mars_map = MarsMap("../imgs/mars_map_cropped.png")
-    p = '../concurrent_task/training/concurrent_{}.{}'
-    num_examples = 5
+def make_data_subset_map():
+    p = '../concurrent_task/episodes/concurrent_{}.{}'
+    num_examples = 1
     for i in range(num_examples):
-        output = {}
-        if i == 0:
-            img, dist = mars_map.make_task_instance(False, p.format(i, 'png').format(i))
-        else:
-            img, dist = mars_map.make_task_instance(True, p.format(i, 'png').format(i))
-            for k, v in dist.items():
-                v = v[0]
-                v = [float(vv) for vv in v]
-                dist[k] = v
-            output = {'minerals': dist, 'target': str(np.random.choice(a=list(dist.keys())))}
+        map_subset = np.random.randint(0, 10)
+        mars_map = MarsMap('test_{}.png'.format(map_subset))
+        if np.random.choice(a=[0, 1]):
+            img = Image.open('test_{}.png'.format(map_subset))
+            img = ImageOps.flip(img)
+            mars_map.base_img = np.asarray(img)
+            print('flipped')
+        img, dist = mars_map.make_randomized_subset(p.format(i, 'png').format(i))
+        for k, v in dist.items():
+            v = v[0]
+            v = [float(vv) for vv in v]
+            dist[k] = v
+        output = {'minerals': dist, 'target': str(np.random.choice(a=list(dist.keys())))}
         fname = p.format(i, 'yaml')
         with open(fname, 'w') as f:
             yaml.dump(output, f, default_flow_style=None, sort_keys=False)
 
 
 if __name__ == '__main__':
-    make_data()
+    make_data_subset_map()

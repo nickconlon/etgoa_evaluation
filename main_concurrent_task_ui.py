@@ -32,10 +32,12 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
             self.data_path = './concurrent_task/training/concurrent_{}.{}'
             fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_secondary_training_{}.csv'.format(settings.condition)
             self.total = 5
+            self.randomize_order = False
         else:
             self.data_path = './concurrent_task/episodes/concurrent_{}.{}'
             fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_secondary_{}.csv'.format(settings.condition)
             self.total = 50
+            self.randomize_order = True
         self.recorder = ConcurrentTaskRecorder(os.path.join(settings.record_path, fname))
         self.request_time = None
         self.mineral_of_interest = None
@@ -81,9 +83,9 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
             mineral = self.mineral_of_interest
             mean_std = self.minerals2means[mineral]
             if lat_y is not None and lat_y is not None:
-                x = self.map.mapped_x[lon_x]
-                y = self.map.mapped_y[lat_y]
-            mu_y, mu_x, std = mean_std
+                x = lon_x
+                y = lat_y
+            mu_x, mu_y, std = mean_std
         except Exception as e:
             traceback.print_exc()
         return mu_x, mu_y, std, x, y
@@ -138,10 +140,8 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
                 traceback.print_exc()
                 lat = -1
                 lon = -1
-
             try:
                 ax, ay, astd, px, py = self.check_response(lat, lon)
-
                 dt = time.time() - self.request_time
                 self.recorder.add_row(time.time(), ax, ay, astd, px, py, dt, self.mineral_of_interest)
                 self.reset()
@@ -168,8 +168,12 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
                 self.submit_button.setEnabled(True)
                 self.splash_of_color(self.frame, color='red', timeout=1000)
                 self.alert.play()
+                if self.randomize_order:
+                    next_idx = np.random.randint(1, 51)
+                else:
+                    next_idx = self.next_idx
                 img, self.minerals2means, self.mineral_of_interest = read_next(
-                    self.data_path.format(self.next_idx, 'yaml'), self.data_path.format(self.next_idx, 'png'))
+                    self.data_path.format(next_idx, 'yaml'), self.data_path.format(next_idx, 'png'))
                 self.request_time = time.time()
                 text = "Please identify one site with {}".format(self.mineral_of_interest)
                 print("trying to find ", self.minerals2means[self.mineral_of_interest])
@@ -211,7 +215,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--settings",
                         help='path to settings file',
-                        default="./scenarios/settings_aspen.yaml")
+                        default="./scenarios/settings_m1.yaml")
     args = parser.parse_args()
 
     qdarktheme.enable_hi_dpi()
