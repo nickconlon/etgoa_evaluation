@@ -167,6 +167,12 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.robot_gps_lcd.display(self.gps_frequency)
             self.robot_gps_slider.valueChanged.connect(self.update_robot_gps_frequency_callback)
             self.robot_gps_slider.setDisabled(True)
+
+            self.obstacle_confirm.setDisabled(True)
+            self.obstacle_x.setDisabled(True)
+            self.obstacle_y.setDisabled(True)
+            self.obstacle_r.setDisabled(True)
+            self.obstacle_scroll.setDisabled(True)
         else: # TODO cover this area with something fun
             self.mission_control_panel.setVisible(False)
 
@@ -1142,6 +1148,10 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 if o.distance(self.position.x, self.position.y) <= o.axis[0]:
                     anomaly = True
                     anomaly_type += o.id
+
+        if self.battery_level < 75:
+            anomaly_type += 'b'
+            anomaly = True
 
         if anomaly:
             self.stop_mode_button.click()
