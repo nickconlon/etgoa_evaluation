@@ -89,7 +89,7 @@ hazards:
     visible: true
   h4: # unknown obstacle top
     center: [0.5, 6.25]
-    radius: 1.0
+    radius: 1.5
     effect: 0.005
     visible: false
 power_draws:
@@ -100,7 +100,7 @@ power_draws:
     visible: true
   b2: # unknown obstacle bottom
     center: [3.5, 2.5]
-    radius: 1
+    radius: 1.5
     effect: 5.0
     visible: false
 area: aspen

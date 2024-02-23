@@ -372,6 +372,7 @@ def plot_anomaly_response_time(conditions, base='../data/'):
         data.append(tmp_data)
 
     plt.boxplot(data, labels=conditions[0:len(data)])
+    plt.title('Anomaly Response Times')
     plt.show()
 
 
@@ -389,9 +390,11 @@ def plot_mission_objectives(conditions, base='../data/'):
                 if o != '':
                     o = [int(x) for x in o.split('|')]
                     tmp_data.append(np.sum(o))
+                    print(o)
         data.append(tmp_data)
 
     plt.boxplot(data, labels=conditions[0:len(data)])
+    plt.title('Mission Objective Performance')
     plt.show()
     print(data)
 
@@ -399,8 +402,8 @@ def plot_mission_objectives(conditions, base='../data/'):
 if __name__ == '__main__':
     experimental_conditions = ['TELEM', 'GOA', 'ET-GOA']
     # Primary navigation and exploration task
-    #plot_anomaly_response_time(experimental_conditions)
-    #plot_mission_objectives(experimental_conditions)
+    plot_anomaly_response_time(experimental_conditions)
+    plot_mission_objectives(experimental_conditions)
 
     #plot_goa_over_time(experimental_conditions)
     #plot_mqa_over_time(experimental_conditions)

@@ -6,7 +6,7 @@ pois:
   C:
     center: [0.25, 3]
   H:
-    center: [2.5, 0]
+    center: [4, 0]
 obstructions:
 # left side obstacles
   o1:

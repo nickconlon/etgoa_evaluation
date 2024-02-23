@@ -6,7 +6,7 @@ pois:
   C:
     center: [0.25, 3]
   H:
-    center: [2.5, 0]
+    center: [4, 0]
 obstructions:
 # left side obstacles
   o1:
@@ -73,42 +73,52 @@ obstructions:
     visible: true
 hazards:
   h1:
-    center: [ 1.5, 6]
+    center: [ 4, 2]
     radius: 1.0
     effect: 0.005
     visible: false
   h2:
+    center: [ 2.6, 0.5]
+    radius: 1.0
+    effect: 0.005
+    visible: false
+  h3:
     center: [ 3.8, -1.5 ]
     radius: 0.5
     effect: 0.005
     visible: true
-  h3:
+  h4:
     center: [0.0, 5.25]
     radius: 0.35
     effect: 0.005
     visible: true
-  h4:
+  h5:
     center: [4.1, 3.5]
     radius: 0.5
     effect: 0.005
     visible: true
 power_draws:
   b1:
-    center: [ 2, 4]
+    center: [ 2, 3.5]
     radius: 1.0
     effect: 10.0
     visible: false
   b2:
-    center: [0.5, 5]
+    center: [1, 5]
     radius: 1.0
     effect: 10.0
     visible: false
-  b3:
+  b4:
+    center: [2.5, 6.2]
+    radius: 1.2
+    effect: 10.0
+    visible: false
+  b5:
     center: [0.1, 4.5]
     radius: 0.35
     effect: 10.0
     visible: true
-  b4:
+  b6:
     center: [0.2, 0.2]
     radius: 0.4
     effect: 10.0

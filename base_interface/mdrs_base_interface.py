@@ -99,7 +99,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         # Setup the Telemetry Panel
         print('Setting up telemetry')
         self.battery_level = 100
-        self.old_battery_level = 100
+        self.backup_battery_level = 100
         self.battery_number = 1
         self.power_number = 50
         self.gps_frequency = 68
@@ -232,30 +232,31 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.update_mission_time()
                 self.update_battery_level()
                 self.update_connections()
-                self.update_robot_state_text()
+
                 self.update_battery_text()
                 self.update_velocity_text()
                 self.update_heading_text()
                 self.update_position_text()
-
-                mission_control_text = self.request_help_text.text()
-                mission_control_text = mission_control_text.replace('\n', ' ').replace(',', '.')
-                self.data_recorder.add_row(self.position.x, self.position.y, self.position.z,
-                                           self.heading, self.velocity,
-                                           self.mission_state,
-                                           self.battery_number, self.battery_level,
-                                           self.power_number, self.gps_frequency,
-                                           self.experiencing_anomaly,
-                                           mission_control_text,
-                                           "|".join(["{:.2f}".format(x) for x in self.goa]),
-                                           "|".join(["{:.2f}".format(x) for x in self.mqa]),
-                                           "|".join([str(x) for x in self.mission_objectives.values()]),
-                                           self.mission_time)
-                self.mission_objectives = {}
                 self.update_map()
                 self.update_et_goa()
 
+            mission_control_text = self.request_help_text.text()
+            mission_control_text = mission_control_text.replace('\n', ' ').replace(',', '.')
+            self.data_recorder.add_row(self.position.x, self.position.y, self.position.z,
+                                       self.heading, self.velocity,
+                                       self.mission_state,
+                                       self.battery_number, self.battery_level,
+                                       self.power_number, self.gps_frequency,
+                                       self.experiencing_anomaly,
+                                       mission_control_text,
+                                       "|".join(["{:.2f}".format(x) for x in self.goa]),
+                                       "|".join(["{:.2f}".format(x) for x in self.mqa]),
+                                       "|".join([str(x) for x in self.mission_objectives.values()]),
+                                       self.mission_time)
+            self.mission_objectives = {}
+
             # always update these
+            self.update_robot_state_text()
             self.update_complete()
             #self.update_surveys()
             self.update_time_text()
@@ -397,11 +398,11 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             print('     Time outcome :', self.mission_time)
 
             # Battery always above threshold
-            achieved = self.battery_level >= 50 and self.old_battery_level >= 50
+            achieved = self.battery_level >= 50 and self.backup_battery_level >= 50
             colors.append(green if achieved else red)
             assmts.append(achieve if achieved else fail)
             self.mission_objectives['battery'] = int(achieved)
-            print('     Battery outcome :', self.battery_level)
+            print('     Battery outcome (primary, backup):', self.battery_level, self.backup_battery_level)
 
             # Battery always above threshold
             achieved = self.mission_manager.hit_known_hazards == 0
@@ -558,7 +559,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             if self.mission_control.backup_batts_used == 0:
                 text = 'Primary: {}% Backup: {}%'.format(int(self.battery_level), 100)
             else:
-                text = 'Primary: {}% Backup: {}%'.format(int(self.old_battery_level), int(self.battery_level))
+                text = 'Primary: {}% Backup: {}%'.format(int(self.backup_battery_level), int(self.battery_level))
             self.battery_text.setText(text)
         except Exception as e:
             traceback.print_exc()
@@ -1075,13 +1076,21 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         """
         try:
             if self.mission_control:
+                anomaly_type = self.mission_control.tmp_anomaly_type
                 text = self.mission_control.check_strategy(self.power_number, self.gps_frequency,
                                                            self.battery_number)
+
                 if text != "":
                     print('Anomaly strategy successful! at t=', self.mission_time)
                     self.assessment_started_sound.play()
-                    self.old_battery_level = self.battery_level
-                    self.battery_level = 100 # TODO switch only if a battery anomaly!!!!!!!!!!
+
+                    if 'b' in anomaly_type:
+                        if self.mission_control.backup_batts_used == 1:
+                            self.backup_battery_level = self.battery_level
+                            self.battery_level = 100
+                        if self.mission_control.backup_batts_used > 1:
+                            self.battery_level = 100
+
                     self.robot_battery_slider.setDisabled(True)
                     self.robot_gps_slider.setDisabled(True)
                     self.robot_power_slider.setDisabled(True)
@@ -1132,7 +1141,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             if ob_id in self.mission_manager.active_obstacle_ids:
                 if o.distance(self.position.x, self.position.y) <= o.axis[0]:
                     anomaly = True
-                    anomaly_type = o.id
+                    anomaly_type += o.id
 
         if anomaly:
             self.stop_mode_button.click()
@@ -1141,12 +1150,12 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.robot_gps_slider.setEnabled(True)
             self.robot_power_slider.setEnabled(True)
             self.request_help_button.setDisabled(True)
-            self.update_mission_control_text(self.mission_control.get_response(True, anomaly_type, self.mission_state), 'red')
+            self.update_mission_control_text(self.mission_control.get_response(True, anomaly_type, self.battery_level), 'red')
             self.update_state_machine('help_request')
         else:
             self.stop_mode_button.click()
             self.update_state_machine('anomaly_fixed')
-            self.update_mission_control_text(self.mission_control.get_response(False, anomaly_type, self.mission_state), 'green')
+            self.update_mission_control_text(self.mission_control.get_response(False, anomaly_type, self.battery_level), 'green')
 
         time.sleep(0.1)  # just in case some asynch messes up the periodic button activation and this click
 
