@@ -7,6 +7,7 @@ from motion_planning.projections import PointOfInterest
 class Settings:
     def __init__(self, settings_fname):
         self.fname = settings_fname
+        self.settings_json = None
         self.pois = []
         self.obstructions = []
         self.hazards = []
@@ -31,11 +32,13 @@ class Settings:
         self.mode = None
         self.training = None
         self.map = None
+        self.capture_dist = None
 
     def read(self):
         try:
             with open(self.fname, 'r') as file:
                 settings = yaml.safe_load(file)
+                self.settings_json = settings
 
                 for id, poi in settings['pois'].items():
                     p = PointOfInterest(*poi['center'], name=id)
@@ -88,10 +91,13 @@ class Settings:
                 self.mode = settings['mode']
                 self.training = settings['training']
                 self.map = settings['map']
+                self.capture_dist = settings['capture_dist']
 
         except Exception as e:
             traceback.print_exc()
 
+    def __str__(self):
+        return str(self.settings_json)
 
 def create():
     """
@@ -128,6 +134,7 @@ def create():
         'condition': 'ET-GOA',  # TELEM, GOA, ET-GOA
         'latitude_center': 40.01045433,
         'longitude_center': 105.24432153,
+        'capture_dist': 0.1,
         'anomalies': False,
         'et_goa_threshold': 0.05,
         'et_goa_stds': [1.5, 1.5, 0.5, 1.5],
@@ -146,7 +153,7 @@ def create():
 
 
 if __name__ == '__main__':
-    create()
-    obs = Settings('../settings.yaml')
+    #create()
+    obs = Settings('../scenarios/settings_t1.yaml')
     obs.read()
     print(obs)

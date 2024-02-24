@@ -123,6 +123,7 @@ rollout_path: /data/webots/rollout{}_state.npy
 condition: CONDITION
 latitude_center: 40.01045433
 longitude_center: 105.24432153
+capture_dist: 0.1
 anomalies: false
 et_goa_threshold: 0.05
 et_goa_stds: [1.5, 1.5, 0.15, 1.5]

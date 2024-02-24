@@ -90,6 +90,7 @@ class WaypointFollower:
         self.K2 = 4
         self.max_speed = 0.25
         self.timeout_secs = 1000
+        self.capture_dist = settings.capture_dist
         # Initialize ros node
         rospy.init_node('go_to_waypoint', anonymous=True)
         # Set sleep rate
@@ -212,7 +213,7 @@ class WaypointFollower:
         self.y_dest = _y
 
         # Go to waypoint
-        while self.dist_err > 0.1:
+        while self.dist_err > self.capture_dist:
             vel = Twist()
             vel.linear.x = self.pose_cmd_vel
             vel.angular.z = self.rot_cmd_vel
@@ -245,7 +246,7 @@ class WaypointFollower:
             self.y_dest = _y
             print("Going to ({}, {})".format(_x, _y))
             # Go to waypoint
-            while self.dist_err > 0.1 and abs(t0 - time.time()) < t_max and self.drive:
+            while self.dist_err > self.capture_dist and abs(t0 - time.time()) < t_max and self.drive:
                 if self.pose_cmd_vel is not None and self.rot_cmd_vel is not None:
                     hazard_effect = self.check_hazards()
                     vel = Twist()
@@ -254,7 +255,7 @@ class WaypointFollower:
                     self.pub_vel.publish(vel)
                 self.sleep_rate.sleep()
             print("At waypoint ({}, {})".format(_x, _y))
-            if self.dist_err <= 0.1:
+            if self.dist_err <= self.capture_dist:
                 self.xs.remove(_x)
                 self.ys.remove(_y)
         print("Waypoints complete")

@@ -13,9 +13,10 @@ class MissionManager:
     ASPEN = 'aspen'
     OUTDOOR = 'outdoor'
 
-    def __init__(self, mission_area_image_path, projector, pois, obstructions, hazards, power_draws):
+    def __init__(self, mission_area_image_path, projector, pois, obstructions, hazards, power_draws, capture_dist):
         area_miny, area_maxy, area_minx, area_maxx = -2, 10, -0.5, 5
         self.display_bounds = [-3, 12, -3, 12]  # minx, maxx, miny, maxy
+        self.capture_dist = capture_dist
         self.projector = projector
         self.pois = {poi.name: poi for poi in pois}
         self.location = self.ASPEN
@@ -296,7 +297,7 @@ class MissionManager:
         # TODO fix this with new POI structure
         if self.has_plan():
             dw = np.linalg.norm(np.array([robot_x, robot_y]) - self.current_plan[0])
-            if dw <= 0.1:
+            if dw <= self.capture_dist:
                 self.current_plan = np.delete(self.current_plan, [0], axis=0)
                 print('removing completed waypoint')
 

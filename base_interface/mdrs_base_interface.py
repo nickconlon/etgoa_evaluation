@@ -56,7 +56,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                                               settings.pois,
                                               settings.obstructions,
                                               settings.hazards,
-                                              settings.power_draws)
+                                              settings.power_draws,
+                                              settings.capture_dist)
         self.batt_drain_rate = settings.batt_drain_anomaly
 
         self.mission_time = 0.0
