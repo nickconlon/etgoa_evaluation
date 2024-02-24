@@ -67,8 +67,28 @@ obstructions:
     radius: 0.6
     effect: 1
     visible: true
-hazards: {}
-power_draws: {}
+hazards:
+  h1:
+    center: [ 4, 8 ]
+    radius: 0.6
+    effect: 1
+    visible: true
+  h2:
+    center: [ 4, 6 ]
+    radius: 1
+    effect: 1
+    visible: true
+power_draws:
+  b1:
+    center: [ 0, -1 ]
+    radius: 0.6
+    effect: 1
+    visible: true
+  b2:
+    center: [ 1, -1 ]
+    radius: 0.3
+    effect: 1
+    visible: true
 area: aspen
 mode: cu
 robot_name: case
