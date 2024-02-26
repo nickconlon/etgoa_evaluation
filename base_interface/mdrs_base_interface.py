@@ -14,15 +14,12 @@ import os
 from motion_planning.mission_management import MissionManager
 from base_interface.control_modes import ControlModeState
 from base_interface.ui_mdrs import Ui_MainWindow
-from analysis.data_recorder import PrimaryTaskRecorder, SurveyRecorder
+from analysis.data_recorder import PrimaryTaskRecorder
 from motion_planning.projections import Projector, PointOfInterest, get_heading, to_orientation_rhr
 from famsec import goa, rollout, et_goa
 from base_interface.settings import Settings
 from mission_control.mission_control import MissionControl
 from motion_planning.rrt import Obstacle
-
-from surveys.trust_survey_popup import run_survey_popup_online as trust_survey
-from surveys.usability_survey_popup import run_survey_popup_online as usability_survey
 
 
 class BaseInterface(QMainWindow, Ui_MainWindow):
@@ -44,11 +41,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
         data_fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_primary_{}.csv'.format(settings.condition)
         self.data_recorder = PrimaryTaskRecorder(self.condition, settings.map, os.path.join(settings.record_path, data_fname))
-        trust_fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_trust_survey_{}.csv'.format(settings.condition)
-        usability_fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_usability_survey_{}.csv'.format(
-            settings.condition)
-        self.survey_recorder = SurveyRecorder(os.path.join(settings.record_path, trust_fname),
-                                              os.path.join(settings.record_path, usability_fname))
 
         self.projector = Projector(settings.lat_center, settings.lon_center)
         self.projector.setup()
@@ -194,10 +186,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.obs_counter = 5
         self.obstacle_confirm.clicked.connect(self.add_obstacle)
 
-        ##################
-        # Automatic surveys
-        self.surveys = settings.show_surveys
-
 
     def add_obstacle(self):
         try:
@@ -265,32 +253,11 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             # always update these
             self.update_robot_state_text()
             self.update_complete()
-            #self.update_surveys()
             self.update_time_text()
             self.activate_buttons()
 
         except Exception as e:
             traceback.print_exc()
-
-    def update_surveys(self):
-        if self.mission_state.state == ControlModeState.planning:
-            if 'pre-planning' in self.surveys and self.surveys['pre-planning']:
-                self.surveys['pre-planning'] = False
-                self.trust_survey_prompt()
-
-        if self.mission_state.state == ControlModeState.execution:
-            if 'post-planning' in self.surveys and self.surveys['post-planning']:
-                self.surveys['post-planning'] = False
-                self.trust_survey_prompt()
-
-        if self.mission_state.state == ControlModeState.phase_mission_done:
-            if 'post-mission' in self.surveys and self.surveys['post-mission']:
-                self.surveys['post-mission'] = False
-                self.trust_survey_prompt()
-
-            if 'usability' in self.surveys and self.surveys['usability']:
-                self.surveys['usability'] = False
-                self.usability_survey_prompt()
 
     def update_complete(self):
         if self.mission_state.state == ControlModeState.completed:
@@ -302,7 +269,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             elif self.mission_manager.captured_goal:
                 print('goal captured at t=', self.mission_time)
                 self.update_state_machine('captured_goal')
-
 
     def update_state_machine(self, transition):
         next_state = self.mission_state.state
@@ -1170,19 +1136,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
         time.sleep(0.1)  # just in case some asynch messes up the periodic button activation and this click
 
-    def trust_survey_prompt(self):
-        try:
-            responses, score = trust_survey()
-            self.survey_recorder.record_trust(responses, score, datetime.now())
-        except Exception as e:
-            traceback.print_exc()
-
-    def usability_survey_prompt(self):
-        try:
-            responses, score = usability_survey()
-            self.survey_recorder.record_usability(responses, score, datetime.now())
-        except Exception as e:
-            traceback.print_exc()
     def splash_of_color(self, obj, color='green', timeout=500):
         """
         Change the color of a panel

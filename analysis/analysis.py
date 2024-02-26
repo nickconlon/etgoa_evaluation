@@ -268,24 +268,33 @@ def plot_goa_over_time(conditions, base='../data/'):
 
 
 def plot_trust_survey_responses(conditions, base='../data/'):
-    for condition in conditions:
-        paths = glob.glob(os.path.join(base, '*_trust_survey_{}.csv'.format(condition)))
-        pre_planning = []
-        post_planning = []
-        post_execution = []
-        for p in paths:
-            df = pd.read_csv(p)
-            results = df['score'].to_numpy()
-            pre_planning.append(results[0])
-            post_planning.append(results[1])
-            post_execution.append(results[2])
+    paths = glob.glob(os.path.join(base, '*_trust_survey.csv'))
+    scores = []
+    for p in paths:
+        df = pd.read_csv(p)
+        results = df['score'].to_numpy()
+        scores.append(results[0])
 
-        plt.boxplot([pre_planning, post_planning, post_execution],
-                    labels=['pre planning', 'post planing', 'post execution'])
-        plt.ylim([0, 100])
-        plt.title('Trust for {}'.format(condition))
-        plt.show()
+    plt.boxplot([scores],
+                labels=['trust'])
+    plt.ylim([0, 100])
+    plt.title('Trust')
+    plt.show()
 
+
+def plot_usability_scores(conditions, base='../data/'):
+
+    paths = glob.glob(os.path.join(base, '*_usability_survey.csv'))
+    scores = []
+    for p in paths:
+        df = pd.read_csv(p)
+        results = df['score'].to_numpy()
+        scores.append(results[0])
+
+    plt.boxplot([scores], labels=['Usability'])
+    plt.ylim([0, 100])
+    plt.title('Usability')
+    plt.show()
 
 def plot_secondary_performance(conditions, base='../data/'):
     accuracy = []
@@ -328,20 +337,7 @@ def plot_secondary_performance(conditions, base='../data/'):
     plt.show()
 
 
-def plot_usability_scores(conditions, base='../data/'):
-    data = []
-    for idx, condition in enumerate(conditions):
-        paths = glob.glob(os.path.join(base, '*_usability_survey_{}.csv'.format(condition)))
-        tmp_data = []
-        for p in paths:
-            df = pd.read_csv(p)
-            results = df['score'].to_numpy()
-            data.append(results[0])
-        data.append(tmp_data)
-    plt.boxplot(data, labels=conditions[0:len(data)])
-    plt.ylim([0, 100])
-    plt.title('Usability')
-    plt.show()
+
 
 def plot_anomaly_response_time(conditions, base='../data/'):
     data = []
@@ -402,17 +398,18 @@ def plot_mission_objectives(conditions, base='../data/'):
 if __name__ == '__main__':
     experimental_conditions = ['TELEM', 'GOA', 'ET-GOA']
     # Primary navigation and exploration task
-    plot_anomaly_response_time(experimental_conditions)
-    plot_mission_objectives(experimental_conditions)
-
-    #plot_goa_over_time(experimental_conditions)
-    #plot_mqa_over_time(experimental_conditions)
-    # TODO response time between anomaly and help request
+    #plot_anomaly_response_time(experimental_conditions)
+    #plot_mission_objectives(experimental_conditions)
 
     # Secondary task
-    plot_secondary_performance(experimental_conditions)
+    #plot_secondary_performance(experimental_conditions)
 
     # Surveys
-    #plot_trust_survey_responses(experimental_conditions)
-    #plot_usability_scores(experimental_conditions)
+    plot_trust_survey_responses(experimental_conditions)
+    plot_usability_scores(experimental_conditions)
+
+    # TODO other plots
+    #plot_goa_over_time(experimental_conditions)
+    #plot_mqa_over_time(experimental_conditions)
+
 

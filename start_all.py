@@ -10,8 +10,8 @@ if __name__ == '__main__':
     parser.add_argument("-m", "--map", required=True,
                         help='experimental scenario number: t1:3 or m1:4')
     args = parser.parse_args()
-    CONDITION = args.condition # 'GOA'
-    MAP_NUMBER = args.map       #
+    CONDITION = args.condition
+    MAP_NUMBER = args.map
 
     settings_file_path = './scenarios/settings_{}.yaml'.format(MAP_NUMBER)
     temp_settings_path = './data/settings_{}.yaml'.format(MAP_NUMBER)

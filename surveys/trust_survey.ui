@@ -60,9 +60,9 @@
      <property name="geometry">
       <rect>
        <x>13</x>
-       <y>10</y>
-       <width>16</width>
-       <height>23</height>
+       <y>0</y>
+       <width>31</width>
+       <height>41</height>
       </rect>
      </property>
      <property name="font">
@@ -102,9 +102,9 @@
      <property name="geometry">
       <rect>
        <x>13</x>
-       <y>10</y>
-       <width>16</width>
-       <height>23</height>
+       <y>0</y>
+       <width>31</width>
+       <height>41</height>
       </rect>
      </property>
      <property name="font">
@@ -144,9 +144,9 @@
      <property name="geometry">
       <rect>
        <x>13</x>
-       <y>10</y>
-       <width>16</width>
-       <height>23</height>
+       <y>0</y>
+       <width>31</width>
+       <height>41</height>
       </rect>
      </property>
      <property name="font">
@@ -186,9 +186,9 @@
      <property name="geometry">
       <rect>
        <x>13</x>
-       <y>10</y>
-       <width>16</width>
-       <height>23</height>
+       <y>0</y>
+       <width>31</width>
+       <height>41</height>
       </rect>
      </property>
      <property name="font">
@@ -228,9 +228,9 @@
      <property name="geometry">
       <rect>
        <x>13</x>
-       <y>10</y>
-       <width>16</width>
-       <height>23</height>
+       <y>0</y>
+       <width>31</width>
+       <height>41</height>
       </rect>
      </property>
      <property name="font">
@@ -270,9 +270,9 @@
      <property name="geometry">
       <rect>
        <x>13</x>
-       <y>10</y>
-       <width>16</width>
-       <height>23</height>
+       <y>0</y>
+       <width>31</width>
+       <height>41</height>
       </rect>
      </property>
      <property name="font">
@@ -312,9 +312,9 @@
      <property name="geometry">
       <rect>
        <x>13</x>
-       <y>10</y>
-       <width>16</width>
-       <height>23</height>
+       <y>0</y>
+       <width>31</width>
+       <height>41</height>
       </rect>
      </property>
      <property name="font">
@@ -354,9 +354,9 @@
      <property name="geometry">
       <rect>
        <x>13</x>
-       <y>10</y>
-       <width>16</width>
-       <height>23</height>
+       <y>0</y>
+       <width>31</width>
+       <height>41</height>
       </rect>
      </property>
      <property name="font">
@@ -392,27 +392,6 @@
     <property name="frameShadow">
      <enum>QFrame::Plain</enum>
     </property>
-    <widget class="QRadioButton" name="radioButton_10">
-     <property name="geometry">
-      <rect>
-       <x>13</x>
-       <y>10</y>
-       <width>16</width>
-       <height>23</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="checked">
-      <bool>false</bool>
-     </property>
-    </widget>
     <widget class="QFrame" name="frame_11">
      <property name="geometry">
       <rect>
@@ -437,9 +416,9 @@
       <property name="geometry">
        <rect>
         <x>13</x>
-        <y>10</y>
-        <width>16</width>
-        <height>23</height>
+        <y>0</y>
+        <width>31</width>
+        <height>41</height>
        </rect>
       </property>
       <property name="font">
@@ -480,9 +459,9 @@
      <property name="geometry">
       <rect>
        <x>13</x>
-       <y>10</y>
-       <width>16</width>
-       <height>23</height>
+       <y>0</y>
+       <width>31</width>
+       <height>41</height>
       </rect>
      </property>
      <property name="font">
@@ -521,10 +500,10 @@
     <widget class="QRadioButton" name="radio_100">
      <property name="geometry">
       <rect>
-       <x>17</x>
-       <y>10</y>
-       <width>16</width>
-       <height>23</height>
+       <x>19</x>
+       <y>0</y>
+       <width>31</width>
+       <height>41</height>
       </rect>
      </property>
      <property name="font">

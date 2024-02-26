@@ -31,26 +31,26 @@ class ConcurrentTaskRecorder(DataRecorderBase):
         self.record(row)
 
 
-class SurveyRecorder:
-    def __init__(self, trust_path, usability_path):
-        if trust_path is not None:
-            header = ["Q{}".format(x+1) for x in range(14)] + ['score'] + ['time stamp']
-            self.trust_recorder = DataRecorderBase(trust_path, header)
-            self.trust_recorder.write_header()
+class TrustRecorder:
+    def __init__(self, trust_path):
+        header = ["Q{}".format(x+1) for x in range(14)] + ['score'] + ['time stamp']
+        self.trust_recorder = DataRecorderBase(trust_path, header)
+        self.trust_recorder.write_header()
 
-        if usability_path is not None:
-            header = ["Q{}".format(x + 1) for x in range(10)] + ['score'] + ['time stamp']
-            self.usability_recorder = DataRecorderBase(usability_path, header)
-            self.usability_recorder.write_header()
-
-    def record_trust(self, responses, score, timestamp):
+    def record(self, responses, score, timestamp):
         row = [*responses, score, timestamp]
         self.trust_recorder.record(row)
 
-    def record_usability(self, responses, score, timestamp):
+
+class UsabilityRecorder:
+    def __init__(self, usability_path):
+        header = ["Q{}".format(x + 1) for x in range(10)] + ['score'] + ['time stamp']
+        self.usability_recorder = DataRecorderBase(usability_path, header)
+        self.usability_recorder.write_header()
+
+    def record(self, responses, score, timestamp):
         row = [*responses, score, timestamp]
         self.usability_recorder.record(row)
-
 
 
 class PrimaryTaskRecorder(DataRecorderBase):

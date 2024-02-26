@@ -3,10 +3,9 @@ from PyQt5 import QtWidgets
 import time
 import numpy as np
 from PyQt5.QtWidgets import QMessageBox
-from datetime import datetime
 
 from surveys.usability_survey import Ui_Survey
-from analysis.data_recorder import SurveyRecorder
+
 
 class Popup(QtWidgets.QDialog, Ui_Survey):
     def __init__(self, prompt, number, total):
@@ -68,12 +67,13 @@ def run_survey_popup_online():
             resp = ui.save()
             resp = resp.replace('radio_', '')
             responses.append(int(resp))
+            resp = int(resp)
             if num % 2 == 0:
-                resp = int(resp) - 1
+                resp = resp-1
             else:
-                resp = 5-int(resp)
+                resp = 5-resp
             scores.append(resp)
-        score = np.sum(responses) * 2.5
+        score = np.sum(scores) * 2.5
         print("Scored: ", score)
     except Exception as e:
         traceback.print_exc()
@@ -94,4 +94,3 @@ if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     resp, score = run_survey_popup_online()
-    sys.exit(app.exec_())

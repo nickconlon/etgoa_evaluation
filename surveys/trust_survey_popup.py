@@ -45,19 +45,27 @@ def run_survey_popup_online():
     responses = []
     score = -1
     try:
-        prompts = ['Dependable', 'Reliable', 'Unresponsive', 'Predictable',
-                   'Act consistently', 'Malfunction', 'Require frequent maintenance', 'Have errors',
-                   'Provide feedback', 'Meet the needs of the mission/task',
-                   'Provide appropriate information', 'Communicate with people',
-                   'Perform exactly as instructed', 'Follow directions']
+        prompts = ['Function successfully',
+                   'Act consistently',
+                   'Reliable',
+                   'Predictable',
+                   'Dependable',
+                   'Follow directions',
+                   'Meet the needs of the mission',
+                   'Perform exactly as instructed',
+                   'Have errors',
+                   'Provide appropriate information',
+                   'Malfunction',
+                   'Communicate with people',
+                   'Provide feedback',
+                   'Unresponsive']
+        section_idx = [1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0]
+        reverse_codes = ['Unresponsive', 'Malfunction', 'Have errors']
 
-        reverse_codes = ['Unresponsive', 'Malfunction', 'Require frequent maintenance', 'Have errors']
-
-        sections = (['What % of the time will this robot be...'] * 4
-                    + ['What % of the time will this robot...'] * 10)
+        sections = ('What % of the time will this robot be...', 'What % of the time will this robot...')
         responses = []
-        for num, (p, s) in enumerate(zip(prompts, sections)):
-            ui = Popup(p, s, num+1, 14)
+        for num, (p, s_idx) in enumerate(zip(prompts, section_idx)):
+            ui = Popup(p, sections[s_idx], num+1, 14)
             ui.exec_()
             resp = ui.save()
             resp = resp.replace('radio_', '')
@@ -87,4 +95,3 @@ if __name__ == "__main__":
 
     app = QtWidgets.QApplication(sys.argv)
     resp, score = run_survey_popup_online()
-    sys.exit(app.exec_())
