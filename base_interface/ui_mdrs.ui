@@ -139,7 +139,7 @@
     <widget class="QLabel" name="state_text">
      <property name="geometry">
       <rect>
-       <x>106</x>
+       <x>110</x>
        <y>295</y>
        <width>201</width>
        <height>31</height>
@@ -157,7 +157,7 @@
     <widget class="QLabel" name="time_text">
      <property name="geometry">
       <rect>
-       <x>107</x>
+       <x>110</x>
        <y>255</y>
        <width>201</width>
        <height>31</height>
@@ -277,7 +277,7 @@
     <widget class="QWidget" name="verticalLayoutWidget">
      <property name="geometry">
       <rect>
-       <x>104</x>
+       <x>110</x>
        <y>35</y>
        <width>201</width>
        <height>71</height>
@@ -725,7 +725,7 @@
     <widget class="QLabel" name="gps_connected_indicator">
      <property name="geometry">
       <rect>
-       <x>20</x>
+       <x>30</x>
        <y>80</y>
        <width>41</width>
        <height>21</height>
@@ -741,7 +741,7 @@
     <widget class="QLabel" name="robot_connected_indicator">
      <property name="geometry">
       <rect>
-       <x>20</x>
+       <x>30</x>
        <y>40</y>
        <width>41</width>
        <height>21</height>
@@ -760,7 +760,7 @@
     <widget class="QLabel" name="cameraFF_connected_indicator">
      <property name="geometry">
       <rect>
-       <x>160</x>
+       <x>170</x>
        <y>80</y>
        <width>41</width>
        <height>21</height>
@@ -776,7 +776,7 @@
     <widget class="QLabel" name="camera360_connected_indicator">
      <property name="geometry">
       <rect>
-       <x>160</x>
+       <x>170</x>
        <y>40</y>
        <width>41</width>
        <height>21</height>
@@ -792,7 +792,7 @@
     <widget class="QLabel" name="label_9">
      <property name="geometry">
       <rect>
-       <x>70</x>
+       <x>80</x>
        <y>40</y>
        <width>81</width>
        <height>21</height>
@@ -805,7 +805,7 @@
     <widget class="QLabel" name="label_10">
      <property name="geometry">
       <rect>
-       <x>70</x>
+       <x>80</x>
        <y>80</y>
        <width>81</width>
        <height>21</height>
@@ -818,7 +818,7 @@
     <widget class="QLabel" name="label_11">
      <property name="geometry">
       <rect>
-       <x>210</x>
+       <x>220</x>
        <y>80</y>
        <width>91</width>
        <height>21</height>
@@ -854,9 +854,9 @@
     <widget class="QLabel" name="label_12">
      <property name="geometry">
       <rect>
-       <x>210</x>
+       <x>220</x>
        <y>40</y>
-       <width>121</width>
+       <width>101</width>
        <height>21</height>
       </rect>
      </property>
@@ -1577,7 +1577,7 @@ Drive</string>
      <x>0</x>
      <y>0</y>
      <width>1859</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

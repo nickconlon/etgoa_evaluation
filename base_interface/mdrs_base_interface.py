@@ -531,12 +531,13 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         """
         try:
             if self.mission_control.backup_batts_used == 0:
-                text = 'Primary: {}% Backup {}: {}%'.format(int(self.battery_level), 1, 100)
+                primary_text = 'Primary: {}%'.format(int(self.battery_level))
+                secondary_text = 'Backup {}: {}%'.format(1, 100)
             else:
-                text = 'Primary: {}% Backup {}: {}%'.format(int(self.backup_battery_level),
-                                                            self.robot_battery_slider.value(),
-                                                            int(self.battery_level))
-            self.battery_text.setText(text)
+                primary_text = 'Primary: {}%'.format(int(self.backup_battery_level))
+                secondary_text = 'Backup {}: {}%'.format(self.robot_battery_slider.value(), int(self.battery_level))
+            self.battery_text.setText(primary_text)
+            self.battery_backup_text.setText(secondary_text)
         except Exception as e:
             traceback.print_exc()
 
