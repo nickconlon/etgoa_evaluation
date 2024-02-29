@@ -1,8 +1,12 @@
 pois:
   A:
-    center: [1.5, 6]
+    center: [1.0, 9.25]
+  B:
+    center: [4.25, 6]
+  C:
+    center: [0.25, 3]
   H:
-    center: [2.5, 0]
+    center: [4, 0]
 obstructions:
 # left side obstacles
   o1:
@@ -67,15 +71,10 @@ obstructions:
     radius: 0.6
     effect: 1
     visible: true
-hazards:
-  h1:
-    center: [2, 3.5]
-    radius: 2
-    effect: 0.005
-    visible: true
+hazards: {}
 power_draws: {}
 area: aspen
-mode: cu
+mode: cu #mdrs or cu
 robot_name: case
 record_path: ./data
 map_path: ./imgs/display_area.png
@@ -91,7 +90,11 @@ et_goa_stds: [0.75, 0.75, 0.2, 0.5]
 batt_drain_anomaly: 0.05
 num_backup_batteries: 10
 speed_anomaly: 0.25
-available_pois: [A, B, C, D]
-show_surveys: [true, true, true, true]
-training: true
-map: t3
+available_pois: [A, B, C]
+show_surveys:
+  pre-planning: false
+  post-planning: false
+  post-mission: false
+  usability: false
+training: false
+map: m1

@@ -155,14 +155,14 @@ def outcome_home_arrival(rollouts, outcome):
             arrived.append(0)
     return arrived
 
-def compute_outcomes(time_offset=0):
+def compute_outcomes(time_offset=0, max_time=60*5):
     print('computing outcome')
     data = get_rollouts()
     for d in data:
         d[:, 11] += time_offset # update the time field
     goas = {
         'poi_arrival': fmc.assess_rollouts(outcome_poi_arrival(data, 1), bins=[-0.5, 0.5, 1.5], z_star=2),
-        'time': fmc.assess_rollouts(outcome_time(data, 60*5), bins=[-0.5, 0.5, 1.5], z_star=2),
+        'time': fmc.assess_rollouts(outcome_time(data, max_time), bins=[-0.5, 0.5, 1.5], z_star=2),
         'battery': fmc.assess_rollouts(outcome_battery(data, 50), bins=[-0.5, 0.5, 1.5], z_star=2),
         'obstacles': fmc.assess_rollouts(outcome_obstacles(data, 1), bins=[-0.5, 0.5, 1.5], z_star=2),
         'TODO': fmc.assess_rollouts(outcome_home_arrival(data, 1), bins=[-0.5, 0.5, 1.5], z_star=2)

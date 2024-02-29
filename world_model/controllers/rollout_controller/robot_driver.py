@@ -165,6 +165,17 @@ def update_machine(_current_state_machine, _current_state, _goal, _next_waypoint
         _state_machine = StateMachine.replan
     return _state_machine
 
+def handle_zero_velocity_fast(max_time, robot, goal, waypoint_counter, state):
+    print('impossible velocity')
+    # If the robot is not moving, then it most likely will not achieve any mission goals.
+    for t in np.arange(0, max_time / 2, 0.064):
+        pose = robot.getSelf().getField('translation').getSFVec3f()
+        orient = robot.getSelf().getField('rotation').getSFRotation()
+        vel = robot.getSelf().getVelocity()
+        battery = 0  # np.maximum(battery - 0.064 * batt_rate + (np.random.normal(0.0, 0.05)), 0.0)
+        state_object = StateObject()
+        state_object.set_state(pose, orient, vel[:2], battery, t, time.time(), goal, waypoint_counter, '')
+        state.append(np.array(state_object.get_state_array(), dtype=object))
 
 def run(goal, robot, wheels, gps, compass, known_obstacles, batt_level, battery_rate, velocity_rate, waypoints, waypoint_index, run_number, run_prefix, max_time):
     velocity_noise = np.random.normal(loc=0.0, scale=0.5)
@@ -187,16 +198,19 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, batt_level, battery_
         """
         Capture the current state of the robot
         """
-        if vel_rate <= 0.01:
-            print('impossible velocity')
+        if vel_rate <= 0.06:
+            handle_zero_velocity_fast(max_time, robot, goal, waypoint_counter, state)
+            '''print('impossible velocity')
+            # If the robot is not moving, then it most likely will not achieve any mission goals.
             for t in np.arange(0, max_time/2, 0.064):
                 pose = robot.getSelf().getField('translation').getSFVec3f()
                 orient = robot.getSelf().getField('rotation').getSFRotation()
                 vel = robot.getSelf().getVelocity()
-                battery = np.maximum(battery - 0.064 * batt_rate + (np.random.normal(0.0, 0.05)), 0.0)
+                battery = 0 #np.maximum(battery - 0.064 * batt_rate + (np.random.normal(0.0, 0.05)), 0.0)
                 state_object = StateObject()
                 state_object.set_state(pose, orient, vel[:2], battery, t, time.time(), goal, waypoint_counter, '')
                 state.append(np.array(state_object.get_state_array(), dtype=object))
+            '''
             np.save(state_path, state)
             break
         sample_time = robot.getTime() - t0

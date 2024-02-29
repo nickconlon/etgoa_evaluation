@@ -22,6 +22,7 @@ class MissionControl:
         self.backup_batts_used = 0
         self.tmp_anomaly_type = ''
         self.tmp_battery_level = 100
+        self.lowest_batt_level = 100
 
     def set_mission_pois(self, pois):
         self.mission_pois = []
@@ -32,7 +33,8 @@ class MissionControl:
         text = 'Available POIs for this mission:\n\n'+', '.join(self.mission_pois)
         return text
 
-    def get_response(self, anomaly, anomaly_type, batt_level):
+    def get_response(self, anomaly, anomaly_type, batt_level, mission_time):
+        self.lowest_batt_level = np.minimum(self.lowest_batt_level, batt_level)
         if anomaly:
             self.tmp_anomaly_type = anomaly_type
             self.tmp_battery_level = batt_level
@@ -43,7 +45,11 @@ class MissionControl:
             self.power = np.random.randint(5, self.power_max) if 'h' in anomaly_type or 'b' in anomaly_type else self.power
             return self.help_responses[self.GENERAL].format(self.battery, self.gps, self.power)
         else:
-            return 'Everything looks fine from here!\n\nIf something looks wrong,\ntry using Make Plan'
+            mins = mission_time // 60
+            secs = mission_time % 60
+            textm = "{}".format(str(int(mins)).rjust(2, "0"))
+            texts = "{}".format(str(int(secs)).rjust(2, "0"))
+            return 'Mission time: {}:{}\nEverything looks fine from here.\n\nIf something looks wrong,\ntry using Make Plan'.format(textm, texts)
 
     def check_strategy(self, power, gps, battery):
         if self.battery == battery and self.gps == gps and self.power == power:

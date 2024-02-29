@@ -126,10 +126,11 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.etgoa.set_pred_paths([self.rollout_path.format(i) for i in range(10)])
             self.rollout_thread = None
             self.et_goa_threshold = settings.et_goa_threshold
-            self.objective_2_text.setText(self.objective_2_text.text().replace('X', '5'))
-            self.objective_3_text.setText(self.objective_3_text.text().replace('X %', '50%'))
+        self.objective_2_text.setText(self.objective_2_text.text().replace('X', '8'))
+        self.objective_3_text.setText(self.objective_3_text.text().replace('X %', '50%'))
         self.mqa = [0] * len(settings.et_goa_stds)
         self.goa = [0] * 5  # []
+        self.max_mission_time  = 8 * 60
 
         #################
         # Setup the mission control panel
@@ -364,18 +365,18 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             print('     Goal outcome :', self.mission_manager.captured_home, self.mission_manager.captured_goal)
 
             # Arrived within time limit
-            achieved = self.mission_time < 5 * 60
+            achieved = self.mission_time < self.max_mission_time
             colors.append(green if achieved else red)
             assmts.append(achieve if achieved else fail)
             self.mission_objectives['time'] = int(achieved)
             print('     Time outcome :', self.mission_time)
 
             # Battery always above threshold
-            achieved = self.battery_level >= 50 and self.backup_battery_level >= 50
+            achieved = np.min([self.battery_level, self.backup_battery_level, self.mission_control.lowest_batt_level]) >= 50
             colors.append(green if achieved else red)
             assmts.append(achieve if achieved else fail)
             self.mission_objectives['battery'] = int(achieved)
-            print('     Battery outcome (primary, backup):', self.battery_level, self.backup_battery_level)
+            print('     Battery outcome (primary, backup, lowest):', self.battery_level, self.backup_battery_level, self.mission_control.lowest_batt_level)
 
             # Battery always above threshold
             achieved = self.mission_manager.hit_known_hazards == 0
@@ -530,9 +531,11 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         """
         try:
             if self.mission_control.backup_batts_used == 0:
-                text = 'Primary: {}% Backup: {}%'.format(int(self.battery_level), 100)
+                text = 'Primary: {}% Backup {}: {}%'.format(int(self.battery_level), 1, 100)
             else:
-                text = 'Primary: {}% Backup: {}%'.format(int(self.backup_battery_level), int(self.battery_level))
+                text = 'Primary: {}% Backup {}: {}%'.format(int(self.backup_battery_level),
+                                                            self.robot_battery_slider.value(),
+                                                            int(self.battery_level))
             self.battery_text.setText(text)
         except Exception as e:
             traceback.print_exc()
@@ -645,13 +648,13 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                     self.rollout_thread.battery = self.battery_level
                     self.rollout_thread.known_obstacles = self.mission_manager.get_all_active_visible_obstacles()
                     self.rollout_thread.time_offset = self.mission_time
+                    self.rollout_thread.max_time = self.max_mission_time
                     if trigger == 'planning_assessing':
                         # During mission planning, parameter values are at their baseline
                         self.rollout_thread.velocity_rate = 1.0
                         self.rollout_thread.battery_rate = self.batt_drain_rate
                     elif trigger == 'et_goa':
                         # During mission execution, parameter values may have changed
-                        # TODO readjust this, so we don't accidentally get zero velocity
                         self.rollout_thread.velocity_rate = float(np.mean(np.asarray(self.mean_velocity)) / 0.25)
                         self.rollout_thread.battery_rate = float(np.mean(np.asarray(self.mean_battery)))
                         self.rollout_thread.time_offset = float(self.mission_time)
@@ -693,7 +696,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 goas_val = []
                 goa_text = []
                 colors = []
-
+                if self.mission_control.backup_batts_used > 1:
+                    goa_ret['battery'] = 0
                 for gg in goa_ret.items():
                     outcome = gg[1]
                     goas_val.append(outcome)
@@ -759,6 +763,34 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         :return:
         """
         try:
+            if self.mission_state.state == ControlModeState.anomaly_found:
+                self.splash_of_color(self.manual_drive_mode_button, color='light grey', timeout=0)
+                self.splash_of_color(self.automatic_drive_mode_button, color='light grey', timeout=0)
+                self.splash_of_color(self.stop_mode_button, color='green', timeout=0)
+
+                self.robot_battery_slider.setEnabled(True)
+                self.robot_gps_slider.setEnabled(True)
+                self.robot_power_slider.setEnabled(True)
+                self.request_help_button.setDisabled(True)
+
+                # Stop always enabled
+                self.stop_mode_button.setDisabled(True)
+
+                # control modes
+                self.automatic_drive_mode_button.setDisabled(True)
+                self.manual_drive_mode_button.setDisabled(True)
+
+                # Manual control buttons
+                self.forward_button_2.setDisabled(True)
+                self.back_button_2.setDisabled(True)
+                self.left_button_2.setDisabled(True)
+                self.right_button_2.setDisabled(True)
+
+                # Planning buttons
+                self.poi_selection.setDisabled(True)
+                self.plan_poi_button.setDisabled(True)
+                self.accept_poi_button.setDisabled(True)
+
             if self.mission_state.state == ControlModeState.planning:
                 self.splash_of_color(self.manual_drive_mode_button, color='light grey', timeout=0)
                 self.splash_of_color(self.automatic_drive_mode_button, color='light grey', timeout=0)
@@ -1127,12 +1159,12 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.robot_gps_slider.setEnabled(True)
             self.robot_power_slider.setEnabled(True)
             self.request_help_button.setDisabled(True)
-            self.update_mission_control_text(self.mission_control.get_response(True, anomaly_type, self.battery_level), 'red')
+            self.update_mission_control_text(self.mission_control.get_response(True, anomaly_type, self.battery_level, self.mission_time), 'red')
             self.update_state_machine('help_request')
         else:
             self.stop_mode_button.click()
             self.update_state_machine('anomaly_fixed')
-            self.update_mission_control_text(self.mission_control.get_response(False, anomaly_type, self.battery_level), 'green')
+            self.update_mission_control_text(self.mission_control.get_response(False, anomaly_type, self.battery_level, self.mission_time), 'green')
 
         time.sleep(0.1)  # just in case some asynch messes up the periodic button activation and this click
 

@@ -48,7 +48,7 @@ def do_rollout(position, orientation, goal, batt_level, batt_rate, vel_rate,
     cmd = ['webots', wp_executable_path, '--minimize', '--batch', '--mode=fast', '--stdout']
     p = Popen(cmd)
     stdout, stderr = p.communicate()
-    goas = compute_outcomes(time_offset=time_offset)
+    goas = compute_outcomes(time_offset=time_offset, max_time=max_time)
     return goas
 
 
