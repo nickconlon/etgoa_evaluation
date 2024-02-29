@@ -164,8 +164,7 @@ def compute_outcomes(time_offset=0, max_time=60*5):
         'poi_arrival': fmc.assess_rollouts(outcome_poi_arrival(data, 1), bins=[-0.5, 0.5, 1.5], z_star=2),
         'time': fmc.assess_rollouts(outcome_time(data, max_time), bins=[-0.5, 0.5, 1.5], z_star=2),
         'battery': fmc.assess_rollouts(outcome_battery(data, 50), bins=[-0.5, 0.5, 1.5], z_star=2),
-        'obstacles': fmc.assess_rollouts(outcome_obstacles(data, 1), bins=[-0.5, 0.5, 1.5], z_star=2),
-        'TODO': fmc.assess_rollouts(outcome_home_arrival(data, 1), bins=[-0.5, 0.5, 1.5], z_star=2)
+        'obstacles': fmc.assess_rollouts(outcome_obstacles(data, 1), bins=[-0.5, 0.5, 1.5], z_star=2)
     }
     return goas
 

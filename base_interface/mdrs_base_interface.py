@@ -388,13 +388,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.mission_objectives['hazards'] = int(achieved)
             print('     Avoidance outcome :', self.mission_manager.hit_known_hazards)
 
-            # TODO outcome
-            achieved = True
-            colors.append(green if achieved else red)
-            assmts.append(achieve if achieved else fail)
-            self.mission_objectives['todo'] = int(achieved)
-            print('     TODO outcome :', self.mission_manager.hit_known_hazards)
-
             self.update_assessment_text(assmts, colors)
         except Exception as e:
             traceback.print_exc()
@@ -592,7 +585,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.accept_poi_button.setStyleSheet('background-color: light grey')
         self.assessment_started_sound.play()
         if self.poi_selected:
-            self.update_assessment_text(['']*5, ['light grey']*5)
+            self.update_assessment_text(['']*4, ['light grey']*4)
             self.update_state_machine('started_planning')
             self.mission_manager.delete_plan()
             print('Planning route to POI: ', self.poi_selected)
@@ -636,8 +629,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                     # Maybe add back the current (x,y) location to the beginning of the plan?
                     self.update_state_machine('started_assessing')
                     self.splash_of_color(self.competency_assessment_frame, color='light grey', timeout=0)
-                    labels = [self.objective_1_assmt, self.objective_2_assmt, self.objective_3_assmt,
-                              self.objective_4_assmt, self.objective_5_assmt]
+                    labels = [self.objective_1_assmt, self.objective_2_assmt,
+                              self.objective_3_assmt, self.objective_4_assmt]
                     for label in labels:
                         label.setStyleSheet('background-color: {}; color: black'.format('green'))
                         label.setText("{}".format('Computing...'))
@@ -679,7 +672,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                   self.objective_2_assmt,  # time
                   self.objective_3_assmt,  # battery level
                   self.objective_4_assmt,  # avoid stuff
-                  self.objective_5_assmt]
+                 ]
         for text, color, label in zip(texts, colors, labels):
             label.setStyleSheet(
                 'background-color: {}; color: black'.format(color))
