@@ -167,6 +167,9 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.obstacle_y.setDisabled(True)
             self.obstacle_r.setDisabled(True)
             self.obstacle_scroll.setDisabled(True)
+
+            self.set_home_button.setVisible(False)
+            self.add_obstacle_frame.setVisible(False)
         else: # TODO cover this area with something fun
             self.mission_control_panel.setVisible(False)
 
