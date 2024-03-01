@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>900</width>
+    <width>895</width>
     <height>300</height>
    </rect>
   </property>
@@ -19,8 +19,8 @@
   <widget class="QFrame" name="frame">
    <property name="geometry">
     <rect>
-     <x>484</x>
-     <y>140</y>
+     <x>544</x>
+     <y>160</y>
      <width>211</width>
      <height>41</height>
     </rect>
@@ -250,8 +250,8 @@
   <widget class="QLabel" name="prompt_text">
    <property name="geometry">
     <rect>
-     <x>24</x>
-     <y>120</y>
+     <x>84</x>
+     <y>140</y>
      <width>461</width>
      <height>61</height>
     </rect>
@@ -271,8 +271,8 @@
   <widget class="QFrame" name="frame_13">
    <property name="geometry">
     <rect>
-     <x>484</x>
-     <y>90</y>
+     <x>544</x>
+     <y>110</y>
      <width>211</width>
      <height>41</height>
     </rect>
@@ -504,7 +504,7 @@
     <rect>
      <x>30</x>
      <y>10</y>
-     <width>571</width>
+     <width>861</width>
      <height>31</height>
     </rect>
    </property>
@@ -514,14 +514,14 @@
     </font>
    </property>
    <property name="text">
-    <string>Please answer the following question</string>
+    <string>Please answer the following question about your robotic partner</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>440</x>
-     <y>30</y>
+     <x>500</x>
+     <y>50</y>
      <width>91</width>
      <height>51</height>
     </rect>
@@ -542,8 +542,8 @@ disagree</string>
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>650</x>
-     <y>30</y>
+     <x>710</x>
+     <y>50</y>
      <width>101</width>
      <height>51</height>
     </rect>

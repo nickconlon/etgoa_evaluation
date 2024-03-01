@@ -1050,7 +1050,7 @@
     <rect>
      <x>30</x>
      <y>10</y>
-     <width>571</width>
+     <width>861</width>
      <height>31</height>
     </rect>
    </property>
@@ -1060,7 +1060,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Please answer the following question</string>
+    <string>Please answer the following question about your robot partner</string>
    </property>
   </widget>
  </widget>

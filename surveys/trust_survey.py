@@ -396,7 +396,7 @@ class Ui_Survey(object):
         self.label_23.setAlignment(QtCore.Qt.AlignCenter)
         self.label_23.setObjectName("label_23")
         self.label_2 = QtWidgets.QLabel(Survey)
-        self.label_2.setGeometry(QtCore.QRect(30, 10, 571, 31))
+        self.label_2.setGeometry(QtCore.QRect(30, 10, 861, 31))
         font = QtGui.QFont()
         font.setPointSize(14)
         self.label_2.setFont(font)
@@ -421,7 +421,7 @@ class Ui_Survey(object):
         self.label_21.setText(_translate("Survey", "80"))
         self.label_22.setText(_translate("Survey", "90"))
         self.label_23.setText(_translate("Survey", "100"))
-        self.label_2.setText(_translate("Survey", "Please answer the following question"))
+        self.label_2.setText(_translate("Survey", "Please answer the following question about your robot partner"))
 
 
 if __name__ == "__main__":
