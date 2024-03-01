@@ -11,8 +11,9 @@ import qdarktheme
 
 from surveys.trust_survey_popup import run_survey_popup_online as run_trust
 from surveys.usability_survey_popup import run_survey_popup_online as run_usability
+from surveys.demographics_survey_popup import run_survey_popup_online as run_demographics
 from base_interface.settings import Settings
-from analysis.data_recorder import UsabilityRecorder, TrustRecorder
+from analysis.data_recorder import UsabilityRecorder, TrustRecorder, DemographicsRecorder
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -27,23 +28,38 @@ if __name__ == '__main__':
     settings = Settings(args.settings)
     settings.read()
 
+    todo = []
+    if args.type == 'before':
+        todo = ['trust']
+    if args.type == 'after':
+        todo = ['trust', 'usability', 'demographics']
+
     fname = ''
-    survey = None
+    available_surveys = []
+    available_recorders = []
 
-    if args.type == 'trust':
+    print('Starting survey for {}'.format(args.type))
+    if 'trust' in todo:
         fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_trust_survey.csv'
-        survey = run_trust
-        recorder = TrustRecorder(os.path.join(settings.record_path, fname))
+        available_surveys.append(run_trust)
+        available_recorders.append(TrustRecorder(os.path.join(settings.record_path, fname)))
 
-    elif args.type == 'usability':
+    if 'usability' in todo:
         fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_usability_survey.csv'
-        survey = run_usability
-        recorder = UsabilityRecorder(os.path.join(settings.record_path, fname))
+        available_surveys.append(run_usability)
+        available_recorders.append(UsabilityRecorder(os.path.join(settings.record_path, fname)))
+
+    if 'demographics' in todo:
+        fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_demographics_survey.csv'
+        available_surveys.append(run_demographics)
+        available_recorders.append(DemographicsRecorder(os.path.join(settings.record_path, fname)))
 
     qdarktheme.enable_hi_dpi()
     app = QtWidgets.QApplication(sys.argv)
     qdarktheme.setup_theme()
-    t1 = time.time()
-    resp, score = survey()
-    t2 = time.time()
-    recorder.record(resp, score, abs(t2 - t1))
+    for survey, recorder in zip(available_surveys, available_recorders):
+        t1 = time.time()
+        resp = survey()
+        t2 = time.time()
+        recorder.record(resp, abs(t2 - t1))
+        time.sleep(1)

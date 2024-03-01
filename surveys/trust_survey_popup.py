@@ -75,9 +75,10 @@ def run_survey_popup_online():
                 resp = int(resp)
             responses.append(resp)
         score = np.sum(responses)/14
+        responses.append(score)
     except Exception as e:
         traceback.print_exc()
-    return responses, score
+    return responses
 
 
 def run_survey_popup_offline(survey_number):
@@ -94,4 +95,4 @@ if __name__ == "__main__":
     import sys
 
     app = QtWidgets.QApplication(sys.argv)
-    resp, score = run_survey_popup_online()
+    resp = run_survey_popup_online()
