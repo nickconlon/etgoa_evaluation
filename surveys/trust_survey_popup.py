@@ -14,7 +14,7 @@ class Popup(QtWidgets.QDialog, Ui_Survey):
         self.results = ''
         self.prompt_text.setText(prompt)
         self.section_text.setText(section)
-        self.label_2.setText(self.label_2.text() + " {}/{}".format(number, total))
+        self.label_2.setText(self.label_2.text() + "  ({}/{})".format(number, total))
         self.radio_0.clicked.connect(lambda: self.capture_response(self.radio_0))
         self.radio_10.clicked.connect(lambda: self.capture_response(self.radio_10))
         self.radio_20.clicked.connect(lambda: self.capture_response(self.radio_20))
