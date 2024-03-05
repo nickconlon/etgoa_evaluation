@@ -83,7 +83,7 @@ class PrimaryTaskRecorder(DataRecorderBase):
                   'power value', 'gps frequency',
                   'anomaly state',
                   'mission control text',
-                  'goa', 'mqa','mission outcomes',
+                  'goa', 'mqa', 'mission outcomes', 'resources found',
                   'timestamp',
                   'condition', 'configuration']
         DataRecorderBase.__init__(self, fname, header)
@@ -98,7 +98,7 @@ class PrimaryTaskRecorder(DataRecorderBase):
                 power_value, gps_value,
                 experiencing_anomaly,
                 mission_control_text,
-                goa, mqa, mission_outcomes,
+                goa, mqa, mission_outcomes, resources_found,
                 mission_time):
         try:
             row = [latitude, longitude, altitude,
@@ -108,7 +108,7 @@ class PrimaryTaskRecorder(DataRecorderBase):
                    power_value, gps_value,
                    experiencing_anomaly,
                    mission_control_text,
-                   goa, mqa, mission_outcomes,
+                   goa, mqa, mission_outcomes, resources_found,
                    mission_time,
                    self.condition, self.configuration]
             self.record(row)

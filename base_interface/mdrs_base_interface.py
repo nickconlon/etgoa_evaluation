@@ -249,6 +249,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                                        "|".join(["{:.2f}".format(x) for x in self.goa]),
                                        "|".join(["{:.2f}".format(x) for x in self.mqa]),
                                        "|".join([str(x) for x in self.mission_objectives.values()]),
+                                       self.resources_found(),
                                        self.mission_time)
             self.mission_objectives = {}
 
@@ -272,6 +273,19 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             elif self.mission_manager.captured_goal:
                 print('goal captured at t=', self.mission_time)
                 self.update_state_machine('captured_goal')
+
+    def resources_found(self):
+        data = '{}|{}|{}|{}|{}'.format(-1, -1, -1, -1, -1)
+        try:
+            iron = self.iron_checkbox.isChecked()
+            gold = self.gold_checkbox.isChecked()
+            lith = self.lithium_checkbox.isChecked()
+            cob = self.cobolt_checkbox.isChecked()
+            zinc = self.zinc_checkbox.isChecked()
+            data = '{}|{}|{}|{}|{}'.format(iron, gold, lith, cob, zinc)
+        except Exception as e:
+            traceback.print_exc()
+        return data
 
     def update_state_machine(self, transition):
         next_state = self.mission_state.state
