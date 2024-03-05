@@ -21,7 +21,7 @@ if __name__ == '__main__':
                         default='./scenarios/settings.yaml',
                         help='path to settings file')
     parser.add_argument("-t", "--type",
-                        default='usability',
+                        default='before',
                         help='type of survey: usability or trust')
     args = parser.parse_args()
 

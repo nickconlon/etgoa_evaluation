@@ -153,6 +153,7 @@ class InterfaceImpl(BaseInterface):
         try:
             self.img_msg = msg
             self.sensor2_connected = self.mission_time
+            self.sensor1_connected = self.mission_time
         except Exception as e:
             traceback.print_exc()
 

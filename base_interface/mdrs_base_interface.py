@@ -231,9 +231,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.update_mission_time()
                 self.update_battery_level()
                 self.update_connections()
-
                 self.update_battery_text()
-                self.update_velocity_text()
                 self.update_heading_text()
                 self.update_position_text()
                 self.update_map()
@@ -255,6 +253,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.mission_objectives = {}
 
             # always update these
+            self.update_velocity_text()
             self.update_robot_state_text()
             self.update_complete()
             self.update_time_text()
@@ -693,7 +692,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 goas_val = []
                 goa_text = []
                 colors = []
-                if self.mission_control.backup_batts_used > 1:
+                if self.mission_control.backup_batts_used > 1 or self.battery_level < 50 or self.backup_battery_level < 50:
                     goa_ret['battery'] = 0
                 for gg in goa_ret.items():
                     outcome = gg[1]

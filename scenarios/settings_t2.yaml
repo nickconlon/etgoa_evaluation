@@ -1,6 +1,10 @@
 pois:
   A:
-    center: [1.5, 6]
+    center: [2, 2]
+  B:
+    center: [3.5, 8]
+  C:
+    center: [ 0.5, 4 ]
   H:
     center: [2.5, 0]
 obstructions:
@@ -68,11 +72,25 @@ obstructions:
     effect: 1
     visible: true
 hazards:
-  {}
+  h1:
+    center: [ 2, 6 ]
+    radius: 1
+    effect: 0.005
+    visible: false
+  h2:
+    center: [ 0, 8 ]
+    radius: 0.4
+    effect: 0.005
+    visible: true
 power_draws:
   b1:
-    center: [2, 3.5]
-    radius: 2
+    center: [ 2, 4 ]
+    radius: 1.5
+    effect: 20
+    visible: false
+  b2:
+    center: [ 1, -1 ]
+    radius: 0.3
     effect: 10
     visible: true
 area: aspen
@@ -92,7 +110,7 @@ et_goa_stds: [0.75, 0.75, 0.2, 0.5]
 batt_drain_anomaly: 0.05
 num_backup_batteries: 10
 speed_anomaly: 0.25
-available_pois: [A, B, C, D]
+available_pois: [A, B, C]
 show_surveys: [true, true, true, true]
 training: true
-map: t2
+map: t1

@@ -10,7 +10,7 @@ import time
 import pioneer_controller as pioneer
 import matplotlib.pyplot as plt
 from comms import settings_reader, StateObject
-import json
+from collections import deque
 
 TIME_STEP = 64
 
@@ -165,7 +165,7 @@ def update_machine(_current_state_machine, _current_state, _goal, _next_waypoint
         _state_machine = StateMachine.replan
     return _state_machine
 
-def handle_zero_velocity_fast(max_time, robot, goal, waypoint_counter, state):
+def handle_zero_velocity_fast(max_time, robot, goal, waypoint_counter, state, known_obstacles):
     print('impossible velocity')
     # If the robot is not moving, then it most likely will not achieve any mission goals.
     for t in np.arange(0, max_time / 2, 0.064):
@@ -174,7 +174,16 @@ def handle_zero_velocity_fast(max_time, robot, goal, waypoint_counter, state):
         vel = robot.getSelf().getVelocity()
         battery = 0  # np.maximum(battery - 0.064 * batt_rate + (np.random.normal(0.0, 0.05)), 0.0)
         state_object = StateObject()
-        state_object.set_state(pose, orient, vel[:2], battery, t, time.time(), goal, waypoint_counter, '')
+        hit_obstacles = []
+        for oid, o in known_obstacles.items():
+            if np.linalg.norm(np.asarray(pose[:2]) - np.asarray(o['center'])) < o['radius']:
+                # Only respond to obstacles of type h or b
+                if 'h' in oid:
+                    hit_obstacles.append(oid)
+                if 'b' in oid:
+                    hit_obstacles.append(oid)
+        hit_obstacles = '|'.join(hit_obstacles)
+        state_object.set_state(pose, orient, vel[:2], battery, t+500, time.time()+500, goal, waypoint_counter, hit_obstacles)
         state.append(np.array(state_object.get_state_array(), dtype=object))
 
 def run(goal, robot, wheels, gps, compass, known_obstacles, batt_level, battery_rate, velocity_rate, waypoints, waypoint_index, run_number, run_prefix, max_time):
@@ -187,6 +196,8 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, batt_level, battery_
 
     state = []
     t0 = robot.getTime()
+    mean_velocity = deque(maxlen=100)
+    [mean_velocity.append(0.25) for _ in range(100)]
 
     """
     Main loop
@@ -198,25 +209,15 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, batt_level, battery_
         """
         Capture the current state of the robot
         """
-        if vel_rate <= 0.06:
-            handle_zero_velocity_fast(max_time, robot, goal, waypoint_counter, state)
-            '''print('impossible velocity')
-            # If the robot is not moving, then it most likely will not achieve any mission goals.
-            for t in np.arange(0, max_time/2, 0.064):
-                pose = robot.getSelf().getField('translation').getSFVec3f()
-                orient = robot.getSelf().getField('rotation').getSFRotation()
-                vel = robot.getSelf().getVelocity()
-                battery = 0 #np.maximum(battery - 0.064 * batt_rate + (np.random.normal(0.0, 0.05)), 0.0)
-                state_object = StateObject()
-                state_object.set_state(pose, orient, vel[:2], battery, t, time.time(), goal, waypoint_counter, '')
-                state.append(np.array(state_object.get_state_array(), dtype=object))
-            '''
+        if vel_rate <= 0.06 or np.mean(list(mean_velocity)) <= 0.06:
+            handle_zero_velocity_fast(max_time, robot, goal, waypoint_counter, state, known_obstacles)
             np.save(state_path, state)
             break
         sample_time = robot.getTime() - t0
         pose = robot.getSelf().getField('translation').getSFVec3f()
         orient = robot.getSelf().getField('rotation').getSFRotation()
         vel = robot.getSelf().getVelocity()
+        mean_velocity.append(np.linalg.norm(vel[:2]))
         hit_obstacles = []
         for oid, o in known_obstacles.items():
             if np.linalg.norm(np.asarray(pose[:2]) - np.asarray(o['center'])) < o['radius']:
