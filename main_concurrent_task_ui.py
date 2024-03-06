@@ -112,7 +112,7 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
             dt = -1
             self.recorder.add_row(time.time(), ax, ay, astd, px, py, dt, self.mineral_of_interest)
             self.reset()
-            self.make_timer(int(np.random.uniform(3000, 5000)))
+            self.make_timer(int(np.random.uniform(500, 3000)))
         except Exception as e:
             traceback.print_exc()
 
@@ -125,7 +125,7 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
         try:
             if not self.start_task:
                 self.start_task = True
-                self.make_timer(3000)
+                self.make_timer(int(np.random.uniform(500, 3000)))
                 self.submit_button.setDisabled(True)
                 return 0
 
@@ -145,7 +145,7 @@ class ConcurrentTask(QMainWindow, Ui_MainWindow):
                 dt = time.time() - self.request_time
                 self.recorder.add_row(time.time(), ax, ay, astd, px, py, dt, self.mineral_of_interest)
                 self.reset()
-                self.make_timer(int(np.random.uniform(3000, 5000)))
+                self.make_timer(int(np.random.uniform(500, 3000)))
             except Exception as e:
                 traceback.print_exc()
                 print('bad cast')
