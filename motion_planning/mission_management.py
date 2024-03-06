@@ -197,19 +197,21 @@ class MissionManager:
                     rx, ry = o.center
                     if o.visible:
                         c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='orange', facecolor='orange', alpha=0.5)
-                    else:
-                        c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='orange', facecolor='orange', alpha=0.2, hatch='//')
+                        ax.add_patch(c)
+                    #else:
+                    #    c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='orange', facecolor='orange', alpha=0.2, hatch='//')
+                    #    ax.add_patch(c)
                     #ax.annotate(o.id, (rx, ry), size='large', va='center', ha='center')
-                    ax.add_patch(c)
                     legend_hazards = 1
                 if 'b' in oid:
                     rx, ry = o.center
                     if o.visible:
                         c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='blue', facecolor='blue', alpha=0.5)
-                    else:
-                        c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='blue', facecolor='blue', alpha=0.2, hatch='//')
+                        ax.add_patch(c)
+                    #else:
+                    #    c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='blue', facecolor='blue', alpha=0.2, hatch='//')
+                    #    ax.add_patch(c)
                     #ax.annotate(o.id, (rx, ry), size='large', va='center', ha='center')
-                    ax.add_patch(c)
                     legend_powers = 1
 
         # plot the plan
