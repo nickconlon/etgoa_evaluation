@@ -587,6 +587,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         :return:
         """
         try:
+            self.mission_text.setText(self.mission_control.send_mission())
             if self.poi_selection.currentText() != "Select POI":
                 self.poi_selected = self.poi_selection.currentText()
                 print('Selected POI: ', self.poi_selected)
