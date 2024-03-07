@@ -30,7 +30,7 @@ class MissionControl:
             self.mission_pois.append(p)
 
     def send_mission(self):
-        text = 'Available POIs for this mission:\n\n'+', '.join(self.mission_pois)
+        text = 'Mission Control would like you to identify resources at: '+' or '.join(self.mission_pois)
         return text
 
     def get_response(self, anomaly, anomaly_type, batt_level, mission_time):

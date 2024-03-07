@@ -190,6 +190,13 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.obs_counter = 5
         self.obstacle_confirm.clicked.connect(self.add_obstacle)
 
+        ##################
+        # Color the checkboxes
+        self.iron_color.setStyleSheet('background-color: sienna')
+        self.gold_color.setStyleSheet('background-color: goldenrod')
+        self.lith_color.setStyleSheet('background-color: silver')
+        self.cobalt_color.setStyleSheet('background-color: steelblue')
+        self.zinc_color.setStyleSheet('background-color: forestgreen')
 
     def add_obstacle(self):
         try:
