@@ -115,8 +115,8 @@ class MissionManager:
         print('going to', [o.name for o in self.ordered_goals])
 
         self.current_goal = poi
-        self.captured_goal = False
-        self.captured_home = False
+        #self.captured_goal = False
+        #self.captured_home = False
 
     def plan_waypoints(self, robot_x, robot_y, goal_x, goal_y):
         # RRT goal = [y, x]
@@ -247,7 +247,7 @@ class MissionManager:
         if legend_hazards:
             line4 = Line2D([], [], color="white", marker='o', markersize=10, markerfacecolor="orange", alpha=0.5)
             lines.append(line4)
-            descriptions.append('Hazardous areas')
+            descriptions.append('Slowdown areas')
 
         plt.legend(lines, descriptions, numpoints=1, loc=1)
         #plt.grid()

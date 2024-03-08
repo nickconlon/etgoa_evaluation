@@ -71,6 +71,21 @@ obstructions:
     radius: 0.6
     effect: 1
     visible: true
+  o13:
+    center: [4.5, 2.5]
+    radius: 0.7
+    effect: 1
+    visible: true
+  o14:
+    center: [0, 5]
+    radius: 0.5
+    effect: 1
+    visible: true
+  o15:
+    center: [1, 4.5]
+    radius: 0.5
+    effect: 1
+    visible: true
 hazards:
   h1:
     center: [3.2, 6.5]
@@ -78,7 +93,7 @@ hazards:
     effect: 0.005
     visible: true
   h2:
-    center: [ 2.5, 6.5 ]
+    center: [ 2.7, 6.8 ]
     radius: 0.5
     effect: 0.005
     visible: true
@@ -96,12 +111,12 @@ power_draws:
   b1:
     center: [0.5, 3.5]
     radius: 1
-    effect: 5.0
+    effect: 10.0
     visible: true
   b2: # unknown obstacle bottom
     center: [3.5, 2.5]
     radius: 1.5
-    effect: 5.0
+    effect: 10.0
     visible: false
 area: aspen
 mode: cu #mdrs or cu

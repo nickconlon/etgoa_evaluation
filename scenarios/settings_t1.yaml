@@ -2,11 +2,11 @@ pois:
   A:
     center: [2, 2]
   B:
-    center: [3.5, 8]
+    center: [2.5, 7]
   C:
-    center: [ 0.5, 4 ]
+    center: [ 2, 4.5 ]
   H:
-    center: [2.5, 0]
+    center: [2, 0]
 obstructions:
 # left side obstacles
   o1:

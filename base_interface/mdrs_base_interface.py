@@ -273,8 +273,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
     def update_complete(self):
         if self.mission_state.state == ControlModeState.completed:
             self.arrive_sound.play()
-            self.update_assessment_mission_complete()
             if self.mission_manager.captured_home:
+                self.update_assessment_mission_complete()
                 print('home captured at t=', self.mission_time)
                 self.update_state_machine('captured_home')
             elif self.mission_manager.captured_goal:
@@ -381,7 +381,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             colors, assmts = [], []
             print('Outcomes:')
             # Reached the goal
-            achieved = self.mission_manager.captured_goal or self.mission_manager.captured_home
+            achieved = self.mission_manager.captured_goal and self.mission_manager.captured_home
             colors.append(green if achieved else red)
             assmts.append(achieve if achieved else fail)
             self.mission_objectives['goal'] = int(achieved)
@@ -716,6 +716,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 colors = []
                 if self.mission_control.backup_batts_used > 1 or self.battery_level < 50 or self.backup_battery_level < 50:
                     goa_ret['battery'] = 0
+                if 'H' in self.poi_selected and self.mission_manager.captured_goal is False:
+                    goa_ret['poi_arrival'] = 0
                 for gg in goa_ret.items():
                     outcome = gg[1]
                     goas_val.append(outcome)

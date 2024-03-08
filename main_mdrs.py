@@ -176,8 +176,12 @@ class InterfaceImpl(BaseInterface):
     def teleop_action(self):
         if self.battery_level > 0:
             msg = Twist()
-            msg.linear.x = self.teleoperation_actions['x']
-            msg.angular.z = self.teleoperation_actions['z']
+            if self.experiencing_anomaly != '':
+                msg.linear.x = self.teleoperation_actions['x'] * 0.05
+                msg.angular.z = self.teleoperation_actions['z'] * 0.5
+            else:
+                msg.linear.x = self.teleoperation_actions['x']
+                msg.angular.z = self.teleoperation_actions['z']
             self.control_pub.publish(msg)
 
     def teleop_press(self, x, z):

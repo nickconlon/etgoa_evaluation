@@ -71,15 +71,25 @@ obstructions:
     radius: 0.6
     effect: 1
     visible: true
+  o13:
+    center: [4.5, 2.5]
+    radius: 0.7
+    effect: 1
+    visible: true
+  o14:
+    center: [0, 5]
+    radius: 0.5
+    effect: 1
+    visible: true
+  o15:
+    center: [1, 4.5]
+    radius: 0.5
+    effect: 1
+    visible: true
 hazards:
   h1:
-    center: [ 4, 2]
-    radius: 1.0
-    effect: 0.005
-    visible: false
-  h2:
-    center: [ 2.6, 0.5]
-    radius: 1.0
+    center: [ 3, 2.5]
+    radius: 1.6
     effect: 0.005
     visible: false
   h3:
@@ -93,7 +103,7 @@ hazards:
     effect: 0.005
     visible: true
   h5:
-    center: [4.1, 3.5]
+    center: [4.5, 3.5]
     radius: 0.5
     effect: 0.005
     visible: true

@@ -6,7 +6,7 @@ pois:
   C:
     center: [ 0.5, 4 ]
   H:
-    center: [2.5, 0]
+    center: [4, 0]
 obstructions:
 # left side obstacles
   o1:
@@ -91,7 +91,7 @@ power_draws:
   b2:
     center: [ 1, -1 ]
     radius: 0.3
-    effect: 10
+    effect: 20
     visible: true
 area: aspen
 mode: cu
