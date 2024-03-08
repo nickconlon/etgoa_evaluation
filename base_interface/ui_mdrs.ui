@@ -715,8 +715,8 @@
     <widget class="QLabel" name="cameraFF_connected_indicator">
      <property name="geometry">
       <rect>
-       <x>170</x>
-       <y>80</y>
+       <x>150</x>
+       <y>40</y>
        <width>41</width>
        <height>21</height>
       </rect>
@@ -731,8 +731,8 @@
     <widget class="QLabel" name="camera360_connected_indicator">
      <property name="geometry">
       <rect>
-       <x>170</x>
-       <y>40</y>
+       <x>150</x>
+       <y>80</y>
        <width>41</width>
        <height>21</height>
       </rect>
@@ -773,14 +773,14 @@
     <widget class="QLabel" name="label_11">
      <property name="geometry">
       <rect>
-       <x>220</x>
-       <y>80</y>
+       <x>200</x>
+       <y>40</y>
        <width>91</width>
        <height>21</height>
       </rect>
      </property>
      <property name="text">
-      <string>FF Camera</string>
+      <string>Camera</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_22">
@@ -806,11 +806,11 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QLabel" name="label_12">
+    <widget class="QLabel" name="cam360_label">
      <property name="geometry">
       <rect>
-       <x>220</x>
-       <y>40</y>
+       <x>200</x>
+       <y>80</y>
        <width>101</width>
        <height>21</height>
       </rect>
@@ -907,7 +907,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Robot Planning and Control</string>
+      <string>Robot Planning</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
