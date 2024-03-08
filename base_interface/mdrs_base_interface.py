@@ -80,15 +80,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.experiencing_anomaly = ''
 
         #################
-        # Setup the Mission Planning Panel
-        print('Setting up Mission Planning')
-        self.poi_selected = None
-        self.poi_accepted = None
-        self.accept_poi_button.clicked.connect(self.accept_poi_callback)
-        self.plan_poi_button.clicked.connect(self.plan_poi_callback)
-        self.poi_selection.currentTextChanged.connect(self.select_poi_callback)
-
-        #################
         # Setup the Telemetry Panel
         print('Setting up telemetry')
         self.battery_level = 100
@@ -172,6 +163,15 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.add_obstacle_frame.setVisible(False)
         else: # TODO cover this area with something fun
             self.mission_control_panel.setVisible(False)
+
+        #################
+        # Setup the Mission Planning Panel
+        print('Setting up Mission Planning')
+        self.poi_selected = None
+        self.poi_accepted = None
+        self.accept_poi_button.clicked.connect(self.accept_poi_callback)
+        self.plan_poi_button.clicked.connect(self.plan_poi_callback)
+        self.poi_selection.currentTextChanged.connect(self.select_poi_callback)
 
         #################
         # Setup the mission prompt panel

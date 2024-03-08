@@ -1088,32 +1088,6 @@ Drive</string>
     <property name="frameShadow">
      <enum>QFrame::Plain</enum>
     </property>
-    <widget class="QLabel" name="label_6">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>341</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>14</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
-     <property name="text">
-      <string>Mission Control Communication</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
     <widget class="QLabel" name="label_7">
      <property name="geometry">
       <rect>
@@ -1160,7 +1134,7 @@ Drive</string>
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>40</y>
+       <y>10</y>
        <width>311</width>
        <height>61</height>
       </rect>
@@ -1180,9 +1154,9 @@ Drive</string>
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>110</y>
+       <y>80</y>
        <width>311</width>
-       <height>111</height>
+       <height>141</height>
       </rect>
      </property>
      <property name="font">
@@ -1387,7 +1361,7 @@ Drive</string>
     <widget class="QCheckBox" name="gold_checkbox">
      <property name="geometry">
       <rect>
-       <x>110</x>
+       <x>120</x>
        <y>190</y>
        <width>81</width>
        <height>31</height>
@@ -1405,7 +1379,7 @@ Drive</string>
     <widget class="QCheckBox" name="lithium_checkbox">
      <property name="geometry">
       <rect>
-       <x>210</x>
+       <x>220</x>
        <y>190</y>
        <width>121</width>
        <height>31</height>
@@ -1475,7 +1449,7 @@ Drive</string>
     <widget class="QLabel" name="gold_color">
      <property name="geometry">
       <rect>
-       <x>110</x>
+       <x>120</x>
        <y>150</y>
        <width>51</width>
        <height>31</height>
@@ -1491,7 +1465,7 @@ Drive</string>
     <widget class="QLabel" name="lith_color">
      <property name="geometry">
       <rect>
-       <x>210</x>
+       <x>220</x>
        <y>150</y>
        <width>51</width>
        <height>31</height>
