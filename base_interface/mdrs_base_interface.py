@@ -408,6 +408,15 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.mission_objectives['hazards'] = int(achieved)
             print('     Avoidance outcome :', self.mission_manager.hit_known_hazards)
 
+            test = [1 if x == achieve else 0 for x in assmts]
+            texts = {4: 'Perfect!\n\nYou achieved all objectives!',
+                     3: 'Good job!\n\nYou achieved almost all objectives!',
+                     2: 'Only two objectives achieved.\n\nWe think you can do better!',
+                     1: 'Only One objective achieved :(',
+                     0: 'No objectives achieved :('}
+            self.mission_text.setText(texts[sum(test)])
+            self.update_mission_control_text(texts[sum(test)])
+
             self.update_assessment_text(assmts, colors)
         except Exception as e:
             traceback.print_exc()
@@ -718,6 +727,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                     goa_ret['battery'] = 0
                 if 'H' in self.poi_selected and self.mission_manager.captured_goal is False:
                     goa_ret['poi_arrival'] = 0
+                if self.mission_manager.hit_known_hazards > 0:
+                    goa_ret['obstacles'] = 0
                 for gg in goa_ret.items():
                     outcome = gg[1]
                     goas_val.append(outcome)
