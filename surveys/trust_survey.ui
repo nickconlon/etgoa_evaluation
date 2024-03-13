@@ -28,6 +28,8 @@
    <property name="font">
     <font>
      <pointsize>14</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
     </font>
    </property>
    <property name="frameShape">
@@ -48,6 +50,8 @@
     <property name="font">
      <font>
       <pointsize>14</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="frameShape">
@@ -68,6 +72,8 @@
      <property name="font">
       <font>
        <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
@@ -90,6 +96,8 @@
     <property name="font">
      <font>
       <pointsize>14</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="frameShape">
@@ -110,6 +118,8 @@
      <property name="font">
       <font>
        <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
@@ -132,6 +142,8 @@
     <property name="font">
      <font>
       <pointsize>14</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="frameShape">
@@ -152,6 +164,8 @@
      <property name="font">
       <font>
        <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
@@ -174,6 +188,8 @@
     <property name="font">
      <font>
       <pointsize>14</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="frameShape">
@@ -194,6 +210,8 @@
      <property name="font">
       <font>
        <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
@@ -216,6 +234,8 @@
     <property name="font">
      <font>
       <pointsize>14</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="frameShape">
@@ -236,6 +256,8 @@
      <property name="font">
       <font>
        <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
@@ -258,6 +280,8 @@
     <property name="font">
      <font>
       <pointsize>14</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="frameShape">
@@ -278,6 +302,8 @@
      <property name="font">
       <font>
        <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
@@ -300,6 +326,8 @@
     <property name="font">
      <font>
       <pointsize>14</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="frameShape">
@@ -320,6 +348,8 @@
      <property name="font">
       <font>
        <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
@@ -342,6 +372,8 @@
     <property name="font">
      <font>
       <pointsize>14</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="frameShape">
@@ -362,6 +394,8 @@
      <property name="font">
       <font>
        <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
@@ -384,6 +418,8 @@
     <property name="font">
      <font>
       <pointsize>14</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="frameShape">
@@ -404,6 +440,8 @@
      <property name="font">
       <font>
        <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
      <property name="frameShape">
@@ -424,6 +462,8 @@
       <property name="font">
        <font>
         <pointsize>14</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
        </font>
       </property>
       <property name="text">
@@ -447,6 +487,8 @@
     <property name="font">
      <font>
       <pointsize>14</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="frameShape">
@@ -467,6 +509,8 @@
      <property name="font">
       <font>
        <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
@@ -489,6 +533,8 @@
     <property name="font">
      <font>
       <pointsize>14</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="frameShape">
@@ -509,6 +555,8 @@
      <property name="font">
       <font>
        <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
@@ -532,6 +580,8 @@
    <property name="font">
     <font>
      <pointsize>14</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
     </font>
    </property>
    <property name="frameShape">
@@ -553,6 +603,8 @@
    <property name="font">
     <font>
      <pointsize>14</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
     </font>
    </property>
    <property name="frameShape">
@@ -574,6 +626,8 @@
    <property name="font">
     <font>
      <pointsize>14</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
     </font>
    </property>
    <property name="frameShape">
@@ -594,6 +648,8 @@
     <property name="font">
      <font>
       <pointsize>14</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="frameShape">
@@ -614,6 +670,8 @@
      <property name="font">
       <font>
        <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
@@ -636,6 +694,8 @@
     <property name="font">
      <font>
       <pointsize>14</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="frameShape">
@@ -656,6 +716,8 @@
      <property name="font">
       <font>
        <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
@@ -678,6 +740,8 @@
     <property name="font">
      <font>
       <pointsize>14</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="frameShape">
@@ -698,6 +762,8 @@
      <property name="font">
       <font>
        <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
@@ -720,6 +786,8 @@
     <property name="font">
      <font>
       <pointsize>14</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="frameShape">
@@ -740,6 +808,8 @@
      <property name="font">
       <font>
        <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
@@ -762,6 +832,8 @@
     <property name="font">
      <font>
       <pointsize>14</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="frameShape">
@@ -782,6 +854,8 @@
      <property name="font">
       <font>
        <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
@@ -804,6 +878,8 @@
     <property name="font">
      <font>
       <pointsize>14</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="frameShape">
@@ -824,6 +900,8 @@
      <property name="font">
       <font>
        <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
@@ -846,6 +924,8 @@
     <property name="font">
      <font>
       <pointsize>14</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="frameShape">
@@ -866,6 +946,8 @@
      <property name="font">
       <font>
        <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
@@ -888,6 +970,8 @@
     <property name="font">
      <font>
       <pointsize>14</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="frameShape">
@@ -908,6 +992,8 @@
      <property name="font">
       <font>
        <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
@@ -930,6 +1016,8 @@
     <property name="font">
      <font>
       <pointsize>14</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="frameShape">
@@ -950,6 +1038,8 @@
      <property name="font">
       <font>
        <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
@@ -972,6 +1062,8 @@
     <property name="font">
      <font>
       <pointsize>14</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="frameShape">
@@ -992,6 +1084,8 @@
      <property name="font">
       <font>
        <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
@@ -1014,6 +1108,8 @@
     <property name="font">
      <font>
       <pointsize>14</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="frameShape">
@@ -1034,6 +1130,8 @@
      <property name="font">
       <font>
        <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
@@ -1051,16 +1149,19 @@
      <x>30</x>
      <y>10</y>
      <width>861</width>
-     <height>31</height>
+     <height>71</height>
     </rect>
    </property>
    <property name="font">
     <font>
      <pointsize>14</pointsize>
+     <weight>50</weight>
+     <bold>false</bold>
     </font>
    </property>
    <property name="text">
-    <string>Please answer the following question about your robot partner</string>
+    <string>Please answer the following question about your experience with your
+robot partner and the robot's user interface</string>
    </property>
   </widget>
  </widget>
