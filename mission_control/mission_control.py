@@ -51,12 +51,16 @@ class MissionControl:
             texts = "{}".format(str(int(secs)).rjust(2, "0"))
             return 'Mission time: {}:{}\nEverything looks fine from here.\n\nIf something looks wrong,\ntry using Make Plan'.format(textm, texts)
 
-    def check_strategy(self, power, gps, battery):
+    def check_strategy(self, power, gps, battery, mission_time):
         if self.battery == battery and self.gps == gps and self.power == power:
             if self.tmp_battery_level < 75:
                 self.backup_batts_used = self.backup_batts_used + 1 if 'b' in self.tmp_anomaly_type else self.backup_batts_used
             self.tmp_anomaly_type = ''
             self.tmp_battery_level = 100
-            return "Looks like that fixed the anomaly!"
+            mins = mission_time // 60
+            secs = mission_time % 60
+            textm = "{}".format(str(int(mins)).rjust(2, "0"))
+            texts = "{}".format(str(int(secs)).rjust(2, "0"))
+            return "Mission time: {}:{}\nLooks like that fixed the anomaly!\n\nPlease Accept Plan or Make Plan.".format(textm, texts)
         else:
             return ""

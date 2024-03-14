@@ -459,7 +459,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.gps_connected_indicator.setStyleSheet(
                 'background-color: {}'.format('green' if abs(self.gps_connected - self.mission_time) < 2 else 'red'))
             self.camera360_connected_indicator.setStyleSheet(
-                'background-color: {}'.format('green' if abs(self.sensor1_connected - self.mission_time) < 5 else 'red'))
+                'background-color: {}'.format('green' if True else 'red'))
             self.cameraFF_connected_indicator.setStyleSheet(
                 'background-color: {}'.format('green' if abs(self.sensor2_connected - self.mission_time) < 5 else 'red'))
         except Exception as e:
@@ -1114,7 +1114,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             if self.mission_control:
                 anomaly_type = self.mission_control.tmp_anomaly_type
                 text = self.mission_control.check_strategy(self.power_number, self.gps_frequency,
-                                                           self.battery_number)
+                                                           self.battery_number, self.mission_time)
 
                 if text != "":
                     print('Anomaly strategy successful! at t=', self.mission_time)

@@ -95,7 +95,7 @@ def goto(target, gps, compass, speed_noise=0.0):
     elif abs(distance) > 0.1:
         speed = pioneer.forward() + speed_noise
 
-    if abs(distance) < 0.1:
+    if abs(distance) < 0.2:
         arrived = True
     else:
         arrived = False
