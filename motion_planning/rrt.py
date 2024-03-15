@@ -364,7 +364,7 @@ class RRT:
             # loop over neighbors of x_new to find closest within some radius
             x_min = x_nearest
             c_min = self._cost(x_nearest, q_start) + np.linalg.norm(x_nearest.point - x_new.point)
-            radius = 0.2
+            radius = 1#0.2
             neighbors = self._get_neighbors(node_list, node_list[-1], radius)
 
             for x_near in neighbors:
@@ -421,12 +421,12 @@ class RRT:
 
 
 def plan_rrt_webots(start, goal, obstacles, bounds, visualize_route=False, filename='./plot.png'):
-    iterations = 500
+    iterations = 1000
     planner = RRT(bounds, 'holonomic')
     for ob in obstacles:
         planner.add_obstacle(ob)
 
-    nodes = planner.rrt_star(start, goal, iterations,  2)  # np.linalg.norm(bounds / 10.))
+    nodes = planner.rrt_star(start, goal, iterations,  2.5)  # np.linalg.norm(bounds / 10.))
     if len(nodes) > 0:
         waypoints = planner.get_path(nodes, goal)
         waypoints = np.flip(waypoints, axis=0)

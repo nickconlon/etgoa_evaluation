@@ -221,8 +221,8 @@ class MissionManager:
             for point in plan:
                 pixel_plan.append([point[0], point[1]])
             pixel_plan = np.array(pixel_plan)
-            ax.plot(pixel_plan[:, 0], pixel_plan[:, 1], '--', c=path_color, markersize=10)
-            ax.scatter(pixel_plan[:, 0], pixel_plan[:, 1], c=path_color, s=10)
+            ax.plot(pixel_plan[:, 0], pixel_plan[:, 1], '-', c=path_color, linewidth=20.0, markersize=10, alpha=0.5)
+            #ax.scatter(pixel_plan[:, 0], pixel_plan[:, 1], c=path_color, s=20, zorder=19)
 
         # plot the robot
         arrow = u'$\u2191$'

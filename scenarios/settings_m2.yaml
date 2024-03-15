@@ -77,8 +77,8 @@ obstructions:
     effect: 1
     visible: true
   o14:
-    center: [0, 5]
-    radius: 0.5
+    center: [0, 4.8]
+    radius: 0.6
     effect: 1
     visible: true
   o15:
@@ -86,43 +86,38 @@ obstructions:
     radius: 0.5
     effect: 1
     visible: true
+  o18:
+    center: [3, 10 ]
+    radius: 0.5
+    effect: 1
+    visible: true
 hazards:
-  h1: # unknown obstacle top
-    center: [2.3, 6.5]
-    radius: 1
-    effect: 0.005
-    visible: false
-  h2: # unknown obstacle
-    center: [2, 3.8]
-    radius: 1.0
-    effect: 0.005
-    visible: false
-  h3:
-    center: [ -0.2, 8.2 ]
+  h1:
+    center: [ 3.8, -1.5 ]
     radius: 0.5
     effect: 0.005
     visible: true
-  h4:
-    center: [ 0.15, 7.5]
+  h2:
+    center: [0.1, 5.5]
+    radius: 0.5
+    effect: 0.005
+    visible: true
+  h3:
+    center: [4.5, 3.5]
     radius: 0.5
     effect: 0.005
     visible: true
 power_draws:
-  b1: # unknown obstacle
-    center: [0.5, 3.6]
-    radius: 1
+  b1:
+    center: [0.0, 4.5]
+    radius: 0.35
     effect: 10.0
-    visible: false
-  b2: # unknown obstacle
-    center: [2.5, 2]
-    radius: 1
+    visible: true
+  b2:
+    center: [1, -1.5]
+    radius: 0.4
     effect: 10.0
-    visible: false
-  b3:
-    center: [ 2, 3.8 ]
-    radius: 1.0
-    effect: 10.0
-    visible: false
+    visible: true
 area: aspen
 mode: cu #mdrs or cu
 robot_name: case
@@ -133,7 +128,7 @@ rollout_path: /data/webots/rollout{}_state.npy
 condition: CONDITION
 latitude_center: 40.01045433
 longitude_center: 105.24432153
-capture_dist: 0.1
+capture_dist: 0.25
 anomalies: false
 et_goa_threshold: 0.05
 et_goa_stds: [0.75, 0.75, 0.2, 0.5]
@@ -147,4 +142,4 @@ show_surveys:
   post-mission: false
   usability: false
 training: false
-map: m2
+map: m3

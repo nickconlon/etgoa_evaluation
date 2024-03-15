@@ -71,6 +71,11 @@ obstructions:
     radius: 0.6
     effect: 1
     visible: true
+  o18:
+    center: [3, 10 ]
+    radius: 0.5
+    effect: 1
+    visible: true
 hazards:
   h1:
     center: [ 2, 6 ]
@@ -80,7 +85,7 @@ hazards:
   h2:
     center: [ 0, 8 ]
     radius: 0.4
-    effect: 1
+    effect: 0.005
     visible: true
 power_draws:
   b1:
@@ -103,7 +108,7 @@ rollout_path: /data/webots/rollout{}_state.npy
 condition: CONDITION
 latitude_center: 40.01045433
 longitude_center: 105.24432153
-capture_dist: 0.1
+capture_dist: 0.25
 anomalies: false
 et_goa_threshold: 0.05
 et_goa_stds: [0.75, 0.75, 0.2, 0.5]

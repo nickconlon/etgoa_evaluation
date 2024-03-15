@@ -95,7 +95,7 @@ def goto(target, gps, compass, speed_noise=0.0):
     elif abs(distance) > 0.1:
         speed = pioneer.forward() + speed_noise
 
-    if abs(distance) < 0.2:
+    if abs(distance) < 0.5: # TODO update me!
         arrived = True
     else:
         arrived = False
@@ -209,7 +209,7 @@ def run(goal, robot, wheels, gps, compass, known_obstacles, batt_level, battery_
         """
         Capture the current state of the robot
         """
-        if vel_rate <= 0.06 or np.mean(list(mean_velocity)) <= 0.06:
+        if vel_rate <= 0.06 or np.mean(list(mean_velocity)) <= 0.006:
             handle_zero_velocity_fast(max_time, robot, goal, waypoint_counter, state, known_obstacles)
             np.save(state_path, state)
             break

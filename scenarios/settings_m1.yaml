@@ -77,8 +77,8 @@ obstructions:
     effect: 1
     visible: true
   o14:
-    center: [0, 5]
-    radius: 0.5
+    center: [0, 4.8]
+    radius: 0.6
     effect: 1
     visible: true
   o15:
@@ -86,38 +86,83 @@ obstructions:
     radius: 0.5
     effect: 1
     visible: true
+  o17:
+    center: [-0.3, 6.5 ]
+    radius: 0.3
+    effect: 1
+    visible: true
+  o18:
+    center: [3, 10 ]
+    radius: 0.5
+    effect: 1
+    visible: true
 hazards:
   h1:
     center: [3.2, 6.5]
-    radius: 0.5
+    radius: 0.25
     effect: 0.005
     visible: true
   h2:
-    center: [ 2.7, 6.8 ]
-    radius: 0.5
+    center: [ 2.2, 6.8 ]
+    radius: 0.25
     effect: 0.005
     visible: true
   h3:
     center: [ 3, 7.5]
-    radius: 0.5
+    radius: 0.25
     effect: 0.005
     visible: true
-  h4: # unknown obstacle top
-    center: [0.5, 6.25]
-    radius: 1.5
+  h4:
+    center: [ 4, 7]
+    radius: 0.25
     effect: 0.005
-    visible: false
+    visible: true
+  h5:
+    center: [ 3.5, 7.5]
+    radius: 0.25
+    effect: 0.005
+    visible: true
+  #h10: # unknown obstacle top
+  #  center: [0.5, 6.25]
+  #  radius: 1.5
+  #  effect: 0.005
+  #  visible: false
 power_draws:
   b1:
-    center: [0.5, 3.5]
-    radius: 1
+    center: [1.6, 3.2]
+    radius: 0.3
     effect: 10.0
     visible: true
-  b2: # unknown obstacle bottom
-    center: [3.5, 2.5]
-    radius: 1.5
+  b2:
+    center: [1.2, 3.5]
+    radius: 0.3
     effect: 10.0
-    visible: false
+    visible: true
+  b3:
+    center: [0.7, 3 ]
+    radius: 0.3
+    effect: 10.0
+    visible: true
+  b4:
+    center: [-0.7, 7.5 ]
+    radius: 0.3
+    effect: 10.0
+    visible: true
+  b5:
+    center: [-0.3, 6.5 ]
+    radius: 0.3
+    effect: 10.0
+    visible: true
+  b6:
+    center: [0.6, 7.4 ]
+    radius: 0.3
+    effect: 10.0
+    visible: true
+  #b10: # unknown obstacle bottom
+  #  center: [3.5, 2.5]
+  #  radius: 1.5
+  #  effect: 10.0
+  #  visible: false
 area: aspen
 mode: cu #mdrs or cu
 robot_name: case
@@ -128,7 +173,7 @@ rollout_path: /data/webots/rollout{}_state.npy
 condition: CONDITION
 latitude_center: 40.01045433
 longitude_center: 105.24432153
-capture_dist: 0.1
+capture_dist: 0.25
 anomalies: false
 et_goa_threshold: 0.05
 et_goa_stds: [0.75, 0.75, 0.2, 0.5]
