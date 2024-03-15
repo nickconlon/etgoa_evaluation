@@ -98,7 +98,7 @@ hazards:
     effect: 0.005
     visible: false
   h2: # unknown obstacle
-    center: [2, 3.8]
+    center: [2, 3.7]
     radius: 1.0
     effect: 0.005
     visible: false
@@ -113,18 +113,13 @@ hazards:
     effect: 0.005
     visible: true
 power_draws:
-  b1: # unknown obstacle
-    center: [0.5, 3.6]
-    radius: 1
-    effect: 10.0
-    visible: false
   b2: # unknown obstacle
     center: [2.5, 2]
-    radius: 1
+    radius: 1.5
     effect: 10.0
     visible: false
   b3:
-    center: [ 2, 3.8 ]
+    center: [ 2, 3.7 ]
     radius: 1.0
     effect: 10.0
     visible: false

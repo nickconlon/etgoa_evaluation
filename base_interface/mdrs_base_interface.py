@@ -117,7 +117,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.etgoa.set_pred_paths([self.rollout_path.format(i) for i in range(10)])
             self.rollout_thread = None
             self.et_goa_threshold = settings.et_goa_threshold
-        self.objective_2_text.setText(self.objective_2_text.text().replace('X', '8'))
+        self.objective_2_text.setText('Return home within 8 mins') #self.objective_2_text.text().replace('X', '8'))
         self.objective_3_text.setText(self.objective_3_text.text().replace('X %', '50%'))
         self.mqa = [0] * len(settings.et_goa_stds)
         self.goa = [0] * 5  # []
@@ -557,10 +557,12 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         try:
             if self.mission_control.backup_batts_used == 0:
                 primary_text = 'Primary: {}%'.format(int(self.battery_level))
-                secondary_text = 'Backup {}: {}%'.format(1, 100)
+                lowest = min(self.battery_level, self.mission_control.lowest_batt_level)
+                secondary_text = 'Lowest battery: {}%'.format(int(lowest))
             else:
-                primary_text = 'Primary: {}%'.format(int(self.backup_battery_level))
-                secondary_text = 'Backup {}: {}%'.format(self.robot_battery_slider.value(), int(self.battery_level))
+                primary_text = 'Backup {}: {}%'.format(self.robot_battery_slider.value(), int(self.battery_level))
+                lowest = min(self.battery_level, self.mission_control.lowest_batt_level)
+                secondary_text = 'Lowest battery: {}%'.format(int(lowest))
             self.battery_text.setText(primary_text)
             self.battery_backup_text.setText(secondary_text)
         except Exception as e:

@@ -40,7 +40,7 @@ class MissionControl:
             self.tmp_battery_level = batt_level
             self.gps = np.random.randint(0, self.gps_max) if 'h' in anomaly_type else self.gps
             if self.tmp_battery_level < 75:
-                self.battery = np.random.randint(1, self.battery_max) if 'b' in anomaly_type else self.battery
+                self.battery = (self.battery + 1) % self.battery_max if 'b' in anomaly_type else self.battery
 
             self.power = np.random.randint(5, self.power_max) if 'h' in anomaly_type or 'b' in anomaly_type else self.power
             return self.help_responses[self.GENERAL].format(self.battery, self.gps, self.power)
