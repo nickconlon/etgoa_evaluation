@@ -4,7 +4,7 @@ pois:
   B:
     center: [2.5, 7]
   C:
-    center: [ 2, 4.5 ]
+    center: [ 2, 4.8 ]
   H:
     center: [2, 0]
 obstructions:
@@ -89,8 +89,8 @@ hazards:
     visible: true
 power_draws:
   b1:
-    center: [ 2, 4 ]
-    radius: 1.5
+    center: [ 2, 5 ]
+    radius: 1.0
     effect: 20
     visible: true
   b2:

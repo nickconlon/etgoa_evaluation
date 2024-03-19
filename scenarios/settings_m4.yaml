@@ -2,9 +2,9 @@ pois:
   A:
     center: [1.0, 9.25]
   B:
-    center: [4.25, 6]
+    center: [4.25, 6.4]
   C:
-    center: [0.25, 3]
+    center: [0.25, 3.4]
   H:
     center: [4, 0]
 obstructions:
