@@ -41,8 +41,9 @@ class Settings:
                 self.settings_json = settings
 
                 for id, poi in settings['pois'].items():
-                    p = PointOfInterest(*poi['center'], name=id)
-                    self.pois.append(p)
+                    if id in settings['available_pois']:
+                        p = PointOfInterest(*poi['center'], name=id)
+                        self.pois.append(p)
 
                 for id, obs in settings['obstructions'].items():
                     ob = Obstacle(Obstacle.circle,

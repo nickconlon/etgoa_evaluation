@@ -106,6 +106,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         self.automatic_drive_mode_button.setDisabled(True)
         self.manual_drive_mode_button.clicked.connect(lambda: self.update_state_machine('manual_drive_selected'))
         self.stop_mode_button.clicked.connect(lambda: self.update_state_machine('stopping'))
+        print('Available POIs: {}'.format(', '.join([x.name for x in settings.pois])))
         self.poi_selection.addItems(["Select POI", *["POI {}".format(x.name) for x in settings.pois]])
 
         #################

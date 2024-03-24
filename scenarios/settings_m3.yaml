@@ -93,12 +93,17 @@ obstructions:
     visible: true
   o17:
     center: [1.9, 4]
-    radius: 0.3
-    effect: 10.0
-    visible: false
+    radius: 0.1
+    effect: 1
+    visible: true
   o18:
     center: [3, 10 ]
     radius: 0.5
+    effect: 1
+    visible: true
+  o19:
+    center: [ 2.5, 7]
+    radius: 0.1
     effect: 1
     visible: true
 hazards:

@@ -241,18 +241,22 @@ def plot_goa_over_time(conditions, base='../data/'):
             d_goa = df['goa'].to_numpy()
             d_t = df['timestamp'].to_numpy()
 
-            data_goa = np.zeros((len(d_goa), 5))
+            data_goa = np.zeros((len(d_goa), 4))
             data_t = np.zeros(len(d_goa))
 
             i = 0
             for goa, t in zip(d_goa, d_t):
                 if type(goa) is not str:
-                    data_goa[i] = np.array([0, 0, 0, 0, 0])
+                    data_goa[i] = np.array([0, 0, 0, 0])
                     data_t[i] = t
                 else:
                     goas = goa.split('|')
-                    data_goa[i] = np.array([float(x) for x in goas]) + [0.01, 0.02, 0.03, 0.04, 0.05]
-                    data_t[i] = t
+                    if len(goas) == 5:
+                        data_goa[i] = np.array([0.0, 0.0, 0.0, 0.0]) + [0.01, 0.02, 0.03, 0.04]
+                        data_t[i] = t
+                    else:
+                        data_goa[i] = np.array([float(x) for x in goas]) + [0.01, 0.02, 0.03, 0.04]
+                        data_t[i] = t
                 i += 1
 
             t = data_t
@@ -260,11 +264,10 @@ def plot_goa_over_time(conditions, base='../data/'):
             plt.plot(t, data_goa[:, 1], label='Mission time', color='red')
             plt.plot(t, data_goa[:, 2], label='Battery', color='blue')
             plt.plot(t, data_goa[:, 3], label='Obstacles avoided', color='green')
-            plt.plot(t, data_goa[:, 4], label='TODO', color='black')
             plt.ylim([0, 1.1])
             plt.legend()
             plt.title('GOA over time for {}'.format(condition))
-        plt.show()
+            plt.show()
 
 
 def plot_trust_survey_responses(conditions, base='../data/'):
@@ -277,8 +280,9 @@ def plot_trust_survey_responses(conditions, base='../data/'):
 
     plt.boxplot([scores],
                 labels=['trust'])
+    plt.scatter([0]*len(scores), scores)
     plt.ylim([0, 100])
-    plt.title('Trust')
+    plt.title('Trust\n(TPR-HRI 14 pt subscale)')
     plt.show()
 
 
@@ -292,8 +296,9 @@ def plot_usability_scores(conditions, base='../data/'):
         scores.append(results[0])
 
     plt.boxplot([scores], labels=['Usability'])
+    plt.scatter([0] * len(scores), scores)
     plt.ylim([0, 100])
-    plt.title('Usability')
+    plt.title('Usability\n(SUS 10 pt scale)')
     plt.show()
 
 def plot_secondary_performance(conditions, base='../data/'):
@@ -329,11 +334,11 @@ def plot_secondary_performance(conditions, base='../data/'):
         times.append(t_data)
 
     plt.boxplot(accuracy, labels=conditions)
-    plt.title('Secondary task performance - accuracy distance')
+    plt.title('Secondary task performance - accuracy distance'+'\n'+'$|LL_{act}-LL_{found}|$')
     plt.show()
 
     plt.boxplot(times, labels=conditions)
-    plt.title('Secondary task performance - reaction time')
+    plt.title('Secondary task performance - reaction time'+'\n'+r'$|t_{start}-t_{found}|$')
     plt.show()
 
 
@@ -368,7 +373,7 @@ def plot_anomaly_response_time(conditions, base='../data/'):
         data.append(tmp_data)
 
     plt.boxplot(data, labels=conditions[0:len(data)])
-    plt.title('Anomaly Response Times')
+    plt.title('Anomaly Response Times'+'\n'+'$|t_{start}-t_{addressed}|$')
     plt.show()
 
 
@@ -390,26 +395,27 @@ def plot_mission_objectives(conditions, base='../data/'):
         data.append(tmp_data)
 
     plt.boxplot(data, labels=conditions[0:len(data)])
-    plt.title('Mission Objective Performance')
+    plt.title('Mission Objective Performance - outcomes achieved')
     plt.show()
     print(data)
 
 
 if __name__ == '__main__':
+    base = '../data/mixed/'
     experimental_conditions = ['TELEM', 'GOA', 'ET-GOA']
     # Primary navigation and exploration task
-    #plot_anomaly_response_time(experimental_conditions)
-    #plot_mission_objectives(experimental_conditions)
+    plot_anomaly_response_time(experimental_conditions, base=base)
+    plot_mission_objectives(experimental_conditions, base=base)
 
     # Secondary task
-    #plot_secondary_performance(experimental_conditions)
+    plot_secondary_performance(experimental_conditions, base=base)
 
     # Surveys
-    plot_trust_survey_responses(experimental_conditions)
-    plot_usability_scores(experimental_conditions)
+    plot_trust_survey_responses(experimental_conditions, base=base)
+    plot_usability_scores(experimental_conditions, base=base)
 
     # TODO other plots
-    #plot_goa_over_time(experimental_conditions)
+    #plot_goa_over_time(experimental_conditions, base=base)
     #plot_mqa_over_time(experimental_conditions)
 
 
