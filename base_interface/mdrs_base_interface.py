@@ -118,7 +118,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.etgoa.set_pred_paths([self.rollout_path.format(i) for i in range(10)])
             self.rollout_thread = None
             self.et_goa_threshold = settings.et_goa_threshold
-        self.objective_2_text.setText('Return home within 8 mins') #self.objective_2_text.text().replace('X', '8'))
+        self.objective_2_text.setText('Return home within 8 mins')
         self.objective_3_text.setText(self.objective_3_text.text().replace('X %', '50%'))
         self.mqa = [0] * len(settings.et_goa_stds)
         self.goa = [0] * 5  # []
@@ -679,14 +679,15 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                     self.rollout_thread.known_obstacles = self.mission_manager.get_all_active_visible_obstacles()
                     self.rollout_thread.time_offset = self.mission_time
                     self.rollout_thread.max_time = self.max_mission_time
-                    if trigger == 'planning_assessing':
-                        # During mission planning, parameter values are at their baseline
-                        self.rollout_thread.velocity_rate = 1.0
-                        self.rollout_thread.battery_rate = self.batt_drain_rate
-                    elif trigger == 'et_goa':
+                    if self.experiencing_anomaly and trigger == 'et_goa':
                         # During mission execution, parameter values may have changed
                         self.rollout_thread.velocity_rate = float(np.mean(np.asarray(self.mean_velocity)) / 0.25)
                         self.rollout_thread.battery_rate = float(np.mean(np.asarray(self.mean_battery)))
+                        self.rollout_thread.time_offset = float(self.mission_time)
+                    else:
+                        # During mission planning, parameter values are at their baseline
+                        self.rollout_thread.velocity_rate = 1.0
+                        self.rollout_thread.battery_rate = self.batt_drain_rate
                         self.rollout_thread.time_offset = float(self.mission_time)
                     print(self.rollout_thread)
                     self.rollout_thread.finished.connect(self.finish_competency_assessment)
