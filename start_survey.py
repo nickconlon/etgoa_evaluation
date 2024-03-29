@@ -21,18 +21,22 @@ if __name__ == '__main__':
                         default='./scenarios/settings.yaml',
                         help='path to settings file')
     parser.add_argument("-t", "--type",
-                        default='before',
                         help='type of survey: usability or trust')
+    parser.add_argument('-c', '--condition',
+                        help='condition')
     args = parser.parse_args()
 
     settings = Settings(args.settings)
     settings.read()
 
     todo = []
+    label = 'TODO'
     if args.type == 'before':
         todo = ['trust']
+        label = 'BEFORE'
     if args.type == 'after':
         todo = ['trust', 'usability', 'demographics']
+        label = 'AFTER'
 
     fname = ''
     available_surveys = []
@@ -40,12 +44,12 @@ if __name__ == '__main__':
 
     print('Starting survey for {}'.format(args.type))
     if 'trust' in todo:
-        fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_trust_survey.csv'
+        fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_trust_survey_{}_{}.csv'.format(label, args.condition)
         available_surveys.append(run_trust)
         available_recorders.append(TrustRecorder(os.path.join(settings.record_path, fname)))
 
     if 'usability' in todo:
-        fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_usability_survey.csv'
+        fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_usability_survey_{}.csv'.format(args.condition)
         available_surveys.append(run_usability)
         available_recorders.append(UsabilityRecorder(os.path.join(settings.record_path, fname)))
 
