@@ -366,6 +366,7 @@ def plot_secondary_performance(conditions, base='../data/'):
         plot_data.append(v)
         plot_labels.append(k)
     plt.boxplot(plot_data, labels=plot_labels)
+    plt.ylim(ymin=0)
     plt.title('Secondary task performance - accuracy distance'+'\n'+'$|LL_{act}-LL_{found}|$')
     plt.show()
 
@@ -375,6 +376,7 @@ def plot_secondary_performance(conditions, base='../data/'):
         plot_data.append(v)
         plot_labels.append(k)
     plt.boxplot(plot_data, labels=plot_labels)
+    plt.ylim(ymin=0)
     plt.title('Secondary task performance - reaction time'+'\n'+r'$|t_{start}-t_{found}|$')
     plt.show()
     return accuracy, times
@@ -414,6 +416,7 @@ def plot_anomaly_response_time(conditions, base='../data/'):
         plot_labels.append(k)
 
     plt.boxplot(plot_data, labels=plot_labels)
+    plt.ylim(ymin=0)
     plt.title('Anomaly Response Times'+'\n'+'$|t_{start}-t_{addressed}|$')
     plt.show()
     return data
@@ -443,6 +446,7 @@ def plot_mission_objectives(conditions, base='../data/'):
     plt.title('Mission Objective Performance - outcomes achieved')
     plt.bar(plot_labels, [np.mean(x) for x in plot_data], edgecolor='black', color='white')
     plt.errorbar([0, 1, 2], [np.mean(x) for x in plot_data], capsize=10, yerr=[np.std(x) for x in plot_data], fmt='none', color='black', elinewidth=1)
+    plt.ylim(ymin=0)
     plt.show()
     return data
 
