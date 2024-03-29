@@ -450,6 +450,39 @@ def plot_mission_objectives(conditions, base='../data/'):
     plt.show()
     return data
 
+def plot_demographics(base):
+    paths = glob.glob(os.path.join(base, '*_demographics_survey.csv'))
+    ages = []
+    robotics_exp = []
+    gaming_exp = []
+    male = []
+    female = []
+    other = []
+    no_answer = []
+    for p in paths:
+        df = pd.read_csv(p)
+        ages.append(df['age'].tolist()[0])
+        robotics_exp.append(df['robotics experience'].tolist()[0])
+        gaming_exp.append(df['gaming experience'].tolist()[0])
+        gender = df['gender'].tolist()
+        if 'Male' in gender:
+            male.append(1)
+        elif 'Female' in gender:
+            female.append(1)
+        elif 'Other' in gender:
+            other.append(1)
+        elif 'Prefer not to answer' in gender:
+            no_answer.append(1)
+
+    print('male: {}'.format(len(male)))
+    print('female: {}'.format(len(female)))
+    print('other: {}'.format(len(other)))
+    print('Prefer not to answer: {}'.format(len(no_answer)))
+    plt.boxplot([ages, robotics_exp, gaming_exp], labels=['Age', 'Robotics exp', 'Gaming exp'])
+    plt.title('Demographics')
+    plt.show()
+
+
 
 def single_csv(header, data_array):
     # TODO convert each data created in main to a single CSV file
@@ -470,6 +503,9 @@ if __name__ == '__main__':
     # Surveys
     d5 = plot_trust_survey_responses(experimental_conditions, base=base)
     d6 = plot_usability_scores(experimental_conditions, base=base)
+
+    # Demographics
+    plot_demographics(base=base)
 
     #c = 'GOA'
     #userid = 'p3'
