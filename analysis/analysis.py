@@ -271,39 +271,66 @@ def plot_goa_over_time(conditions, base='../data/'):
 
 
 def plot_trust_survey_responses(conditions, base='../data/'):
-    paths = glob.glob(os.path.join(base, '*_trust_survey.csv'))
-    scores = []
-    for p in paths:
-        df = pd.read_csv(p)
-        results = df['score'].to_numpy()
-        scores.append(results[0])
+    data = {c: [] for c in conditions}
+    for c in conditions:
+        before_paths = glob.glob(os.path.join(base, '*_trust_survey_BEFORE_{}.csv'.format(c)))
+        after_paths = glob.glob(os.path.join(base, '*_trust_survey_AFTER_{}.csv'.format(c)))
+        before_scores = []
+        for p in before_paths:
+            df = pd.read_csv(p)
+            results = df['score'].to_numpy()
+            before_scores.append(results[0])
 
-    plt.boxplot([scores],
-                labels=['trust'])
-    plt.scatter([0]*len(scores), scores)
+        after_scores = []
+        for p in after_paths:
+            df = pd.read_csv(p)
+            results = df['score'].to_numpy()
+            after_scores.append(results[0])
+
+        data[c] = [before_scores, after_scores]
+
+    plot_data = []
+    labels = []
+    for k, v in data.items():
+        plot_data.append(v[0])
+        plot_data.append(v[1])
+        labels.append('before\n{}'.format(k))
+        labels.append('after\n{}'.format(k))
+
+    plt.boxplot(plot_data, labels=labels)
     plt.ylim([0, 100])
     plt.title('Trust\n(TPR-HRI 14 pt subscale)')
     plt.show()
+    return data
 
 
 def plot_usability_scores(conditions, base='../data/'):
+    data = {}
+    for c in conditions:
+        paths = glob.glob(os.path.join(base, '*_usability_survey_{}.csv'.format(c)))
+        scores = []
+        for p in paths:
+            df = pd.read_csv(p)
+            results = df['score'].to_numpy()
+            scores.append(results[0])
+        data[c] = scores
 
-    paths = glob.glob(os.path.join(base, '*_usability_survey.csv'))
-    scores = []
-    for p in paths:
-        df = pd.read_csv(p)
-        results = df['score'].to_numpy()
-        scores.append(results[0])
+    plot_data = []
+    plot_labels = []
+    for k, v in data.items():
+        plot_data.append(v)
+        plot_labels.append(k)
 
-    plt.boxplot([scores], labels=['Usability'])
-    plt.scatter([0] * len(scores), scores)
+    plt.boxplot(plot_data, labels=plot_labels)
     plt.ylim([0, 100])
     plt.title('Usability\n(SUS 10 pt scale)')
     plt.show()
+    return data
+
 
 def plot_secondary_performance(conditions, base='../data/'):
-    accuracy = []
-    times = []
+    accuracy = {}
+    times = {}
     for condition in conditions:
         paths = glob.glob(os.path.join(base, '*_secondary_{}.csv'.format(condition)))
         a_data = []
@@ -326,26 +353,35 @@ def plot_secondary_performance(conditions, base='../data/'):
 
             act = np.column_stack((act_x, act_y))
             rep = np.column_stack((rep_x, rep_y))
-            distances = np.linalg.norm(act-rep, axis=1)
+            distances = np.linalg.norm(act - rep, axis=1)
 
             [a_data.append(c) for c in distances]
             [t_data.append(c) for c in ts]
-        accuracy.append(a_data)
-        times.append(t_data)
+        accuracy[condition] = a_data
+        times[condition] = t_data
 
-    plt.boxplot(accuracy, labels=conditions)
+    plot_data = []
+    plot_labels = []
+    for k, v in accuracy.items():
+        plot_data.append(v)
+        plot_labels.append(k)
+    plt.boxplot(plot_data, labels=plot_labels)
     plt.title('Secondary task performance - accuracy distance'+'\n'+'$|LL_{act}-LL_{found}|$')
     plt.show()
 
-    plt.boxplot(times, labels=conditions)
+    plot_data = []
+    plot_labels = []
+    for k, v in times.items():
+        plot_data.append(v)
+        plot_labels.append(k)
+    plt.boxplot(plot_data, labels=plot_labels)
     plt.title('Secondary task performance - reaction time'+'\n'+r'$|t_{start}-t_{found}|$')
     plt.show()
-
-
+    return accuracy, times
 
 
 def plot_anomaly_response_time(conditions, base='../data/'):
-    data = []
+    data = {}
     for condition in conditions:
         paths = glob.glob(os.path.join(base, '*_primary_{}.csv'.format(condition)))
         tmp_data = []
@@ -362,7 +398,7 @@ def plot_anomaly_response_time(conditions, base='../data/'):
             start = -1
             end = -1
             for anomaly, req, t in zip(d_anomaly, d_help, d_t):
-                if start < 0 and anomaly != '' and  'Looks like that fixed the anomaly' not in req:
+                if start < 0 and anomaly != '' and 'Looks like that fixed the anomaly' not in req:
                     start = t
                 elif start > 0 and 'Looks like that fixed the anomaly' in req:
                     end = t
@@ -370,15 +406,21 @@ def plot_anomaly_response_time(conditions, base='../data/'):
                     tmp_data.append(end - start)
                     start = -1
                     end = -1
-        data.append(tmp_data)
+        data[condition] = tmp_data
+    plot_data = []
+    plot_labels = []
+    for k, v in data.items():
+        plot_data.append(v)
+        plot_labels.append(k)
 
-    plt.boxplot(data, labels=conditions[0:len(data)])
+    plt.boxplot(plot_data, labels=plot_labels)
     plt.title('Anomaly Response Times'+'\n'+'$|t_{start}-t_{addressed}|$')
     plt.show()
+    return data
 
 
 def plot_mission_objectives(conditions, base='../data/'):
-    data = []
+    data = {}
     for condition in conditions:
         paths = glob.glob(os.path.join(base, '*_primary_{}.csv'.format(condition)))
         tmp_data = []
@@ -391,31 +433,44 @@ def plot_mission_objectives(conditions, base='../data/'):
                 if o != '':
                     o = [int(x) for x in o.split('|')]
                     tmp_data.append(np.sum(o))
-                    print(o)
-        data.append(tmp_data)
+        data[condition] = tmp_data
+    plot_data = []
+    plot_labels = []
+    for k, v in data.items():
+        plot_data.append(v)
+        plot_labels.append(k)
 
-    plt.boxplot(data, labels=conditions[0:len(data)])
     plt.title('Mission Objective Performance - outcomes achieved')
+    plt.bar(plot_labels, [np.mean(x) for x in plot_data], edgecolor='black', color='white')
+    plt.errorbar([0, 1, 2], [np.mean(x) for x in plot_data], capsize=10, yerr=[np.std(x) for x in plot_data], fmt='none', color='black', elinewidth=1)
     plt.show()
-    print(data)
+    return data
+
+
+def single_csv(header, data_array):
+    # TODO convert each data created in main to a single CSV file
+    # userid, condition, mean primary response time, mean primary objectives complete, mean secondary accuracy, mean secondary response time, before trust, after trust, usability
+    pass
 
 
 if __name__ == '__main__':
     base = '../data/mixed/'
     experimental_conditions = ['TELEM', 'GOA', 'ET-GOA']
     # Primary navigation and exploration task
-    plot_anomaly_response_time(experimental_conditions, base=base)
-    plot_mission_objectives(experimental_conditions, base=base)
+    d1 = plot_anomaly_response_time(experimental_conditions, base=base)
+    d2 = plot_mission_objectives(experimental_conditions, base=base)
 
     # Secondary task
-    plot_secondary_performance(experimental_conditions, base=base)
+    d3, d4 = plot_secondary_performance(experimental_conditions, base=base)
 
     # Surveys
-    plot_trust_survey_responses(experimental_conditions, base=base)
-    plot_usability_scores(experimental_conditions, base=base)
+    d5 = plot_trust_survey_responses(experimental_conditions, base=base)
+    d6 = plot_usability_scores(experimental_conditions, base=base)
 
+    #c = 'GOA'
+    #userid = 'p3'
+    #line = [userid, c, np.mean(d1[c]), np.mean(d2[c]), np.mean(d3[c]), np.mean(d4[c]), d5[c][0][0], d5[c][1][0], d6[c][0]]
+    #print(line)
     # TODO other plots
-    #plot_goa_over_time(experimental_conditions, base=base)
-    #plot_mqa_over_time(experimental_conditions)
-
-
+    # plot_goa_over_time(experimental_conditions)
+    # plot_mqa_over_time(experimental_conditions)
