@@ -9,7 +9,7 @@ import qdarktheme
 from PIL import Image as pil_image
 
 import rospy
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import Image, NavSatFix
 from cv_bridge import CvBridge
 from geometry_msgs.msg import Twist  # Twist messages
 from geometry_msgs.msg import PoseStamped, Vector3Stamped
@@ -49,7 +49,7 @@ class InterfaceImpl(BaseInterface):
                                                      queue_size=10)
             self.control_pub = rospy.Publisher('/{}/jackal_velocity_controller/cmd_vel'.format(self.robot), Twist,
                                                queue_size=10)
-        else: # self.area == 'gazebo'
+        elif self.area == 'gazebo':
             self.pose_sub = rospy.Subscriber('/gazebo/model_states', ModelStates,
                                              self.ros_position_callback)
             self.velocity_sub = rospy.Subscriber('/navsat/vel', Vector3Stamped,
@@ -61,6 +61,17 @@ class InterfaceImpl(BaseInterface):
             self.waypoint_plan_pub = rospy.Publisher('/{}/plan'.format(self.robot), Plan,
                                                      queue_size=10)
             self.control_pub = rospy.Publisher('/jackal_velocity_controller/cmd_vel', Twist,
+                                               queue_size=10)
+        else: # MDRS / GPS # TODO import gps message
+            self.pose_sub = self.pose_sub = rospy.Subscriber('/fix', NavSatFix, self.ros_position_callback)
+            self.velocity_sub = rospy.Subscriber('/vel', Vector3Stamped,
+                                                 self.ros_velocity_callback)
+            self.ff_camera_sub = rospy.Subscriber('/front/left/image_raw', Image, self.ros_img_callback)
+            self.waypoint_speed_pub = rospy.Publisher('/{}/control'.format(self.robot), Float32,
+                                                      queue_size=10)
+            self.waypoint_plan_pub = rospy.Publisher('/{}/plan'.format(self.robot), Plan,
+                                                     queue_size=10)
+            self.control_pub = rospy.Publisher('/{}/jackal_velocity_controller/cmd_vel'.format(self.robot), Twist,
                                                queue_size=10)
 
         self.teleoperation_actions = {'x':0, 'z':0}
@@ -111,6 +122,13 @@ class InterfaceImpl(BaseInterface):
         except Exception as e:
             traceback.print_exc()
 
+    def ros_orientation_callback(self, msg):
+        try:
+
+            self.heading = 0
+        except Exception as e:
+            traceback.print_exc()
+
     def ros_position_callback(self, msg):
         """
         Receive position data from the robot
@@ -120,11 +138,17 @@ class InterfaceImpl(BaseInterface):
         try:
             self.robot_connected = self.mission_time
             self.gps_connected = self.mission_time
-            pose, angle = extract_pose_msg(msg)
-            self.position.x = pose[0]
-            self.position.y = pose[1]
-            self.position.z = pose[2]
-            self.heading = to_heading_north(angle[-1])
+
+            if type(msg) == NavSatFix:
+                self.position.x = msg.longitude - self.zero[0]
+                self.position.y = msg.latitude - self.zero[1]
+                self.position.z = msg.altitude
+            else:
+                pose, angle = extract_pose_msg(msg)
+                self.position.x = pose[0]
+                self.position.y = pose[1]
+                self.position.z = pose[2]
+                self.heading = to_heading_north(angle[-1])
         except Exception as e:
             traceback.print_exc()
 
@@ -157,7 +181,6 @@ class InterfaceImpl(BaseInterface):
         except Exception as e:
             traceback.print_exc()
 
-
     def update_ff_camera_ros(self):
         """
         Updater for the map
@@ -174,15 +197,10 @@ class InterfaceImpl(BaseInterface):
             traceback.print_exc()
 
     def teleop_action(self):
-        if self.battery_level > 0:
-            msg = Twist()
-            if self.experiencing_anomaly != '':
-                msg.linear.x = self.teleoperation_actions['x'] * 0.05
-                msg.angular.z = self.teleoperation_actions['z'] * 0.5
-            else:
-                msg.linear.x = self.teleoperation_actions['x']
-                msg.angular.z = self.teleoperation_actions['z']
-            self.control_pub.publish(msg)
+        msg = Twist()
+        msg.linear.x = self.teleoperation_actions['x']
+        msg.angular.z = self.teleoperation_actions['z']
+        self.control_pub.publish(msg)
 
     def teleop_press(self, x, z):
         self.teleoperation_actions['x'] = x

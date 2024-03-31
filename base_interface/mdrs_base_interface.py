@@ -118,11 +118,11 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.etgoa.set_pred_paths([self.rollout_path.format(i) for i in range(10)])
             self.rollout_thread = None
             self.et_goa_threshold = settings.et_goa_threshold
-        self.objective_2_text.setText('Return home within 8 mins')
+        self.objective_2_text.setText('Complete mission within 2 hrs')
         self.objective_3_text.setText(self.objective_3_text.text().replace('X %', '50%'))
         self.mqa = [0] * len(settings.et_goa_stds)
         self.goa = [0] * 5  # []
-        self.max_mission_time  = 8 * 60
+        self.max_mission_time = 120 * 60
 
         #################
         # Setup the mission control panel
@@ -133,37 +133,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                                               100, 100,
                                               settings.num_backup_batteries)
         self.mission_control.set_mission_pois(settings.available_pois)
-        if settings.mode == 'cu':
-            self.request_help_button.clicked.connect(self.request_mission_control_help_callback)
-            self.request_help_button.clicked.connect(lambda: self.splash_of_color(self.request_help_button))
-
-            self.robot_power_slider.setValue(self.power_number)
-            self.robot_power_lcd.display(self.power_number)
-            self.robot_power_slider.valueChanged.connect(self.update_robot_power_callback)
-            self.robot_power_slider.setDisabled(True)
-
-            self.robot_battery_slider.setMaximum(settings.num_backup_batteries)
-            self.robot_battery_slider.setMinimum(1)
-            self.robot_battery_slider.setValue(self.battery_number)
-            self.robot_battery_lcd.display(self.battery_number)
-            self.robot_battery_slider.valueChanged.connect(self.update_robot_battery_callback)
-            self.robot_battery_slider.setDisabled(True)
-
-            self.robot_gps_slider.setValue(self.gps_frequency)
-            self.robot_gps_lcd.display(self.gps_frequency)
-            self.robot_gps_slider.valueChanged.connect(self.update_robot_gps_frequency_callback)
-            self.robot_gps_slider.setDisabled(True)
-
-            self.obstacle_confirm.setDisabled(True)
-            self.obstacle_x.setDisabled(True)
-            self.obstacle_y.setDisabled(True)
-            self.obstacle_r.setDisabled(True)
-            self.obstacle_scroll.setDisabled(True)
-
-            self.set_home_button.setVisible(False)
-            self.add_obstacle_frame.setVisible(False)
-        else: # TODO cover this area with something fun
-            self.mission_control_panel.setVisible(False)
 
         #################
         # Setup the Mission Planning Panel
@@ -176,7 +145,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
         #################
         # Setup the mission prompt panel
-        self.mission_text.setText(self.mission_control.send_mission())
         self.assessment_started_sound = QtMultimedia.QSound("./imgs/start_assmt.wav")
         self.assessment_finished_sound = QtMultimedia.QSound("./imgs/end_assmt.wav")
         self.arrive_sound = QtMultimedia.QSound("./imgs/arrive.wav")
@@ -185,23 +153,31 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
         ##################
         # Dynamically add/delete obstacles panel
-        # TODO edit existing obstacles
+        # TODO edit existing obstacles/POIs
         self.obstacle_scroll.addItem('Add new obstacle')
+        self.poi_scroll.addItem('Add new POI')
         self.obs_set = {}
-        self.obs_counter = 5
+        self.obs_counter = 1
+        self.poi_counter = 'A'
         self.obstacle_confirm.clicked.connect(self.add_obstacle)
+        self.poi_confirm.clicked.connect(self.add_poi)
 
-        ##################
-        # Color the checkboxes
-        self.iron_color.setStyleSheet('background-color: sienna')
-        self.gold_color.setStyleSheet('background-color: goldenrod')
-        self.lith_color.setStyleSheet('background-color: silver')
-        self.cobalt_color.setStyleSheet('background-color: steelblue')
-        self.zinc_color.setStyleSheet('background-color: forestgreen')
+        self.set_home_button.clicked.connect(self.set_home)
+        self.zero = (0, 0)
+
+    def set_home(self):
+        home_x = []
+        home_y = []
+        for i in range(1000):
+            home_x.append(self.position.x)
+            home_y.append(self.position.y)
+        self.zero = (np.mean(home_x), np.mean(home_y))
+        print('Home: {}, {}; {} samples taken'.format(np.mean(home_x), np.mean(home_y), len(home_x)))
 
     def add_obstacle(self):
         try:
-            if self.obstacle_scroll.currentText() == 'Add new obstacle':
+
+            if self.mode_add_obstacle.isChecked():
                 print('adding new obstacle')
                 r = float(self.obstacle_r.toPlainText())
                 x = float(self.obstacle_x.toPlainText())
@@ -217,13 +193,47 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.obstacle_r.setText('')
                 self.obstacle_x.setText('')
                 self.obstacle_y.setText('')
-            else:
+            elif self.mode_del_obstacle.isChecked():
                 print('deleting obstacle')
                 oid = self.obstacle_scroll.currentText()
                 idx = self.obstacle_scroll.currentIndex()
                 self.obstacle_scroll.removeItem(idx)
                 self.mission_manager.remove_obstacles([oid])
                 self.obstacle_scroll.setCurrentIndex(0)
+            elif self.mode_update_obstacle.isChecked():
+                pass
+
+        except Exception as e:
+            traceback.print_exc()
+
+    def add_poi(self):
+        try:
+            if self.mode_add_poi.isChecked():
+                print('adding new POI')
+                x = float(self.poi_x.toPlainText())
+                y = float(self.poi_y.toPlainText())
+                pid = '{}'.format(self.poi_counter)
+                self.poi_counter = chr(ord(self.poi_counter)+1)
+                if self.poi_counter == 'H':
+                    self.poi_counter = chr(ord(self.poi_counter) + 1)
+                poi = PointOfInterest(x, y, name=pid)
+                self.mission_manager.pois[pid] = poi
+                self.poi_scroll.addItem(pid)
+                self.poi_selection.addItem(pid)
+                self.poi_x.setText('')
+                self.poi_y.setText('')
+
+            elif self.mode_del_poi.isChecked():
+                print('deleting POI')
+                pid = self.poi_scroll.currentText()
+                idx = self.poi_scroll.currentIndex()
+                self.obstacle_scroll.removeItem(idx)
+                self.poi_selection.removeItem(idx+1)
+                self.mission_manager.pois.pop(pid)
+                self.poi_scroll.setCurrentIndex(0)
+            elif self.mode_update_poi.isChecked():
+                pass
+
 
         except Exception as e:
             traceback.print_exc()
@@ -245,19 +255,17 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.update_map()
                 self.update_et_goa()
 
-            mission_control_text = self.request_help_text.text()
-            mission_control_text = mission_control_text.replace('\n', ' ').replace(',', '.')
             self.data_recorder.add_row(self.position.x, self.position.y, self.position.z,
                                        self.heading, self.velocity,
                                        self.mission_state,
                                        self.battery_number, self.battery_level,
                                        self.power_number, self.gps_frequency,
                                        self.experiencing_anomaly,
-                                       mission_control_text,
+                                       '',
                                        "|".join(["{:.2f}".format(x) for x in self.goa]),
                                        "|".join(["{:.2f}".format(x) for x in self.mqa]),
                                        "|".join([str(x) for x in self.mission_objectives.values()]),
-                                       self.resources_found(),
+                                       '',
                                        self.mission_time)
             self.mission_objectives = {}
 
@@ -281,19 +289,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             elif self.mission_manager.captured_goal:
                 print('goal captured at t=', self.mission_time)
                 self.update_state_machine('captured_goal')
-
-    def resources_found(self):
-        data = '{}|{}|{}|{}|{}'.format(-1, -1, -1, -1, -1)
-        try:
-            iron = self.iron_checkbox.isChecked()
-            gold = self.gold_checkbox.isChecked()
-            lith = self.lithium_checkbox.isChecked()
-            cob = self.cobolt_checkbox.isChecked()
-            zinc = self.zinc_checkbox.isChecked()
-            data = '{}|{}|{}|{}|{}'.format(iron, gold, lith, cob, zinc)
-        except Exception as e:
-            traceback.print_exc()
-        return data
 
     def update_state_machine(self, transition):
         next_state = self.mission_state.state
@@ -353,21 +348,13 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             #self.arrive_sound.play()
 
         if self.mission_state.state == ControlModeState.completed and transition == 'captured_home':
-            next_state = ControlModeState.phase_mission_done
+            next_state = ControlModeState.planning
         if self.mission_state.state == ControlModeState.completed and transition == 'captured_goal':
             next_state = ControlModeState.planning
 
         self.mission_state.state = next_state
         #print('to: ', self.test_state_test)
         #print()
-
-    def check_planning_phase_limit(self):
-        # TODO
-        pass
-
-    def check_execution_phase_limit(self):
-        # TODO
-        pass
 
     def navigation_complete(self):
         try:
@@ -408,15 +395,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             assmts.append(achieve if achieved else fail)
             self.mission_objectives['hazards'] = int(achieved)
             print('     Avoidance outcome :', self.mission_manager.hit_known_hazards)
-
-            test = [1 if x == achieve else 0 for x in assmts]
-            texts = {4: 'Perfect!\n\nYou achieved all objectives!',
-                     3: 'Good job!\n\nYou achieved almost all objectives!',
-                     2: 'Only two objectives achieved.\n\nWe think you can do better!',
-                     1: 'Only One objective achieved :(',
-                     0: 'No objectives achieved :('}
-            self.mission_text.setText(texts[sum(test)])
-            self.update_mission_control_text(texts[sum(test)])
 
             self.update_assessment_text(assmts, colors)
         except Exception as e:
@@ -522,30 +500,12 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         :return:
         """
         try:
-            if (self.mission_state.state == ControlModeState.executing_auto_driving
-                    or self.mission_state.state == ControlModeState.executing_manual):
-                dt = self.update_rate
-                drain_rate = self.batt_drain_rate
-                anomalies = []
-                for o in self.mission_manager.get_active_obstacles():
-                    dh = o.distance(self.position.x, self.position.y)
-                    if dh <= o.axis[0]:
-                        if o.visible:
-                            self.mission_manager.hit_known_hazards += 1
-                            print('hit known obstacle at t=', self.mission_time)
-                        else:
-                            print('hit unknown obstacle at t=', self.mission_time)
-                        anomalies.append(o.id)
-                        if 'b' in o.id:
-                            drain_rate = o.data
-                self.experiencing_anomaly = '|'.join(anomalies)
-
-                prev_battery = self.battery_level
-                new_battery = float(np.maximum(self.battery_level - dt * drain_rate, 0.0))
-                self.mean_battery.append(abs(prev_battery - new_battery) / dt)
-                self.battery_level = new_battery
-                if self.battery_level <= 0:
-                    self.stop_mode_button.click()
+            dt = self.update_rate
+            drain_rate = self.batt_drain_rate
+            prev_battery = self.battery_level
+            new_battery = float(np.maximum(self.battery_level - dt * drain_rate, 0.0))
+            self.mean_battery.append(abs(prev_battery - new_battery) / dt)
+            self.battery_level = new_battery
         except Exception as e:
             traceback.print_exc()
 
@@ -556,16 +516,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         :return:
         """
         try:
-            if self.mission_control.backup_batts_used == 0:
-                primary_text = 'Primary: {}%'.format(int(self.battery_level))
-                lowest = min(self.battery_level, self.mission_control.lowest_batt_level)
-                secondary_text = 'Lowest battery: {}%'.format(int(lowest))
-            else:
-                primary_text = 'Backup {}: {}%'.format(self.robot_battery_slider.value(), int(self.battery_level))
-                lowest = min(self.battery_level, self.mission_control.lowest_batt_level)
-                secondary_text = 'Lowest battery: {}%'.format(int(lowest))
+            primary_text = '{}%'.format(int(self.battery_level))
             self.battery_text.setText(primary_text)
-            self.battery_backup_text.setText(secondary_text)
         except Exception as e:
             traceback.print_exc()
 
@@ -599,7 +551,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         :return:
         """
         try:
-            self.mission_text.setText(self.mission_control.send_mission())
             if self.poi_selection.currentText() != "Select POI":
                 self.poi_selected = self.poi_selection.currentText()
                 print('Selected POI: ', self.poi_selected)
@@ -626,9 +577,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                                                 tofrom=False)
             if self.mission_manager.get_plan() is None:
                 self.splash_of_color(self.frame_2, color='red')
-                t = self.mission_text.text()
-                t += "\n{} is unreachable!".format(self.poi_selected)
-                self.mission_text.setText(t)
             else:
                 self.splash_of_color(self.frame_2, color='green')
             self.start_competency_assessment('planning_assessing')
@@ -803,11 +751,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.splash_of_color(self.automatic_drive_mode_button, color='light grey', timeout=0)
                 self.splash_of_color(self.stop_mode_button, color='green', timeout=0)
 
-                self.robot_battery_slider.setEnabled(True)
-                self.robot_gps_slider.setEnabled(True)
-                self.robot_power_slider.setEnabled(True)
-                self.request_help_button.setDisabled(True)
-
                 # Stop always enabled
                 self.stop_mode_button.setDisabled(True)
 
@@ -852,9 +795,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 else:
                     self.accept_poi_button.setDisabled(True)
 
-                # Mission Control buttons
-                self.request_help_button.setDisabled(True)
-
             if self.mission_state.state == ControlModeState.planning_assessing:
                 self.splash_of_color(self.manual_drive_mode_button, color='light grey', timeout=0)
                 self.splash_of_color(self.automatic_drive_mode_button, color='light grey', timeout=0)
@@ -877,9 +817,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.poi_selection.setDisabled(True)
                 self.plan_poi_button.setDisabled(True)
                 self.accept_poi_button.setDisabled(True)
-
-                # Mission Control buttons
-                self.request_help_button.setDisabled(True)
 
             if self.mission_state.state == ControlModeState.executing:
                 self.splash_of_color(self.manual_drive_mode_button, color='light grey', timeout=0)
@@ -904,9 +841,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.plan_poi_button.setEnabled(True)
                 self.accept_poi_button.setDisabled(True)
 
-                # Mission Control buttons
-                self.request_help_button.setEnabled(True)
-
             if self.mission_state.state == ControlModeState.executing_manual:
                 self.splash_of_color(self.manual_drive_mode_button, color='green', timeout=0)
                 self.splash_of_color(self.automatic_drive_mode_button, color='light grey', timeout=0)
@@ -929,9 +863,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.poi_selection.setEnabled(True)
                 self.plan_poi_button.setEnabled(True)
                 self.accept_poi_button.setDisabled(True)
-
-                # Mission Control buttons
-                self.request_help_button.setEnabled(True)
 
             if self.mission_state.state == ControlModeState.executing_manual_stopped_assessing:
                 self.splash_of_color(self.manual_drive_mode_button, color='light grey', timeout=0)
@@ -957,9 +888,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.plan_poi_button.setEnabled(True)
                 self.accept_poi_button.setDisabled(True)
 
-                # Mission Control buttons
-                self.request_help_button.setDisabled(True)
-
             if self.mission_state.state == ControlModeState.executing_auto_stopped:
                 self.splash_of_color(self.manual_drive_mode_button, color='light grey', timeout=0)
                 self.splash_of_color(self.automatic_drive_mode_button, color='light grey', timeout=0)
@@ -982,9 +910,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.poi_selection.setEnabled(True)
                 self.plan_poi_button.setEnabled(True)
                 self.accept_poi_button.setDisabled(True)
-
-                # Mission Control buttons
-                self.request_help_button.setEnabled(True)
 
             if self.mission_state.state == ControlModeState.executing_auto_driving:
                 self.splash_of_color(self.manual_drive_mode_button, color='light grey', timeout=0)
@@ -1009,9 +934,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.plan_poi_button.setEnabled(True)
                 self.accept_poi_button.setDisabled(True)
 
-                # Mission Control buttons
-                self.request_help_button.setEnabled(True)
-
             if self.mission_state.state == ControlModeState.executing_auto_stopped_assessing:
                 self.splash_of_color(self.manual_drive_mode_button, color='light grey', timeout=0)
                 self.splash_of_color(self.automatic_drive_mode_button, color='light grey', timeout=0)
@@ -1035,9 +957,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.plan_poi_button.setDisabled(True)
                 self.accept_poi_button.setDisabled(True)
 
-                # Mission Control buttons
-                self.request_help_button.setDisabled(True)
-
             if self.mission_state.state == ControlModeState.phase_mission_done:
                 # Make sure we are stopped, then disable everything
 
@@ -1060,148 +979,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.plan_poi_button.setDisabled(True)
                 self.accept_poi_button.setDisabled(True)
 
-                # Mission Control buttons
-                self.request_help_button.setDisabled(True)
-
         except Exception as e:
             traceback.print_exc()
-
-    def update_robot_power_callback(self):# TODO anomaly
-        """
-        Updater for robot power LCD
-
-        :return:
-        """
-        try:
-            val = self.robot_power_slider.value()
-            self.robot_power_lcd.display(val)
-            self.power_number = val
-            self.check_anomaly_strategy()
-        except Exception as e:
-            traceback.print_exc()
-
-    def update_robot_battery_callback(self):# TODO anomaly
-        """
-        Updater for robot battery LCD
-
-        :return:
-        """
-        try:
-            val = self.robot_battery_slider.value()
-            self.robot_battery_lcd.display(val)
-            self.battery_number = int(val)
-            self.check_anomaly_strategy()
-        except Exception as e:
-            traceback.print_exc()
-
-    def update_robot_gps_frequency_callback(self):# TODO anomaly
-        """
-        Updater for robot GPS LCD
-
-        :return:
-        """
-        try:
-            val = self.robot_gps_slider.value()
-            self.robot_gps_lcd.display(val)
-            self.gps_frequency = val
-            self.check_anomaly_strategy()
-        except Exception as e:
-            traceback.print_exc()
-
-    def check_anomaly_strategy(self):# TODO anomaly
-        """
-        Check that the strategy fixed the anomaly
-
-        :return:
-        """
-        try:
-            if self.mission_control:
-                anomaly_type = self.mission_control.tmp_anomaly_type
-                text = self.mission_control.check_strategy(self.power_number, self.gps_frequency,
-                                                           self.battery_number, self.mission_time)
-
-                if text != "":
-                    print('Anomaly strategy successful! at t=', self.mission_time)
-                    self.assessment_started_sound.play()
-
-                    if 'b' in anomaly_type:
-                        if self.mission_control.backup_batts_used == 1:
-                            self.backup_battery_level = self.battery_level
-                            self.battery_level = 100
-                        if self.mission_control.backup_batts_used > 1:
-                            self.battery_level = 100
-
-                    self.robot_battery_slider.setDisabled(True)
-                    self.robot_gps_slider.setDisabled(True)
-                    self.robot_power_slider.setDisabled(True)
-                    self.request_help_button.setEnabled(True)
-                    self.update_mission_control_text(text, 'green')
-
-                    # if the anomaly resolution was successful, deactivate the obstacle
-                    addressed_anomalies = []
-                    for ob_id, o in self.mission_manager.all_obstacles.items():
-                        if o.distance(self.position.x, self.position.y) <= o.axis[0] + 0.1:
-                            addressed_anomalies.append(o.id)
-                    self.mission_manager.deactivate_obstacles(addressed_anomalies)
-                    self.update_state_machine('anomaly_fixed')
-                    if self.condition == self.COND_ETGOA:
-                        self.start_competency_assessment('planning_assessing')
-                    else:
-                        self.finish_competency_assessment(None)
-        except Exception as e:
-            traceback.print_exc()
-
-    def update_mission_control_text(self, text, color=None):# TODO anomaly
-        """
-        Updater for new mission control text
-
-        :param text:
-        :param color:
-        :return:
-        """
-        try:
-            if color is not None:
-                self.splash_of_color(self.request_help_text, color=color, timeout=1000)
-            self.request_help_text.setText(text)
-        except Exception as e:
-            traceback.print_exc()
-
-    def request_mission_control_help_callback(self):# TODO anomaly
-        """
-        Callback when help is requested from Mission Control
-
-        :return:
-        """
-        print('requesting help')
-
-        self.accept_poi_button.setStyleSheet('background-color: light grey')
-        anomaly = False
-        anomaly_type = ''
-        for ob_id, o in self.mission_manager.all_obstacles.items():
-            if ob_id in self.mission_manager.active_obstacle_ids:
-                if o.distance(self.position.x, self.position.y) <= o.axis[0]:
-                    anomaly = True
-                    anomaly_type += o.id
-
-        if self.battery_level < 75:
-            anomaly_type += 'b'
-            anomaly = True
-
-        if anomaly:
-            self.stop_mode_button.click()
-            self.update_state_machine('anomaly_found')
-            self.robot_battery_slider.setEnabled(True)
-            self.robot_gps_slider.setEnabled(True)
-            self.robot_power_slider.setEnabled(True)
-            self.request_help_button.setDisabled(True)
-            self.update_mission_control_text(self.mission_control.get_response(True, anomaly_type, self.battery_level, self.mission_time), 'red')
-            self.update_state_machine('help_request')
-        else:
-            self.stop_mode_button.click()
-            self.update_state_machine('anomaly_fixed')
-            self.update_mission_control_text(self.mission_control.get_response(False, anomaly_type, self.battery_level, self.mission_time), 'green')
-
-        time.sleep(0.1)  # just in case some asynch messes up the periodic button activation and this click
 
     def splash_of_color(self, obj, color='green', timeout=500):
         """

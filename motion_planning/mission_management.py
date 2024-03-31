@@ -14,8 +14,8 @@ class MissionManager:
     OUTDOOR = 'outdoor'
 
     def __init__(self, mission_area_image_path, projector, pois, obstructions, hazards, power_draws, capture_dist):
-        area_miny, area_maxy, area_minx, area_maxx = -2, 10, -0.5, 5
-        self.display_bounds = [-3, 12, -3, 12]  # minx, maxx, miny, maxy
+        area_miny, area_maxy, area_minx, area_maxx = -50, 50, -50, 50
+        self.display_bounds = [-55, 55, -55, 55]  # minx, maxx, miny, maxy
         self.capture_dist = capture_dist
         self.projector = projector
         self.pois = {poi.name: poi for poi in pois}
@@ -173,13 +173,14 @@ class MissionManager:
         ax.set_xlim(self.display_bounds[:2])
         ax.set_ylim(self.display_bounds[2:])
 
+        offset = abs(self.display_bounds[0] - self.display_bounds[1]) * 0.05
         # plot the POIs
         for id, poi in self.pois.items():
             if id.upper() == 'H' or id.upper() == 'HOME':
                 ax.scatter([poi.x], [poi.y], c='gold', s=200, marker='*')
                 ax.annotate(poi.name, (poi.x, poi.y), size='large', va='center', ha='center')
             else:
-                ax.add_patch(Circle((poi.x, poi.y), radius=0.5, facecolor='green', edgecolor='black'))
+                ax.add_patch(Circle((poi.x, poi.y), radius=0.5*offset, facecolor='green', edgecolor='black'))
                 ax.annotate(poi.name, (poi.x, poi.y), size='large', va='center', ha='center')
 
         legend_obstacles = 0
@@ -190,7 +191,6 @@ class MissionManager:
                 if 'o' in oid:
                     rx, ry = o.center
                     c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='black', facecolor='red', alpha=0.5, hatch='++')
-                    #ax.annotate(o.id, (rx, ry), size='large', va='center', ha='center')
                     ax.add_patch(c)
                     legend_obstacles = 1
                 if 'h' in oid:
@@ -198,20 +198,12 @@ class MissionManager:
                     if o.visible:
                         c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='orange', facecolor='orange', alpha=0.5)
                         ax.add_patch(c)
-                    #else:
-                    #    c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='orange', facecolor='orange', alpha=0.2, hatch='//')
-                    #    ax.add_patch(c)
-                    #ax.annotate(o.id, (rx, ry), size='large', va='center', ha='center')
                     legend_hazards = 1
                 if 'b' in oid:
                     rx, ry = o.center
                     if o.visible:
                         c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='blue', facecolor='blue', alpha=0.5)
                         ax.add_patch(c)
-                    #else:
-                    #    c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='blue', facecolor='blue', alpha=0.2, hatch='//')
-                    #    ax.add_patch(c)
-                    #ax.annotate(o.id, (rx, ry), size='large', va='center', ha='center')
                     legend_powers = 1
 
         # plot the plan
@@ -221,8 +213,7 @@ class MissionManager:
             for point in plan:
                 pixel_plan.append([point[0], point[1]])
             pixel_plan = np.array(pixel_plan)
-            ax.plot(pixel_plan[:, 0], pixel_plan[:, 1], '-', c=path_color, linewidth=20.0, markersize=10, alpha=0.5)
-            #ax.scatter(pixel_plan[:, 0], pixel_plan[:, 1], c=path_color, s=20, zorder=19)
+            ax.plot(pixel_plan[:, 0], pixel_plan[:, 1], '-', c=path_color, linewidth=5.0, markersize=5, alpha=0.5)
 
         # plot the robot
         arrow = u'$\u2191$'
@@ -250,7 +241,7 @@ class MissionManager:
             descriptions.append('Slowdown areas')
 
         plt.legend(lines, descriptions, numpoints=1, loc=1)
-        #plt.grid()
+        plt.grid(alpha=0.5)
         ax.axis('square')
         canvas = plt.gca().figure.canvas
         canvas.draw()

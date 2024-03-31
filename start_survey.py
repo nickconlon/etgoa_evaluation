@@ -12,6 +12,7 @@ import qdarktheme
 from surveys.trust_survey_popup import run_survey_popup_online as run_trust
 from surveys.usability_survey_popup import run_survey_popup_online as run_usability
 from surveys.demographics_survey_popup import run_survey_popup_online as run_demographics
+from surveys.decision_making_popup import run_survey_popup_online as run_decisions
 from base_interface.settings import Settings
 from analysis.data_recorder import UsabilityRecorder, TrustRecorder, DemographicsRecorder
 
@@ -37,6 +38,8 @@ if __name__ == '__main__':
     if args.type == 'after':
         todo = ['trust', 'usability', 'demographics']
         label = 'AFTER'
+    if args.type == 'decisions':
+        todo = ['decisions']
 
     fname = ''
     available_surveys = []
@@ -56,6 +59,10 @@ if __name__ == '__main__':
     if 'demographics' in todo:
         fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_demographics_survey.csv'
         available_surveys.append(run_demographics)
+        available_recorders.append(DemographicsRecorder(os.path.join(settings.record_path, fname)))
+
+    if 'decisions' in todo:
+        available_surveys.append(run_decisions)
         available_recorders.append(DemographicsRecorder(os.path.join(settings.record_path, fname)))
 
     qdarktheme.enable_hi_dpi()
