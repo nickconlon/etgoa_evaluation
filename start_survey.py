@@ -14,7 +14,8 @@ from surveys.usability_survey_popup import run_survey_popup_online as run_usabil
 from surveys.demographics_survey_popup import run_survey_popup_online as run_demographics
 from surveys.decision_making_popup import run_survey_popup_online as run_decisions
 from base_interface.settings import Settings
-from analysis.data_recorder import UsabilityRecorder, TrustRecorder, DemographicsRecorder
+from surveys.thought_exp_popup import run_survey_popup_online as run_thoughts
+from analysis.data_recorder import UsabilityRecorder, TrustRecorder, DemographicsRecorder, QuestionsRecorder
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -40,6 +41,8 @@ if __name__ == '__main__':
         label = 'AFTER'
     if args.type == 'decisions':
         todo = ['decisions']
+    if args.type == 'thoughts':
+        todo = ['thoughts']
 
     fname = ''
     available_surveys = []
@@ -63,7 +66,11 @@ if __name__ == '__main__':
 
     if 'decisions' in todo:
         available_surveys.append(run_decisions)
-        available_recorders.append(DemographicsRecorder(os.path.join(settings.record_path, fname)))
+        available_recorders.append(QuestionsRecorder(os.path.join(settings.record_path, fname)))
+
+    if 'thoughts' in todo:
+        available_surveys.append(run_thoughts)
+        available_recorders.append(QuestionsRecorder(os.path.join(settings.record_path, fname)))
 
     qdarktheme.enable_hi_dpi()
     app = QtWidgets.QApplication(sys.argv)

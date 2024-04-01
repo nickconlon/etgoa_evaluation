@@ -52,6 +52,14 @@ class UsabilityRecorder:
         row = [*responses, timestamp]
         self.usability_recorder.record(row)
 
+class QuestionsRecorder:
+    def __init__(self, path):
+        self.recorder = DataRecorderBase(path, '')
+
+    def record(self, responses, timestamp):
+        row = [*responses, timestamp]
+        self.recorder.record(row)
+
 
 class DemographicsRecorder:
     def __init__(self, path):

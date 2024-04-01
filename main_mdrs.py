@@ -9,15 +9,16 @@ import qdarktheme
 from PIL import Image as pil_image
 
 import rospy
-from sensor_msgs.msg import Image, NavSatFix
+from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 from geometry_msgs.msg import Twist  # Twist messages
 from geometry_msgs.msg import PoseStamped, Vector3Stamped
 from gazebo_msgs.msg import ModelStates
 from std_msgs.msg import String, Float32, Float32MultiArray
 from nav_msgs.msg import Odometry  # odometry messages
-# from tf.transformations import euler_from_quaternion  # Quaternion conversions
-# from sensor_msgs.msg import NavSatFix
+from bno55_usb_stick_msgs.msg import CalibrationStatus
+from tf.transformations import euler_from_quaternion  # Quaternion conversions
+from sensor_msgs.msg import NavSatFix, Imu
 
 from base_interface.mdrs_base_interface import BaseInterface
 from base_interface.control_modes import ControlModeState
@@ -63,10 +64,14 @@ class InterfaceImpl(BaseInterface):
             self.control_pub = rospy.Publisher('/jackal_velocity_controller/cmd_vel', Twist,
                                                queue_size=10)
         else: # MDRS / GPS # TODO import gps message
-            self.pose_sub = self.pose_sub = rospy.Subscriber('/fix', NavSatFix, self.ros_position_callback)
+            self.pose_sub = rospy.Subscriber('/fix', NavSatFix,
+                                             self.ros_position_callback)
             self.velocity_sub = rospy.Subscriber('/vel', Vector3Stamped,
                                                  self.ros_velocity_callback)
-            self.ff_camera_sub = rospy.Subscriber('/front/left/image_raw', Image, self.ros_img_callback)
+            self.imu_sub = rospy.Subscriber('/imu', Imu,
+                                            self.ros_orientation_callback)
+            self.ff_camera_sub = rospy.Subscriber('/front/left/image_raw', Image,
+                                                  self.ros_img_callback)
             self.waypoint_speed_pub = rospy.Publisher('/{}/control'.format(self.robot), Float32,
                                                       queue_size=10)
             self.waypoint_plan_pub = rospy.Publisher('/{}/plan'.format(self.robot), Plan,
@@ -124,8 +129,13 @@ class InterfaceImpl(BaseInterface):
 
     def ros_orientation_callback(self, msg):
         try:
-
-            self.heading = 0
+            ang = msg.orientation
+            angle = euler_from_quaternion([ang.x, ang.y, ang.z, ang.w])
+            z = angle[2]
+            if z < 0:
+                z = (z+360) % 360
+            z = (-z+180) % 360
+            self.heading = z
         except Exception as e:
             traceback.print_exc()
 
