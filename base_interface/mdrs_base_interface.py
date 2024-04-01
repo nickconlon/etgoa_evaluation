@@ -153,7 +153,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
 
         ##################
         # Dynamically add/delete obstacles panel
-        # TODO edit existing obstacles/POIs
         self.obstacle_scroll.addItem('Add new obstacle')
         self.poi_scroll.addItem('Add new POI')
         self.obs_set = {}
@@ -187,12 +186,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 ob = Obstacle(Obstacle.circle, [x, y], [r], oid)
                 self.mission_manager.setup_obstacles([ob])
                 self.mission_manager.activate_obstacles([ob.id])
-
                 self.obs_set[oid] = ob
                 self.obstacle_scroll.addItem(oid)
-                self.obstacle_r.setText('')
-                self.obstacle_x.setText('')
-                self.obstacle_y.setText('')
             elif self.mode_del_obstacle.isChecked():
                 print('deleting obstacle')
                 oid = self.obstacle_scroll.currentText()
@@ -201,7 +196,17 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.mission_manager.remove_obstacles([oid])
                 self.obstacle_scroll.setCurrentIndex(0)
             elif self.mode_update_obstacle.isChecked():
-                pass
+                print('Updating obstacle')
+                oid = self.obstacle_scroll.currentText()
+                r = float(self.obstacle_r.toPlainText())
+                x = float(self.obstacle_x.toPlainText())
+                y = float(self.obstacle_y.toPlainText())
+                if oid in self.mission_manager.all_obstacles:
+                    self.mission_manager.all_obstacles[oid].center = [x, y]
+                    self.mission_manager.all_obstacles[oid].axis = [r]
+            self.obstacle_r.setText('')
+            self.obstacle_x.setText('')
+            self.obstacle_y.setText('')
 
         except Exception as e:
             traceback.print_exc()
@@ -220,9 +225,6 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.mission_manager.pois[pid] = poi
                 self.poi_scroll.addItem(pid)
                 self.poi_selection.addItem(pid)
-                self.poi_x.setText('')
-                self.poi_y.setText('')
-
             elif self.mode_del_poi.isChecked():
                 print('deleting POI')
                 pid = self.poi_scroll.currentText()
@@ -231,8 +233,18 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 self.poi_selection.removeItem(idx+1)
                 self.mission_manager.pois.pop(pid)
                 self.poi_scroll.setCurrentIndex(0)
+                self.poi_x.setText('')
+                self.poi_y.setText('')
             elif self.mode_update_poi.isChecked():
-                pass
+                print('Updating POI')
+                oid = self.poi_scroll.currentText()
+                x = float(self.poi_x.toPlainText())
+                y = float(self.poi_y.toPlainText())
+                if oid in self.mission_manager.pois:
+                    self.mission_manager.pois[oid].x = x
+                    self.mission_manager.pois[oid].y = y
+            self.poi_x.setText('')
+            self.poi_y.setText('')
 
 
         except Exception as e:
