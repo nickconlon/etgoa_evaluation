@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1859</width>
-    <height>906</height>
+    <height>786</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -709,22 +709,6 @@
       <string/>
      </property>
     </widget>
-    <widget class="QLabel" name="camera360_connected_indicator">
-     <property name="geometry">
-      <rect>
-       <x>150</x>
-       <y>80</y>
-       <width>41</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::Box</enum>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
     <widget class="QLabel" name="label_9">
      <property name="geometry">
       <rect>
@@ -761,7 +745,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Camera</string>
+      <string>FPV Camera</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_22">
@@ -787,17 +771,33 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QLabel" name="cam360_label">
+    <widget class="QLabel" name="recording_connected_indicator">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>80</y>
+       <width>41</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_12">
      <property name="geometry">
       <rect>
        <x>200</x>
        <y>80</y>
-       <width>101</width>
+       <width>91</width>
        <height>21</height>
       </rect>
      </property>
      <property name="text">
-      <string>360 Camera</string>
+      <string>Recording</string>
      </property>
     </widget>
    </widget>
@@ -1473,6 +1473,69 @@ Drive</string>
     <property name="frameShadow">
      <enum>QFrame::Plain</enum>
     </property>
+    <widget class="QPushButton" name="start_recording_button">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>50</y>
+       <width>251</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Start Recording</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="stop_recording_button">
+     <property name="geometry">
+      <rect>
+       <x>290</x>
+       <y>50</y>
+       <width>251</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Stop Recording</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_29">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>551</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Data Recording</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

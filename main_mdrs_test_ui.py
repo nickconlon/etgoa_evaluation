@@ -27,6 +27,8 @@ class InterfaceImpl(BaseInterface):
         self.sensor2_connected = True
         self.left_button_2.clicked.connect(self.left)
         self.right_button_2.clicked.connect(self.right)
+        self.start_recording_button.clicked.connect(self.start_recording_callback)
+        self.stop_recording_button.clicked.connect(self.end_recording_callback)
 
         self.telemetry_test = QtCore.QTimer()
         self.telemetry_test.timeout.connect(self.test_position_update)
@@ -53,6 +55,11 @@ class InterfaceImpl(BaseInterface):
     def right(self):
         self.heading = (self.heading + 5) % 360
 
+    def start_recording_callback(self):
+        self.is_recording = True
+
+    def end_recording_callback(self):
+        self.is_recording = False
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

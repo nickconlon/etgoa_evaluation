@@ -97,8 +97,10 @@ class WaypointFollower:
         self.sleep_rate = rospy.Rate(10)
         if self.area == self.ASPEN:
             # For inside the ASPEN lab w/ VICON and our named robots
-            self.pose_sub = rospy.Subscriber('/{}/vrpn_client_node/cohrint_{}/pose'.format(self.robot, self.robot),
-                                             PoseStamped, self.calculate_heading)
+            #self.pose_sub = rospy.Subscriber('/{}/vrpn_client_node/cohrint_{}/pose'.format(self.robot, self.robot),
+            #                                 PoseStamped, self.calculate_heading)
+            # Special topic for adjusted PoseStamped from IMU and GPS
+            self.pose_sub = rospy.Subscriber('/test/pose', PoseStamped, self.calculate_heading)
             self.pub_vel = rospy.Publisher('/{}/jackal_velocity_controller/cmd_vel'.format(self.robot),
                                            Twist, queue_size=10)
         elif self.area == self.GAZEBO:

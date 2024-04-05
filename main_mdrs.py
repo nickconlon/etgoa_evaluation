@@ -64,7 +64,7 @@ class InterfaceImpl(BaseInterface):
             self.control_pub = rospy.Publisher('/jackal_velocity_controller/cmd_vel', Twist,
                                                queue_size=10)
         else: # MDRS / GPS # TODO import gps message
-            self.pose_sub = rospy.Subscriber('/fix', NavSatFix,
+            self.gps_sub = rospy.Subscriber('/fix', NavSatFix,
                                              self.ros_position_callback)
             self.velocity_sub = rospy.Subscriber('/vel', Vector3Stamped,
                                                  self.ros_velocity_callback)
@@ -131,11 +131,7 @@ class InterfaceImpl(BaseInterface):
         try:
             ang = msg.orientation
             angle = euler_from_quaternion([ang.x, ang.y, ang.z, ang.w])
-            z = angle[2]
-            if z < 0:
-                z = (z+360) % 360
-            z = (-z+180) % 360
-            self.heading = z
+            self.heading = (to_heading_north(angle([-1])) + 180) % 360
         except Exception as e:
             traceback.print_exc()
 

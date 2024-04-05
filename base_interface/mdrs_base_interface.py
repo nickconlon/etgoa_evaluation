@@ -62,6 +62,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
         print('Setting up connections')
         self.robot_connected = -100
         self.gps_connected = -100
+        self.is_recording = False
         self.sensor1_connected = -100
         self.sensor2_connected = -100
 
@@ -449,8 +450,8 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                 'background-color: {}'.format('green' if abs(self.robot_connected - self.mission_time) < 2 else 'red'))
             self.gps_connected_indicator.setStyleSheet(
                 'background-color: {}'.format('green' if abs(self.gps_connected - self.mission_time) < 2 else 'red'))
-            self.camera360_connected_indicator.setStyleSheet(
-                'background-color: {}'.format('green' if True else 'red'))
+            self.recording_connected_indicator.setStyleSheet(
+                'background-color: {}'.format('green' if self.is_recording else 'red'))
             self.cameraFF_connected_indicator.setStyleSheet(
                 'background-color: {}'.format('green' if abs(self.sensor2_connected - self.mission_time) < 5 else 'red'))
         except Exception as e:

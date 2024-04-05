@@ -368,6 +368,7 @@ def plot_secondary_performance(conditions, base='../data/'):
     plt.boxplot(plot_data, labels=plot_labels)
     plt.ylim(ymin=0)
     plt.title('Secondary task performance - accuracy distance'+'\n'+'$|LL_{act}-LL_{found}|$')
+    plt.ylabel('Pixels')
     plt.show()
 
     plot_data = []
@@ -378,6 +379,7 @@ def plot_secondary_performance(conditions, base='../data/'):
     plt.boxplot(plot_data, labels=plot_labels)
     plt.ylim(ymin=0)
     plt.title('Secondary task performance - reaction time'+'\n'+r'$|t_{start}-t_{found}|$')
+    plt.ylabel('Seconds')
     plt.show()
     return accuracy, times
 
@@ -417,6 +419,7 @@ def plot_anomaly_response_time(conditions, base='../data/'):
 
     plt.boxplot(plot_data, labels=plot_labels)
     plt.ylim(ymin=0)
+    plt.ylabel('Seconds')
     plt.title('Anomaly Response Times'+'\n'+'$|t_{start}-t_{addressed}|$')
     plt.show()
     return data
@@ -447,6 +450,7 @@ def plot_mission_objectives(conditions, base='../data/'):
     plt.bar(plot_labels, [np.mean(x) for x in plot_data], edgecolor='black', color='white')
     plt.errorbar([0, 1, 2], [np.mean(x) for x in plot_data], capsize=10, yerr=[np.std(x) for x in plot_data], fmt='none', color='black', elinewidth=1)
     plt.ylim(ymin=0)
+    plt.ylabel('Objectives')
     plt.show()
     return data
 
@@ -459,6 +463,7 @@ def plot_demographics(base):
     female = []
     other = []
     no_answer = []
+    fig, (a1, a2) = plt.subplots(nrows=1, ncols=2)#, figsize=(8, 8))
     for p in paths:
         df = pd.read_csv(p)
         ages.append(df['age'].tolist()[0])
@@ -474,12 +479,11 @@ def plot_demographics(base):
         elif 'Prefer not to answer' in gender:
             no_answer.append(1)
 
-    print('male: {}'.format(len(male)))
-    print('female: {}'.format(len(female)))
-    print('other: {}'.format(len(other)))
-    print('Prefer not to answer: {}'.format(len(no_answer)))
-    plt.boxplot([ages, robotics_exp, gaming_exp], labels=['Age', 'Robotics exp', 'Gaming exp'])
-    plt.title('Demographics')
+    a1.boxplot([ages, robotics_exp, gaming_exp], labels=['Age', 'Robotics\nexp', 'Gaming\nexp'])
+    a2.bar(['Male', 'Female', 'Other', 'No\nanswer'], [len(male), len(female), len(other), len(no_answer)], edgecolor='black', color='white')
+    a2.set_ylim([0, 5])
+    fig.suptitle('Demographics')
+    plt.tight_layout()
     plt.show()
 
 
