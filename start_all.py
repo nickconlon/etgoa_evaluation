@@ -24,5 +24,5 @@ if __name__ == '__main__':
 
     p = subprocess.Popen(['gnome-terminal', '--', 'bash', '-c', './start_ui.sh {}'.format(temp_settings_path)], stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
     p = subprocess.Popen(['gnome-terminal', '--', 'bash', '-c', './start_waypoint.sh {}'.format(temp_settings_path)], stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-    p = subprocess.Popen(['gnome-terminal', '--', 'bash', '-c', './start_concurrent.sh {}'.format(temp_settings_path)], stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+    #p = subprocess.Popen(['gnome-terminal', '--', 'bash', '-c', './start_concurrent.sh {}'.format(temp_settings_path)], stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
     p = subprocess.Popen(['gnome-terminal', '--', 'bash', '-c', './start_bridge.sh'], stderr=subprocess.STDOUT, stdout=subprocess.PIPE)

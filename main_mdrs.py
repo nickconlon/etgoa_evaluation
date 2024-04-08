@@ -16,7 +16,7 @@ from geometry_msgs.msg import PoseStamped, Vector3Stamped
 from gazebo_msgs.msg import ModelStates
 from std_msgs.msg import String, Float32, Float32MultiArray
 from nav_msgs.msg import Odometry  # odometry messages
-from bno55_usb_stick_msgs.msg import CalibrationStatus
+#from bno55_usb_stick_msgs.msg import CalibrationStatus
 from tf.transformations import euler_from_quaternion  # Quaternion conversions
 from sensor_msgs.msg import NavSatFix, Imu
 
@@ -131,7 +131,7 @@ class InterfaceImpl(BaseInterface):
         try:
             ang = msg.orientation
             angle = euler_from_quaternion([ang.x, ang.y, ang.z, ang.w])
-            self.heading = (to_heading_north(angle([-1])) + 180) % 360
+            self.heading = (to_heading_north(angle[-1]) + 180) % 360
         except Exception as e:
             traceback.print_exc()
 
