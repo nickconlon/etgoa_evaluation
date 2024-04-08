@@ -188,6 +188,7 @@ class MissionManager:
         legend_powers = 0
         for oid, o in self.all_obstacles.items():
             if oid in self.active_obstacle_ids:
+                ax.annotate(o.id, o.center, size='large', va='center', ha='center')
                 if 'o' in oid:
                     rx, ry = o.center
                     c = plt.Circle((rx, ry), radius=o.axis[0], edgecolor='black', facecolor='red', alpha=0.5, hatch='++')
