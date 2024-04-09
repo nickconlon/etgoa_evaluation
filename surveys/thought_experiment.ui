@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1319</width>
+    <width>1859</width>
     <height>839</height>
    </rect>
   </property>
@@ -46,7 +46,7 @@
      <enum>QFrame::NoFrame</enum>
     </property>
     <property name="text">
-     <string>Please read the following scenario and answer the questions, and click Submit when you are done:</string>
+     <string>Please read the following scenario and answer the questions.Click Submit when you are done:</string>
     </property>
     <property name="wordWrap">
      <bool>true</bool>
@@ -70,7 +70,7 @@
      <enum>QFrame::NoFrame</enum>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Imagine that are the suprevisor of a robotic exploration mission, and tasked to explore and take measurements of an area, we'll call it Area A. You assign the robot a task, &amp;quot;drive to Area A, and look for deposits of minerals, try to avoid hazardous craters, and return within 2 hours.&amp;quot; Here, the mission goals are (1) to drive to Area A, (2) to search for minerals, (3) avoid craters, and (4) to complete the mission with 2 hours. You are charged with deciding if the robot should attempt this task. You must balance the value in exploring Area A with the potential costs of failing the mission (e.g., damage to the robot, etc.). &lt;/p&gt;&lt;p&gt;To help with your decision making, the robot can report to you how confident it is in achieving each of those four mission goals. Here, the robot reports back: &amp;quot;&lt;span style=&quot; font-style:italic;&quot;&gt;Highly Likely&lt;/span&gt; to driving to Area A, &lt;span style=&quot; font-style:italic;&quot;&gt;Likely&lt;/span&gt; to find the minerals, &lt;span style=&quot; font-style:italic;&quot;&gt;Even Chance&lt;/span&gt; to avoid hazardous craters, and &lt;span style=&quot; font-style:italic;&quot;&gt;Unlikely&lt;/span&gt; to complete the mission within 2 hours.&amp;quot; Given this scenario, please answer the following three questions:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Imagine that are the suprevisor of a robotic exploration mission, and tasked to explore and take measurements of an area, we'll call it Area A. You assign the robot a task, &amp;quot;drive to Area A, and look for deposits of minerals, try to avoid hazardous craters, and return within 2 hours.&amp;quot; Here, the mission goals are (1) to drive to Area A, (2) to search for minerals, (3) avoid craters, and (4) to complete the mission with 2 hours. You are charged with deciding if the robot should attempt this task. You must balance the value in exploring Area A with the potential costs of failing the mission (e.g., damage to the robot, etc.). &lt;/p&gt;&lt;p&gt;To help with your decision making, the robot can report to you how confident it is in achieving each of those four mission goals. Here, the robot reports back: &amp;quot;&lt;span style=&quot; font-style:italic;&quot;&gt;Highly Likely&lt;/span&gt; to driving to Area A, &lt;span style=&quot; font-style:italic;&quot;&gt;Highly Likely&lt;/span&gt; to find the minerals, &lt;span style=&quot; font-style:italic;&quot;&gt;Even Chance&lt;/span&gt; to avoid hazardous craters, and &lt;span style=&quot; font-style:italic;&quot;&gt;Unlikely&lt;/span&gt; to complete the mission within 2 hours.&amp;quot; Given this scenario, please answer the following three questions:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="wordWrap">
      <bool>true</bool>
@@ -196,6 +196,28 @@
      <string>Submit</string>
     </property>
    </widget>
+  </widget>
+  <widget class="QLabel" name="label_6">
+   <property name="geometry">
+    <rect>
+     <x>1320</x>
+     <y>150</y>
+     <width>521</width>
+     <height>491</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::NoFrame</enum>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="pixmap">
+    <pixmap>../imgs/famsec.png</pixmap>
+   </property>
+   <property name="scaledContents">
+    <bool>false</bool>
+   </property>
   </widget>
  </widget>
  <resources/>

@@ -65,10 +65,12 @@ if __name__ == '__main__':
         available_recorders.append(DemographicsRecorder(os.path.join(settings.record_path, fname)))
 
     if 'decisions' in todo:
+        fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_decisions_survey.csv'
         available_surveys.append(run_decisions)
         available_recorders.append(QuestionsRecorder(os.path.join(settings.record_path, fname)))
 
     if 'thoughts' in todo:
+        fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_thoughts_survey.csv'
         available_surveys.append(run_thoughts)
         available_recorders.append(QuestionsRecorder(os.path.join(settings.record_path, fname)))
 

@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(1319, 839)
+        Form.resize(1859, 839)
         self.frame = QtWidgets.QFrame(Form)
         self.frame.setGeometry(QtCore.QRect(10, 20, 1291, 801))
         self.frame.setFrameShape(QtWidgets.QFrame.Box)
@@ -75,6 +75,13 @@ class Ui_Form(object):
         font.setPointSize(14)
         self.submit_button.setFont(font)
         self.submit_button.setObjectName("submit_button")
+        self.label_6 = QtWidgets.QLabel(Form)
+        self.label_6.setGeometry(QtCore.QRect(1320, 150, 521, 491))
+        self.label_6.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.label_6.setText("")
+        self.label_6.setPixmap(QtGui.QPixmap("../imgs/famsec.png"))
+        self.label_6.setScaledContents(False)
+        self.label_6.setObjectName("label_6")
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
@@ -82,8 +89,8 @@ class Ui_Form(object):
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "Form"))
-        self.label.setText(_translate("Form", "Please read the following scenario and answer the questions, and click Submit when you are done:"))
-        self.label_2.setText(_translate("Form", "<html><head/><body><p>Imagine that are the suprevisor of a robotic exploration mission, and tasked to explore and take measurements of an area, we\'ll call it Area A. You assign the robot a task, &quot;drive to Area A, and look for deposits of minerals, try to avoid hazardous craters, and return within 2 hours.&quot; Here, the mission goals are (1) to drive to Area A, (2) to search for minerals, (3) avoid craters, and (4) to complete the mission with 2 hours. You are charged with deciding if the robot should attempt this task. You must balance the value in exploring Area A with the potential costs of failing the mission (e.g., damage to the robot, etc.). </p><p>To help with your decision making, the robot can report to you how confident it is in achieving each of those four mission goals. Here, the robot reports back: &quot;<span style=\" font-style:italic;\">Highly Likely</span> to driving to Area A, <span style=\" font-style:italic;\">Likely</span> to find the minerals, <span style=\" font-style:italic;\">Even Chance</span> to avoid hazardous craters, and <span style=\" font-style:italic;\">Unlikely</span> to complete the mission within 2 hours.&quot; Given this scenario, please answer the following three questions:</p></body></html>"))
+        self.label.setText(_translate("Form", "Please read the following scenario and answer the questions.Click Submit when you are done:"))
+        self.label_2.setText(_translate("Form", "<html><head/><body><p>Imagine that are the suprevisor of a robotic exploration mission, and tasked to explore and take measurements of an area, we\'ll call it Area A. You assign the robot a task, &quot;drive to Area A, and look for deposits of minerals, try to avoid hazardous craters, and return within 2 hours.&quot; Here, the mission goals are (1) to drive to Area A, (2) to search for minerals, (3) avoid craters, and (4) to complete the mission with 2 hours. You are charged with deciding if the robot should attempt this task. You must balance the value in exploring Area A with the potential costs of failing the mission (e.g., damage to the robot, etc.). </p><p>To help with your decision making, the robot can report to you how confident it is in achieving each of those four mission goals. Here, the robot reports back: &quot;<span style=\" font-style:italic;\">Highly Likely</span> to driving to Area A, <span style=\" font-style:italic;\">Highly Likely</span> to find the minerals, <span style=\" font-style:italic;\">Even Chance</span> to avoid hazardous craters, and <span style=\" font-style:italic;\">Unlikely</span> to complete the mission within 2 hours.&quot; Given this scenario, please answer the following three questions:</p></body></html>"))
         self.label_3.setText(_translate("Form", "(1) Would, and how would, you use the robot\'s report of confidence (Highly Likely, Likely, Even Chance, Unlikely, Highly Unlikely etc.) in meeting the mission objectives? "))
         self.label_4.setText(_translate("Form", "(2) What additional information or reasoning would you want the robot to report along with the confidence?"))
         self.label_5.setText(_translate("Form", "(3) Why would that information be useful to you as the robot\'s supervisor? How would you act on it?"))
