@@ -6,7 +6,7 @@ import argparse
 import rospy  # Ros library
 import math  # Math library
 from geometry_msgs.msg import Twist  # Twist messages
-from geometry_msgs.msg import PoseStamped, Vector3Stamped
+from geometry_msgs.msg import PoseStamped, Vector3Stamped, TwistStamped
 from nav_msgs.msg import Odometry  # oOdometry messages
 from tf.transformations import euler_from_quaternion  # Quaternion conversions
 from gazebo_msgs.msg import ModelStates
@@ -29,6 +29,9 @@ def extract_velocity_msg(data):
         pass
     elif type(data) == Vector3Stamped:
         v = data.vector
+        v = np.linalg.norm(np.array([v.x, v.y, v.z]))
+    elif type(data) == TwistStamped:
+        v = data.twist.linear
         v = np.linalg.norm(np.array([v.x, v.y, v.z]))
     else:
         v = 0
@@ -65,6 +68,7 @@ class WaypointFollower:
     ASPEN = 'aspen'
     GAZEBO = 'gazebo'
     OUTDOOR = 'outdoor'
+    MDRS = 'mdrs'
     TARS = 'tars'
     KIPP = 'kipp'
     CASE = 'case'
@@ -96,6 +100,7 @@ class WaypointFollower:
         # Set sleep rate
         self.sleep_rate = rospy.Rate(10)
         if self.area == self.ASPEN:
+            print('Waypoint follower for {}'.format(self.area))
             # For inside the ASPEN lab w/ VICON and our named robots
             #self.pose_sub = rospy.Subscriber('/{}/vrpn_client_node/cohrint_{}/pose'.format(self.robot, self.robot),
             #                                 PoseStamped, self.calculate_heading)
@@ -104,14 +109,23 @@ class WaypointFollower:
             self.pub_vel = rospy.Publisher('/{}/jackal_velocity_controller/cmd_vel'.format(self.robot),
                                            Twist, queue_size=10)
         elif self.area == self.GAZEBO:
+            print('Waypoint follower for {}'.format(self.area))
             # For in Gazebo sim w/ unnamed robots
             self.pose_sub = rospy.Subscriber('/gazebo/model_states', ModelStates, self.calculate_heading)
             self.pub_vel = rospy.Publisher('/jackal_velocity_controller/cmd_vel', Twist,  queue_size=10)
         elif self.area == self.OUTDOOR:
+            print('Waypoint follower for {}'.format(self.area))
             # For outside w/ GPS and our named robots. TODO GPS integration
             self.pose_sub = None
             self.pub_vel = rospy.Publisher('/{}/jackal_velocity_controller/cmd_vel'.format(self.robot),
                                            Twist, queue_size=10)
+        elif self.area == self.MDRS:
+            print('Waypoint follower for MDRS')
+            self.pose_sub = rospy.Subscriber('/test/pose', PoseStamped, self.calculate_heading)
+            self.pub_vel = rospy.Publisher('/{}/jackal_velocity_controller/cmd_vel'.format(self.robot),
+                                           Twist, queue_size=10)
+        else:
+            print('unknown area settings')
 
         self.control_sub = rospy.Subscriber('/{}/control'.format(self.robot), Float32, self.set_control_callback)
         self.waypoint_sub = rospy.Subscriber('/{}/plan'.format(self.robot), Plan, self.set_waypoints_callback)

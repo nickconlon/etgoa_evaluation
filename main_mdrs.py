@@ -1,6 +1,7 @@
 import sys
 import argparse
 import traceback
+import subprocess
 from PyQt5.QtWidgets import QApplication
 import PyQt5.QtGui as QtGui
 import PyQt5.QtCore as QtCore
@@ -12,12 +13,12 @@ import rospy
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 from geometry_msgs.msg import Twist  # Twist messages
-from geometry_msgs.msg import PoseStamped, Vector3Stamped
+from geometry_msgs.msg import PoseStamped, Vector3Stamped, TwistStamped
 from gazebo_msgs.msg import ModelStates
 from std_msgs.msg import String, Float32, Float32MultiArray
 from nav_msgs.msg import Odometry  # odometry messages
 #from bno55_usb_stick_msgs.msg import CalibrationStatus
-from tf.transformations import euler_from_quaternion  # Quaternion conversions
+from tf.transformations import euler_from_quaternion, quaternion_from_euler  # Quaternion conversions
 from sensor_msgs.msg import NavSatFix, Imu
 
 from base_interface.mdrs_base_interface import BaseInterface
@@ -32,6 +33,7 @@ class InterfaceImpl(BaseInterface):
         BaseInterface.__init__(self, settings_path)
         rospy.init_node('user_interface', anonymous=True)
         self.img_msg = None
+        self.tmp_heading = [0, 0, 0]
         self.bridge = CvBridge()
         self.accept_poi_button.clicked.connect(self.ros_send_waypoint_plan)
         self.stop_mode_button.clicked.connect(lambda: self.ros_control_waypoint_follower(0.0))
@@ -66,9 +68,9 @@ class InterfaceImpl(BaseInterface):
         else: # MDRS / GPS # TODO import gps message
             self.gps_sub = rospy.Subscriber('/fix', NavSatFix,
                                              self.ros_position_callback)
-            self.velocity_sub = rospy.Subscriber('/vel', Vector3Stamped,
+            self.velocity_sub = rospy.Subscriber('/vel', TwistStamped,
                                                  self.ros_velocity_callback)
-            self.imu_sub = rospy.Subscriber('/imu', Imu,
+            self.imu_sub = rospy.Subscriber('/{}/compass/imu'.format(self.robot), Imu,
                                             self.ros_orientation_callback)
             self.ff_camera_sub = rospy.Subscriber('/front/left/image_raw', Image,
                                                   self.ros_img_callback)
@@ -78,6 +80,7 @@ class InterfaceImpl(BaseInterface):
                                                      queue_size=10)
             self.control_pub = rospy.Publisher('/{}/jackal_velocity_controller/cmd_vel'.format(self.robot), Twist,
                                                queue_size=10)
+            self.test_pub = rospy.Publisher('/test/pose', PoseStamped, queue_size=10)
 
         self.teleoperation_actions = {'x':0, 'z':0}
         self.teleoperation_timer = QtCore.QTimer()
@@ -102,7 +105,25 @@ class InterfaceImpl(BaseInterface):
         self.ff_cam_updater.setInterval(500)
         self.ff_cam_updater.start()
         self.ui_connected = True
+        self.adjusted_position_updater = QtCore.QTimer()
+        self.adjusted_position_updater.timeout.connect(self.send_adjusted_position)
+        self.adjusted_position_updater.setInterval(1000) # 1 second updates
+        self.adjusted_position_updater.start()
 
+        self.start_recording_button.clicked.connect(self.ros_start_recording_callback)
+        self.stop_recording_button.clicked.connect(self.ros_stop_recording_callback)
+
+    def send_adjusted_position(self):
+        msg = PoseStamped()
+        msg.pose.position.x = self.position.x
+        msg.pose.position.y = self.position.y
+        msg.pose.position.z = 0.01
+        ori = quaternion_from_euler(0, 0, self.tmp_heading[-1])
+        msg.pose.orientation.x = ori[0]
+        msg.pose.orientation.y = ori[1]
+        msg.pose.orientation.z = ori[2]
+        msg.pose.orientation.w = ori[3]
+        self.test_pub.publish(msg)
 
     def ros_control_waypoint_follower(self, speed):
         try:
@@ -131,7 +152,8 @@ class InterfaceImpl(BaseInterface):
         try:
             ang = msg.orientation
             angle = euler_from_quaternion([ang.x, ang.y, ang.z, ang.w])
-            self.heading = (to_heading_north(angle[-1]) + 180) % 360
+            self.heading = (to_heading_north(angle[-1])) % 360
+            self.tmp_heading = list(angle)
         except Exception as e:
             traceback.print_exc()
 
@@ -146,17 +168,27 @@ class InterfaceImpl(BaseInterface):
             self.gps_connected = self.mission_time
 
             if type(msg) == NavSatFix:
+                # TODO lla -> utm conversion here
                 self.position.x = msg.longitude - self.zero[0]
                 self.position.y = msg.latitude - self.zero[1]
-                self.position.z = msg.altitude
+                self.position.z = 0.01#msg.altitude
             else:
                 pose, angle = extract_pose_msg(msg)
                 self.position.x = pose[0]
                 self.position.y = pose[1]
                 self.position.z = pose[2]
                 self.heading = to_heading_north(angle[-1])
+                self.tmp_heading = angle
         except Exception as e:
             traceback.print_exc()
+
+    def ros_start_recording_callback(self):
+        self.is_recording = True
+        p = subprocess.Popen(['rosbag', 'record', '-a', '-o', '/data/MDRS_BAGS/', '__name:=mybag'])
+
+    def ros_stop_recording_callback(self):
+        self.is_recording = False
+        p = subprocess.Popen(['rosnode', 'kill', 'mybag'])
 
     def ros_velocity_callback(self, msg):
         """
