@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import rospy
+import cv2
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 
@@ -15,7 +16,7 @@ class CameraNode:
         """
         self._cam = CameraWrapper()
         self._cam.set_cap(_device)
-        self._cam.set_parameters()
+        #self._cam.set_parameters()
         self._bridge = CvBridge()
 
         rospy.init_node('talker', anonymous=True)
@@ -25,7 +26,10 @@ class CameraNode:
     def run(self):
         while not rospy.is_shutdown():
             frame, imgs = self._cam.read()
-            image_message = self._bridge.cv2_to_imgmsg(imgs[0], encoding="passthrough")
+            img = imgs[0]
+            img = cv2.resize(img, (250, 250))
+            print(img.shape)
+            image_message = self._bridge.cv2_to_imgmsg(img, encoding="passthrough")
 
             rospy.loginfo('sent')
             self._pub.publish(image_message)
@@ -33,8 +37,8 @@ class CameraNode:
 
 if __name__ == '__main__':
     try:
-        rate = 10
-        deviceid = 2
+        rate = 5
+        deviceid = 0
         topic = '/front/left/image_raw'
         cam = CameraNode(rate, deviceid, topic)
         cam.run()
