@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=MDRS on network
+Comment=Script to start the network
+Exec=gnome-terminal -e "bash -c '/home/cohrint-skynet/Desktop/MDRS/Start_Roscore.sh;$SHELL'"
+Terminal=true
+Type=Application

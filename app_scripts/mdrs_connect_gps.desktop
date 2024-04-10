@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=MDRS on GPS
+Comment=Script to connect the GPS to the network
+Exec=gnome-terminal -e "bash -c '/home/cohrint-skynet/Desktop/MDRS/Connect_GPS.sh;$SHELL'"
+Terminal=true
+Type=Application

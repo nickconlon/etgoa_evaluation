@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=MDRS on camera
+Comment=Script to connect the camera to the network
+Exec=gnome-terminal -e "bash -c '/home/cohrint-skynet/Desktop/MDRS/Connect_Camera.sh;$SHELL'"
+Terminal=true
+Type=Application

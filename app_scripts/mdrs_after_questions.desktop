@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=MDRS after survey
+Comment=Script to start the MDRS after questions
+Exec=gnome-terminal -e "bash -c '/home/cohrint-skynet/Desktop/MDRS/After_Questions.sh;$SHELL'"
+Terminal=true
+Type=Application

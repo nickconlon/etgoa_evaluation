@@ -20,3 +20,4 @@ qt-gui-cpp==0.4.2
 qt-gui-py-common==0.4.2
 scikit-learn==1.0.2
 scipy==1.7.3
+utm==0.7.0

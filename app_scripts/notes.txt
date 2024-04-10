@@ -1,0 +1,18 @@
+sshpass -p <password> ssh -o StrictHostKeyChecking=no <user>@<host> sudo /path/to/script.sh
+
+
+
+####################
+TODO test with CASE:
+sshpass -p unicorn ssh -o StrictHostKeyChecking=no cohrint@192.168.20.126 "source ./network.sh 155 126; ./start.sh aspen"
+
+
+
+edit ~/.local/share/applications/X.desktop
+
+
+cd ~/catkin/src/etgoa_evaluation/ff_camera/
+source ../../../devel/setup.bash
+source ./ros_term.sh 155 100
+python3 camera_node.py
+

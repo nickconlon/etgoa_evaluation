@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=MDRS on UI
+Comment=Script to start the MDRS UI
+Exec=gnome-terminal -e "bash -c '/home/cohrint-skynet/Desktop/MDRS/Start_UI.sh;$SHELL'"
+Terminal=true
+Type=Application

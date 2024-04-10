@@ -7,7 +7,7 @@ import PyQt5.QtGui as QtGui
 import PyQt5.QtCore as QtCore
 import numpy as np
 import qdarktheme
-from PIL import Image as pil_image
+import utm
 
 import rospy
 from sensor_msgs.msg import Image
@@ -168,9 +168,9 @@ class InterfaceImpl(BaseInterface):
             self.gps_connected = self.mission_time
 
             if type(msg) == NavSatFix:
-                # TODO lla -> utm conversion here
-                self.position.x = msg.longitude - self.zero[0]
-                self.position.y = msg.latitude - self.zero[1]
+                xx, yy, zn, zl = utm.from_latlon(msg.latitude, msg.longitude)
+                self.position.x = xx - self.zero[0]
+                self.position.y = yy - self.zero[1]
                 self.position.z = 0.01#msg.altitude
             else:
                 pose, angle = extract_pose_msg(msg)

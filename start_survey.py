@@ -33,11 +33,14 @@ if __name__ == '__main__':
 
     todo = []
     label = 'TODO'
-    if args.type == 'before':
+    if args.type == 'before' or args.type == 'mdrs_before':
         todo = ['trust']
         label = 'BEFORE'
     if args.type == 'after':
         todo = ['trust', 'usability', 'demographics']
+        label = 'AFTER'
+    if args.type == 'mdrs_after':
+        todo = ['trust', 'usability', 'decisions', 'thoughts', 'demographics']
         label = 'AFTER'
     if args.type == 'decisions':
         todo = ['decisions']
@@ -59,11 +62,6 @@ if __name__ == '__main__':
         available_surveys.append(run_usability)
         available_recorders.append(UsabilityRecorder(os.path.join(settings.record_path, fname)))
 
-    if 'demographics' in todo:
-        fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_demographics_survey.csv'
-        available_surveys.append(run_demographics)
-        available_recorders.append(DemographicsRecorder(os.path.join(settings.record_path, fname)))
-
     if 'decisions' in todo:
         fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_decisions_survey.csv'
         available_surveys.append(run_decisions)
@@ -73,6 +71,13 @@ if __name__ == '__main__':
         fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_thoughts_survey.csv'
         available_surveys.append(run_thoughts)
         available_recorders.append(QuestionsRecorder(os.path.join(settings.record_path, fname)))
+
+    #TODO last thoughts on the mission, anything else..
+
+    if 'demographics' in todo:
+        fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_demographics_survey.csv'
+        available_surveys.append(run_demographics)
+        available_recorders.append(DemographicsRecorder(os.path.join(settings.record_path, fname)))
 
     qdarktheme.enable_hi_dpi()
     app = QtWidgets.QApplication(sys.argv)
