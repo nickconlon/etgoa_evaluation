@@ -23,7 +23,7 @@ class CameraWrapper:
     def read(self):
         retval, frame = self.cap.read()
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        left_right_image = np.split(frame, 2, axis=1)
+        left_right_image = [frame, frame]#np.split(frame, 2, axis=1)
         return frame, left_right_image
 
 if __name__ == '__main__':
