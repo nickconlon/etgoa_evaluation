@@ -119,11 +119,11 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
             self.etgoa.set_pred_paths([self.rollout_path.format(i) for i in range(10)])
             self.rollout_thread = None
             self.et_goa_threshold = settings.et_goa_threshold
-        self.objective_2_text.setText('Complete mission within 2 hrs')
+        self.objective_2_text.setText('Complete mission within 1 hrs')
         self.objective_3_text.setText(self.objective_3_text.text().replace('X %', '50%'))
         self.mqa = [0] * len(settings.et_goa_stds)
         self.goa = [0] * 5  # []
-        self.max_mission_time = 120 * 60
+        self.max_mission_time = 60 * 60
 
         #################
         # Setup the mission control panel

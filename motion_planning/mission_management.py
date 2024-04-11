@@ -14,8 +14,8 @@ class MissionManager:
     OUTDOOR = 'outdoor'
 
     def __init__(self, mission_area_image_path, projector, pois, obstructions, hazards, power_draws, capture_dist):
-        area_miny, area_maxy, area_minx, area_maxx = -50, 50, -50, 50
-        self.display_bounds = [-55, 55, -55, 55]  # minx, maxx, miny, maxy
+        area_miny, area_maxy, area_minx, area_maxx = -20, 20, -20, 20
+        self.display_bounds = [-21, 21, -21, 21]  # minx, maxx, miny, maxy
         self.capture_dist = capture_dist
         self.projector = projector
         self.pois = {poi.name: poi for poi in pois}
