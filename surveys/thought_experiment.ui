@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1859</width>
-    <height>839</height>
+    <height>861</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,8 +18,8 @@
     <rect>
      <x>10</x>
      <y>20</y>
-     <width>1291</width>
-     <height>801</height>
+     <width>1311</width>
+     <height>831</height>
     </rect>
    </property>
    <property name="frameShape">
@@ -46,7 +46,7 @@
      <enum>QFrame::NoFrame</enum>
     </property>
     <property name="text">
-     <string>Please read the following scenario and answer the questions.Click Submit when you are done:</string>
+     <string>Please read the following scenario and answer the questions. Click Submit when you are done:</string>
     </property>
     <property name="wordWrap">
      <bool>true</bool>
@@ -57,8 +57,8 @@
      <rect>
       <x>20</x>
       <y>40</y>
-      <width>1251</width>
-      <height>231</height>
+      <width>1281</width>
+      <height>281</height>
      </rect>
     </property>
     <property name="font">
@@ -70,7 +70,7 @@
      <enum>QFrame::NoFrame</enum>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Imagine that are the suprevisor of a robotic exploration mission, and tasked to explore and take measurements of an area, we'll call it Area A. You assign the robot a task, &amp;quot;drive to Area A, and look for deposits of minerals, try to avoid hazardous craters, and return within 2 hours.&amp;quot; Here, the mission goals are (1) to drive to Area A, (2) to search for minerals, (3) avoid craters, and (4) to complete the mission with 2 hours. You are charged with deciding if the robot should attempt this task. You must balance the value in exploring Area A with the potential costs of failing the mission (e.g., damage to the robot, etc.). &lt;/p&gt;&lt;p&gt;To help with your decision making, the robot can report to you how confident it is in achieving each of those four mission goals. Here, the robot reports back: &amp;quot;&lt;span style=&quot; font-style:italic;&quot;&gt;Highly Likely&lt;/span&gt; to driving to Area A, &lt;span style=&quot; font-style:italic;&quot;&gt;Highly Likely&lt;/span&gt; to find the minerals, &lt;span style=&quot; font-style:italic;&quot;&gt;Even Chance&lt;/span&gt; to avoid hazardous craters, and &lt;span style=&quot; font-style:italic;&quot;&gt;Unlikely&lt;/span&gt; to complete the mission within 2 hours.&amp;quot; Given this scenario, please answer the following three questions:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You will be the suprevisor of a robotic exploration mission, and paired with the robot on the right. This robot is build for off roading - it has GPS navigation, cameras, and is capable of driving autonomously or through remote control. Before working with the live robot, please think about and respond to the following scenario:&lt;/p&gt;&lt;p&gt;Imagine you and the robot must explore and take measurements of an area, we'll call it Area A. You assign the robot a task, &amp;quot;drive to Area A, and look for deposits of minerals, try to avoid hazardous craters, and return within 1 hour.&amp;quot; Here, the mission goals are (1) to drive to Area A, (2) to search for minerals, (3) avoid craters, and (4) to return home with 1 hour. You are charged with deciding if the robot should attempt this task. You must balance the value in exploring Area A with the potential costs of failing the mission (e.g., damage to the robot, etc.). &lt;/p&gt;&lt;p&gt;To help with your decision making, the robot can report to you how confident it is in achieving each of those four mission goals. Here, the robot reports back: &amp;quot;&lt;span style=&quot; font-style:italic;&quot;&gt;Highly Likely&lt;/span&gt; to drive to Area A, &lt;span style=&quot; font-style:italic;&quot;&gt;Highly Likely&lt;/span&gt; to find minerals, &lt;span style=&quot; font-style:italic;&quot;&gt;Even Chance&lt;/span&gt; to avoid hazardous craters, and &lt;span style=&quot; font-style:italic;&quot;&gt;Unlikely&lt;/span&gt; to complete the mission within 1 hour.&amp;quot; Given this scenario, please answer the following three questions:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="wordWrap">
      <bool>true</bool>
@@ -80,7 +80,7 @@
     <property name="geometry">
      <rect>
       <x>60</x>
-      <y>270</y>
+      <y>330</y>
       <width>1061</width>
       <height>51</height>
      </rect>
@@ -94,7 +94,7 @@
      <enum>QFrame::NoFrame</enum>
     </property>
     <property name="text">
-     <string>(1) Would, and how would, you use the robot's report of confidence (Highly Likely, Likely, Even Chance, Unlikely, Highly Unlikely etc.) in meeting the mission objectives? </string>
+     <string>(1) Would (and how would) you use the robot's report of confidence (Highly Likely, Likely, Even Chance, Unlikely, Highly Unlikely etc.) in meeting the mission objectives?</string>
     </property>
     <property name="wordWrap">
      <bool>true</bool>
@@ -104,7 +104,7 @@
     <property name="geometry">
      <rect>
       <x>60</x>
-      <y>450</y>
+      <y>500</y>
       <width>1061</width>
       <height>51</height>
      </rect>
@@ -118,7 +118,7 @@
      <enum>QFrame::NoFrame</enum>
     </property>
     <property name="text">
-     <string>(2) What additional information or reasoning would you want the robot to report along with the confidence?</string>
+     <string>(2) What additional information or reasoning would you want the robot to provide along with its confidence?</string>
     </property>
     <property name="wordWrap">
      <bool>true</bool>
@@ -128,8 +128,8 @@
     <property name="geometry">
      <rect>
       <x>60</x>
-      <y>330</y>
-      <width>1061</width>
+      <y>390</y>
+      <width>1091</width>
       <height>111</height>
      </rect>
     </property>
@@ -138,8 +138,8 @@
     <property name="geometry">
      <rect>
       <x>60</x>
-      <y>500</y>
-      <width>1061</width>
+      <y>550</y>
+      <width>1091</width>
       <height>111</height>
      </rect>
     </property>
@@ -148,7 +148,7 @@
     <property name="geometry">
      <rect>
       <x>60</x>
-      <y>620</y>
+      <y>660</y>
       <width>1061</width>
       <height>51</height>
      </rect>
@@ -172,8 +172,8 @@
     <property name="geometry">
      <rect>
       <x>60</x>
-      <y>670</y>
-      <width>1061</width>
+      <y>710</y>
+      <width>1091</width>
       <height>111</height>
      </rect>
     </property>
@@ -181,8 +181,8 @@
    <widget class="QPushButton" name="submit_button">
     <property name="geometry">
      <rect>
-      <x>1140</x>
-      <y>720</y>
+      <x>1170</x>
+      <y>760</y>
       <width>131</width>
       <height>61</height>
      </rect>
@@ -200,7 +200,7 @@
   <widget class="QLabel" name="label_6">
    <property name="geometry">
     <rect>
-     <x>1320</x>
+     <x>1330</x>
      <y>150</y>
      <width>521</width>
      <height>491</height>

@@ -11,6 +11,7 @@ class Popup(QtWidgets.QDialog, Ui_Survey):
     def __init__(self, prompt, section, number, total):
         QtWidgets.QDialog.__init__(self)
         self.setupUi(self)
+        self.label_2.setText("Please answer the following question about your robot partner")
         self.results = ''
         self.prompt_text.setText(prompt)
         self.section_text.setText(section)

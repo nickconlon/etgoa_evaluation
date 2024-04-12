@@ -1,5 +1,5 @@
 import traceback
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtGui
 import time
 import numpy as np
 import PyQt5.QtCore as QtCore
@@ -11,6 +11,7 @@ class Popup(QtWidgets.QDialog, Ui_Form):
     def __init__(self):
         QtWidgets.QDialog.__init__(self)
         self.setupUi(self)
+        self.label_7.setPixmap(QtGui.QPixmap("./imgs/ui_annotated.jpg"))
         self.results = []
         self.submit_button.clicked.connect(self.capture_response)
 

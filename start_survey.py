@@ -34,13 +34,13 @@ if __name__ == '__main__':
     todo = []
     label = 'TODO'
     if args.type == 'before' or args.type == 'mdrs_before':
-        todo = ['trust']
+        todo = ['demographics', 'thoughts', 'trust']
         label = 'BEFORE'
     if args.type == 'after':
         todo = ['trust', 'usability', 'demographics']
         label = 'AFTER'
     if args.type == 'mdrs_after':
-        todo = ['trust', 'usability', 'decisions', 'thoughts', 'demographics']
+        todo = ['trust', 'usability', 'decisions']
         label = 'AFTER'
     if args.type == 'decisions':
         todo = ['decisions']
@@ -52,32 +52,31 @@ if __name__ == '__main__':
     available_recorders = []
 
     print('Starting survey for {}'.format(args.type))
-    if 'trust' in todo:
-        fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_trust_survey_{}_{}.csv'.format(label, args.condition)
-        available_surveys.append(run_trust)
-        available_recorders.append(TrustRecorder(os.path.join(settings.record_path, fname)))
+    for item in todo:
+        if item == 'trust':
+            fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_trust_survey_{}_{}.csv'.format(label, args.condition)
+            available_surveys.append(run_trust)
+            available_recorders.append(TrustRecorder(os.path.join(settings.record_path, fname)))
 
-    if 'usability' in todo:
-        fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_usability_survey_{}.csv'.format(args.condition)
-        available_surveys.append(run_usability)
-        available_recorders.append(UsabilityRecorder(os.path.join(settings.record_path, fname)))
+        if item == 'usability':
+            fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_usability_survey_{}.csv'.format(args.condition)
+            available_surveys.append(run_usability)
+            available_recorders.append(UsabilityRecorder(os.path.join(settings.record_path, fname)))
 
-    if 'decisions' in todo:
-        fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_decisions_survey.csv'
-        available_surveys.append(run_decisions)
-        available_recorders.append(QuestionsRecorder(os.path.join(settings.record_path, fname)))
+        if item == 'decisions':
+            fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_decisions_survey.csv'
+            available_surveys.append(run_decisions)
+            available_recorders.append(QuestionsRecorder(os.path.join(settings.record_path, fname)))
 
-    if 'thoughts' in todo:
-        fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_thoughts_survey.csv'
-        available_surveys.append(run_thoughts)
-        available_recorders.append(QuestionsRecorder(os.path.join(settings.record_path, fname)))
+        if item == 'thoughts':
+            fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_thoughts_survey.csv'
+            available_surveys.append(run_thoughts)
+            available_recorders.append(QuestionsRecorder(os.path.join(settings.record_path, fname)))
 
-    #TODO last thoughts on the mission, anything else..
-
-    if 'demographics' in todo:
-        fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_demographics_survey.csv'
-        available_surveys.append(run_demographics)
-        available_recorders.append(DemographicsRecorder(os.path.join(settings.record_path, fname)))
+        if item == 'demographics':
+            fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_demographics_survey.csv'
+            available_surveys.append(run_demographics)
+            available_recorders.append(DemographicsRecorder(os.path.join(settings.record_path, fname)))
 
     qdarktheme.enable_hi_dpi()
     app = QtWidgets.QApplication(sys.argv)

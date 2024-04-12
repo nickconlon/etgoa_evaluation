@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(1687, 850)
+        Form.resize(1678, 850)
         self.submit_button = QtWidgets.QPushButton(Form)
         self.submit_button.setGeometry(QtCore.QRect(1010, 780, 121, 61))
         font = QtGui.QFont()
@@ -149,6 +149,13 @@ class Ui_Form(object):
         font.setPointSize(14)
         self.q2_map_check.setFont(font)
         self.q2_map_check.setObjectName("q2_map_check")
+        self.label_7 = QtWidgets.QLabel(Form)
+        self.label_7.setGeometry(QtCore.QRect(990, 240, 661, 371))
+        self.label_7.setFrameShape(QtWidgets.QFrame.Box)
+        self.label_7.setText("")
+        self.label_7.setPixmap(QtGui.QPixmap("../imgs/ui_annotated.jpg"))
+        self.label_7.setScaledContents(True)
+        self.label_7.setObjectName("label_7")
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
