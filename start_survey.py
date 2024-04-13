@@ -1,12 +1,9 @@
-import traceback
 from PyQt5 import QtWidgets
 import time
-import numpy as np
 import sys
 import argparse
 import os
 from datetime import datetime
-from PyQt5.QtWidgets import QMessageBox
 import qdarktheme
 
 from surveys.trust_survey_popup import run_survey_popup_online as run_trust
@@ -15,6 +12,7 @@ from surveys.demographics_survey_popup import run_survey_popup_online as run_dem
 from surveys.decision_making_popup import run_survey_popup_online as run_decisions
 from base_interface.settings import Settings
 from surveys.thought_exp_popup import run_survey_popup_online as run_thoughts
+from surveys.final_thoughts_popup import run_survey_popup_online as run_final
 from analysis.data_recorder import UsabilityRecorder, TrustRecorder, DemographicsRecorder, QuestionsRecorder
 
 if __name__ == '__main__':
@@ -40,7 +38,7 @@ if __name__ == '__main__':
         todo = ['trust', 'usability', 'demographics']
         label = 'AFTER'
     if args.type == 'mdrs_after':
-        todo = ['trust', 'usability', 'decisions']
+        todo = ['trust', 'usability', 'decisions', 'final']
         label = 'AFTER'
     if args.type == 'decisions':
         todo = ['decisions']
@@ -77,6 +75,10 @@ if __name__ == '__main__':
             fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_demographics_survey.csv'
             available_surveys.append(run_demographics)
             available_recorders.append(DemographicsRecorder(os.path.join(settings.record_path, fname)))
+        if item == 'final':
+            fname = datetime.now().strftime("%Y%m%d_%H%M%S") + '_final_survey.csv'
+            available_surveys.append(run_final)
+            available_recorders.append(QuestionsRecorder(os.path.join(settings.record_path, fname)))
 
     qdarktheme.enable_hi_dpi()
     app = QtWidgets.QApplication(sys.argv)
