@@ -222,8 +222,8 @@ class MissionManager:
         rotated_marker._transform = rotated_marker.get_transform().rotate_deg(robot_h)
         plt.scatter([robot_x], [robot_y], marker=rotated_marker, s=600, facecolors='b', edgecolors='b', zorder=20)
 
-        plt.ylabel('y (m)')
-        plt.xlabel('x (m)')
+        plt.ylabel('y (m) Northing')
+        plt.xlabel('x (m) Easting')
 
         lines = [Line2D([], [], color="white", marker=u'$\u2191$', markersize=10, markeredgecolor='b', markerfacecolor="blue")]
         descriptions = ['Robot Position']

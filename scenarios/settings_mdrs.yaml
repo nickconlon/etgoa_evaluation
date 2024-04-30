@@ -17,7 +17,7 @@ longitude_center: 105.24432153
 capture_dist: 0.5
 anomalies: false
 et_goa_threshold: 0.05
-et_goa_stds: [0.75, 0.75, 0.2, 0.5]
+et_goa_stds: [2.0, 2.0, 1.0, 1.0]
 batt_drain_anomaly: 0.01388888
 num_backup_batteries: 10
 speed_anomaly: 0.25

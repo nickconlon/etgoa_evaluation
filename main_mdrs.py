@@ -86,10 +86,10 @@ class InterfaceImpl(BaseInterface):
         self.teleoperation_timer = QtCore.QTimer()
         self.teleoperation_timer.timeout.connect(self.teleop_action)
 
-        self.forward_button_2.pressed.connect(lambda: self.teleop_press(0.25, 0))
+        self.forward_button_2.pressed.connect(lambda: self.teleop_press(0.50, 0))
         self.forward_button_2.released.connect(lambda: self.teleop_release())
 
-        self.back_button_2.pressed.connect(lambda: self.teleop_press(-0.25, 0))
+        self.back_button_2.pressed.connect(lambda: self.teleop_press(-0.50, 0))
         self.back_button_2.released.connect(lambda: self.teleop_release())
 
         self.left_button_2.pressed.connect(lambda: self.teleop_press(0, 0.25))

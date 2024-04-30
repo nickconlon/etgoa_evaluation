@@ -209,10 +209,10 @@ class WaypointFollower:
 
             # Calculate command velocities
             if abs(angle_err) > 0.05:  # Only rotate
-                self.rot_cmd_vel = np.minimum(angle_err * self.K1, self.max_speed)
+                self.rot_cmd_vel = np.minimum(angle_err * self.K1, self.max_speed * 0.5)
                 self.pose_cmd_vel = 0
             else:  # Rotate and move
-                self.rot_cmd_vel = np.minimum(angle_err * self.K1, self.max_speed)
+                self.rot_cmd_vel = np.minimum(angle_err * self.K1, self.max_speed * 0.5)
                 self.pose_cmd_vel = np.minimum(self.dist_err * self.K2, self.max_speed)
 
     def reset(self):
