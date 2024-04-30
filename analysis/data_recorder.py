@@ -60,8 +60,6 @@ class QuestionsRecorder:
     def record(self, responses, timestamp):
         for r in responses:
             self.recorder.record([r, timestamp])
-        row = [*responses, timestamp]
-        self.recorder.record(row)
 
 
 class DemographicsRecorder:
