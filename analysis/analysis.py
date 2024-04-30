@@ -285,7 +285,10 @@ def plot_trust_survey_responses(conditions, base='../data/', show=True):
         for p in after_paths:
             df = pd.read_csv(p)
             results = df['score'].to_numpy()
-            after_scores.append(results[0])
+            if len(results) > 0 and results[0] > 0:
+                after_scores.append(results[0])
+            else:
+                print('bad result ', p)
 
         data[c] = [before_scores, after_scores]
 
@@ -313,7 +316,10 @@ def plot_usability_scores(conditions, base='../data/', show=True):
         for p in paths:
             df = pd.read_csv(p)
             results = df['score'].to_numpy()
-            scores.append(results[0])
+            if len(results) > 0:
+                scores.append(results[0])
+            else:
+                print('bad result ', p)
         data[c] = scores
 
     plot_data = []
@@ -370,7 +376,7 @@ def plot_secondary_performance(conditions, base='../data/', show=True):
             [a_data.append(c) for c in distances]
             [t_data.append(c) for c in ts]
             c_data.append(len(corr[corr > 0])/(len(corr)+misses))
-            skip_data.append(misses)
+            skip_data.append(misses/(len(corr)+misses))
             # TODO percentage correct correct/wrong
         accuracy[condition] = a_data
         times[condition] = t_data
@@ -420,10 +426,9 @@ def plot_secondary_performance(conditions, base='../data/', show=True):
         plot_data.append(v)
         plot_labels.append(k)
     if show:
-        total = np.sum([np.sum(x) for x in plot_data])
-        plt.bar(plot_labels, [np.sum(x)/total*100 for x in plot_data], edgecolor='black', color='white')
-        #plt.errorbar([0, 1, 2], [np.sum(x) for x in plot_data], capsize=10, yerr=[np.std(x) for x in plot_data], fmt='none', color='black', elinewidth=1)
-        plt.ylim(ymin=0)
+        plt.bar(plot_labels, [np.sum(x)*100 for x in plot_data], edgecolor='black', color='white')
+        plt.errorbar([0, 1, 2], [np.sum(x)*100 for x in plot_data], capsize=10, yerr=[np.std(x) for x in plot_data], fmt='none', color='black', elinewidth=1)
+        plt.ylim(ymin=0, ymax=100)
         plt.title('Secondary task skips')
         plt.ylabel('% skipped')
         plt.show()
@@ -587,6 +592,63 @@ def plot_demographics(base, show=True):
         plt.tight_layout()
         plt.show()
 
+def plot_decisions():
+    paths = glob.glob(os.path.join(base, '*_decisions_survey.csv'))
+    print('********** DURING PLANNING ******************')
+    map = 0
+    telem = 0
+    camera = 0
+    assmt = 0
+    other = 0
+    for p in paths:
+        df = pd.read_csv(p)
+        responses = df['response'].to_list()
+        if len(responses) > 5:
+            map = map + 1 if responses[0] == 'True' else map
+            telem = telem + 1 if responses[1] == 'True' else telem
+            camera = camera + 1 if responses[2] == 'True' else camera
+            assmt = assmt + 1 if responses[3] == 'True' else assmt
+            other = other + 1 if responses[4] == 'True' else other
+            if type(responses[5]) is str:
+                print(responses[5])
+        else:
+            print('bad response ', p)
+
+    plot_labels = ['Map', 'Telem', 'Cam', 'Assmt', 'Other']
+    plot_data = [map, telem, camera, assmt, other]
+    plt.bar(plot_labels, plot_data, edgecolor='black', color='white')
+    plt.title('Widget usage during planning')
+    plt.show()
+
+    print('********** DURING EXECUTION ******************')
+    map = 0
+    telem = 0
+    camera = 0
+    assmt = 0
+    other = 0
+    for p in paths:
+        df = pd.read_csv(p)
+        responses = df['response'].to_list()
+        if len(responses) > 5:
+            map = map + 1 if responses[6] == 'True' else map
+            telem = telem + 1 if responses[7] == 'True' else telem
+            camera = camera + 1 if responses[8] == 'True' else camera
+            assmt = assmt + 1 if responses[9] == 'True' else assmt
+            other = other + 1 if responses[10] == 'True' else other
+            if type(responses[5]) is str:
+                print(responses[5])
+        else:
+            print('bad response ', p)
+
+    plot_labels = ['Map', 'Telem', 'Cam', 'Assmt', 'Other']
+    plot_data = [map, telem, camera, assmt, other]
+    plt.bar(plot_labels, plot_data, edgecolor='black', color='white')
+    plt.title('Widget usage during execution')
+    plt.show()
+
+
+
+
 
 def single_csv():
     header = ['userid', 'condition', 'mean primary response time', 'mean primary objectives complete',
@@ -630,14 +692,14 @@ def single_csv():
 if __name__ == '__main__':
     #single_csv()
     #print(0/0)
-    base = '../data/mixed/'
+    base = '../data/'
     experimental_conditions = ['TELEM', 'GOA', 'ET-GOA']
     # Primary navigation and exploration task
     d1 = plot_anomaly_response_time(experimental_conditions, base=base)
     d2 = plot_mission_objectives(experimental_conditions, base=base)
 
     # Secondary task
-    acc, tim, corr, skips = plot_secondary_performance(experimental_conditions, base=base)
+    d3, d4, correct, skips = plot_secondary_performance(experimental_conditions, base=base)
 
     # Surveys
     d5 = plot_trust_survey_responses(experimental_conditions, base=base)
@@ -646,6 +708,7 @@ if __name__ == '__main__':
     # Demographics
     plot_demographics(base=base)
 
+    #plot_decisions()
     #test = []
     #p_telem = np.asarray(d2['TELEM']) * 1/(1+np.asarray(d1['TELEM'])) + np.asarray(corr['TELEM']) * 1/(1+np.asarray(skips['TELEM']))
     #p_goa = [0]#np.asarray(d2['GOA']) * 1/(1+np.asarray(d1['GOA'])) + np.asarray(corr['GOA']) * 1/(1+np.asarray(skips['GOA']))
