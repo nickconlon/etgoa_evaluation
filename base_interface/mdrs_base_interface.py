@@ -640,7 +640,7 @@ class BaseInterface(QMainWindow, Ui_MainWindow):
                     self.rollout_thread.known_obstacles = self.mission_manager.get_all_active_visible_obstacles()
                     self.rollout_thread.time_offset = self.mission_time
                     self.rollout_thread.max_time = self.max_mission_time
-                    if self.experiencing_anomaly and trigger == 'et_goa':
+                    if trigger == 'et_goa':
                         # During mission execution, parameter values may have changed
                         self.rollout_thread.velocity_rate = float(np.mean(np.asarray(self.mean_velocity)) / 0.25)
                         self.rollout_thread.battery_rate = float(np.mean(np.asarray(self.mean_battery)))
