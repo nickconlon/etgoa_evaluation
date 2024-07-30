@@ -979,7 +979,6 @@ def make_csvs(primary_data, secondary_data):
         secondary_skips = misses# / (len(corr) + misses)
 
     except Exception as e:
-        traceback.print_exc()
         print('failure on ', primary_data)
     return [userid, condition, scenario, completion_time,
             np.mean(primary_timing), outcomes,
