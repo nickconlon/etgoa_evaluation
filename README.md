@@ -14,6 +14,18 @@ This project extends our previous work here:
 
 [Generalizing Competency Self-Assessment for Autonomous Vehicles Using Deep Reinforcement Learning](https://arc.aiaa.org/doi/10.2514/6.2022-2496)
 
+### Notes
+This branch is an extension of the main (controlled lab study) to a field deployment and evaluation of
+the ET-GOA algorithm. 
+
+The scripts in [here](/app_scripts) were used to set up and run the study:
+- start/stop questionnaires
+- connect/disconnect components (camera, gps, robot, ui, etc.)
+
+Alternatively, following the directions here should also work. Note that crashes will likely be caused
+by lack of peripherals (gps + camera). 
+
+
 ### Installation
 Ubuntu 20.04
 
