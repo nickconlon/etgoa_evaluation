@@ -14,6 +14,11 @@ This project extends our previous work here:
 
 [Generalizing Competency Self-Assessment for Autonomous Vehicles Using Deep Reinforcement Learning](https://arc.aiaa.org/doi/10.2514/6.2022-2496)
 
+
+### Versions (branches)
+main: Controlled laboratory study of the ET-GOA algorithm.
+mdrs: Updates to support a two-week field deployment of the system.
+
 ### Installation
 Ubuntu 20.04
 
