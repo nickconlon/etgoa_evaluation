@@ -9,8 +9,8 @@ class Metrics:
     @staticmethod
     def logistic(x, x0=0, L=2, k=0.3, vert_shift=0):
         """
-        Logistic with x0=0 is a sigmoid.
-        https://en.wikipedia.org/wiki/Logistic_function
+        Logistic with x0=0 is a sigmoid.  https://en.wikipedia.org/wiki/Logistic_function
+
         :param k:   logistic growth rate
         :param x:   x value
         :param x0:  x value of midpoint
@@ -118,81 +118,6 @@ class FaMSeC:
             o = Metrics.logistic(upm - lpm, L=1, k=0.09)
 
         return o
-
-    @staticmethod
-    def model_quality(predicted_dist, action_obs):
-        """
-        Calculate the model quality metric based on predicted and actual data
-
-        :param predicted_dist:  distribution of predicted values
-        :param action_obs:      single actual observation
-        :return:                the surprise of the observation given the predictions in the range [0, 1]
-        """
-        kernel = stats.gaussian_kde(predicted_dist, bw_method='scott')
-        xx = np.linspace(min(predicted_dist) - 10, max(predicted_dist) + 10, 500)
-        smaller = np.where(kernel(xx) < kernel(action_obs))
-        p_actual = kernel(action_obs)[0]
-        p_distribution = kernel(xx)
-        p_distribution_smaller = p_distribution[smaller]
-
-        surprise = np.trapz(p_distribution_smaller, xx[smaller])
-
-        if True:
-            import matplotlib.pyplot as plt
-            plt.plot(xx, p_distribution)
-            plt.hist(predicted_dist, density=True)
-            plt.plot([action_obs, action_obs], [0, p_actual], color='red', linewidth=3)
-            plt.plot(xx[smaller], p_distribution_smaller)
-            plt.title('SI={:.2f}'.format(surprise))
-            plt.show()
-        return surprise
-
-    @staticmethod
-    def pt_outcome_assessment(self, distribution, r_star):
-        alpha = 0.88
-        a = 0.5  # 0.88
-        b = 0.88
-        l = 2.25
-        g = 0.69
-        gamma = 0.69
-
-        def v_function(R):
-            """
-            transformed reward function
-            "humans tend to perceive the slope between large rewards to be smaller than the slope between small ones"
-            :param R: reward
-            :return:
-            """
-            if R >= 0:
-                return R ** a
-            else:
-                return -l * np.abs(R) ** b
-                # return -1 * np.abs(R) ** 1
-
-        def w_function(p):
-            """
-            transformed probability function
-            "humans tend to underweight large probabilities and overweight smaller ones"
-            :param p:
-            :return:
-            """
-            return (p ** g) / (p ** g + (1 - p) ** g) ** (1 / g)
-            # return (p ** 1) / (p ** 1 + (1 - p) ** 1) ** (1 / 1)
-
-        def cpt_single_point(p, u):
-            return w_function(p) * v_function(u)
-
-        hist, bins = np.histogram(a=distribution, density=True, bins=10)
-        bin_means = []
-        print("less: ", len(distribution[distribution <= 0]))
-        for i in range(len(bins) - 1):
-            bin_means.append(np.mean(bins[i:i + 2]))
-        hist = hist / np.sum(hist)
-        utility = 0.0
-        for i in range(len(bin_means)):
-            utility += cpt_single_point(bin_means[i], hist[i])
-
-        return Metrics.logistic(utility)
 
 
 def assess_rollouts(distribution, bins, z_star):

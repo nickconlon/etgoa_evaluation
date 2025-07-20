@@ -15,30 +15,17 @@ def min_diff_pos_sorted(sorted_array, target):
     return np.abs(np.array(sorted_array[idx1:idx + 1]) - target).argmin() + idx1
 
 
-def preprocess_predicted(predicted_paths):
-    predicted_states = [np.load(d, allow_pickle=True) for d in predicted_paths]
-    for idx, x in enumerate(predicted_states):
-        for iidx, y in enumerate(x):
-            predicted_states[idx][iidx, 8] = len(y[8])
-        predicted_states[idx] = predicted_states[idx].astype('float64')
-    max_len = np.max([len(x) for x in predicted_states])
-    preprocessed = np.zeros((max_len, 8)) * np.nan
-    indexes = [11, 0, 1, 7]  # mission time, px, py, speed
-    for t in range(max_len):
-        data = []
-        for i in indexes:
-            d1 = []
-            for pred in predicted_states:
-                if t >= pred.shape[0]:
-                    continue
-                d1.append(pred[t, i])
-            data.append([np.mean(d1), np.std(d1)])
-        preprocessed[t] = np.array(data).flatten()
-    #  [t_mu, t_std, x_mu, x_std, y_mu, y_std, speed_mu, speed_std]
-    return preprocessed
-
-
 def gaussian_si_1d(pred_mu, pred_std, actual, min_std=1.0, plot=False):
+    """
+    Compute a Surprise Index (SI) for Gaussian 1D distribution.
+
+    :param pred_mu:     Predicted state mean
+    :param pred_std:    Predicted state standard deviation
+    :param actual:      Actual state
+    :param min_std:     Minimum state standard deviation (inflation term)
+    :param plot:        Will render plots if True, wont' otherwise
+    :return:            SI for each state element [SI(x), SI(y), SI(v), SI(b)]
+    """
     if pred_std == 0:
         return 0
     _myclip_a = min(actual - 10, pred_mu - 10)
@@ -67,6 +54,14 @@ def gaussian_si_1d(pred_mu, pred_std, actual, min_std=1.0, plot=False):
 
 
 def kde_assessment(actual, predicted, ax=None):
+    """
+    Compute a Surprise Index (SI) using KDE for non-parametric distributions.
+
+    :param actual:      Actual state
+    :param predicted:   Predicted state
+    :param ax:          Axis for plotting
+    :return:            SI metric
+    """
     dpredicted = predicted[~np.isnan(predicted)]
     if len(dpredicted) == 0:
         return 0.0
@@ -91,6 +86,9 @@ def kde_assessment(actual, predicted, ax=None):
 
 
 class et_goa:
+    """
+    Simple class to demonstrate the ET-GOA algorithm.
+    """
     def __init__(self, min_stds):
         self.pred_paths = None
         self.data = None
@@ -101,12 +99,27 @@ class et_goa:
         self.indices = [11, 0, 1, 7, 8]  # mission time, px, py, speed, battery
 
     def has_data(self):
+        """
+        True if World Model data is set False otherwise.
+        """
         return self.data is not None
 
     def set_pred_paths(self, paths):
+        """
+        Set World Model rollout dataset paths.
+
+        :param paths: string path to dataset
+        """
         self.pred_paths = paths
 
     def preprocess(self):
+        """Set ET-GOA's buffer as a set of World Model rollouts.
+
+        Transform a predicted state distribution were
+            s=[t, x, y, speed, battery_level]
+        to:
+            d=[t_mu, t_std, x_mu, x_std, y_mu, y_std, speed_mu, speed_std, batt_mu, batt_std]
+        """
         print('processing rollouts')
         predicted_states = [np.load(d, allow_pickle=True) for d in self.pred_paths]
         for idx, x in enumerate(predicted_states):
@@ -128,14 +141,30 @@ class et_goa:
         self.data = preprocessed
 
     def set_start_time(self, t_start):
+        """
+        Set start time
+
+        :param t_start: Start time seconds
+        """
         if self.t_start is None:
             self.t_start = t_start
             self.data[:, 0] += t_start
 
     def forget_start_time(self):
+        """Reset start time."""
         self.t_start = None
 
     def get_si(self, actual_x, actual_y, actual_v, actual_b, t_now):
+        """
+        Compute the Surprise Index (SI) using some statistical model (here hard coded to Gaussian 1D).
+
+        :param actual_x:    observed x position of the robot
+        :param actual_y:    observed y position of the robot
+        :param actual_v:    observed velocity of the robot
+        :param actual_b:    observed battery level of the robot
+        :param t_now:       current time
+        :return:            SI for each state element [SI(x), SI(y), SI(v), SI(b)]
+        """
         idx = find_nearest(self.data[:, 0], t_now)
         pred = self.data[idx]
         actuals = [actual_x, actual_y, actual_v, actual_b]
